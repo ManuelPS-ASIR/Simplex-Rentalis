@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 # Tabla para los usuarios (Propietarios y Viajeros)
 class User(models.Model):
@@ -82,19 +83,20 @@ class Booking(models.Model):
         return f"Booking for {self.property.title} by {self.traveler.user.username}"
 
 
-from django.db import models
-
-# Modelo para almacenar imágenes de las opiniones
-class ReviewImage(models.Model):
-    # Relación con la opinión a la que pertenece la imagen
-    review = models.ForeignKey('Review', on_delete=models.CASCADE, related_name='images')
-    # Imagen asociada a la opinión
-    image = models.ImageField(upload_to='review_images/')
+# Modelo para almacenar imágenes de las propiedades
+class PropertyImage(models.Model):
+    # Relación con la propiedad a la que pertenece la imagen
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
+    # Imagen asociada a la propiedad
+    image = models.ImageField(upload_to='property_images/')
     # Texto opcional para describir la imagen
     description = models.CharField(max_length=255, blank=True, null=True)
+    # Fecha en que se creó la imagen, se asigna automáticamente
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Image for review {self.review.id}"
+        return f"Image for {self.property.title}"
+
 
 # Tabla para las opiniones
 class Review(models.Model):
@@ -117,7 +119,6 @@ class Review(models.Model):
     def clean(self):
         if self.images.count() < 5:
             raise ValidationError("A review must have at least 5 images.")
-
 
 
 # Tabla para la disponibilidad

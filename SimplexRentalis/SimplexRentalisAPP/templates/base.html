@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mi Aplicación{% endblock %}</title>
+    {% load static %}  <!-- Agrega esta línea para cargar la etiqueta estática -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Asegúrate de que tienes configurado el manejo de archivos estáticos -->
+</head>
+<body>
+    <header>
+        <h1>Muevete por la aplicación</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'index' %}">Inicio</a></li>
+                <li><a href="{% url 'properties' %}">Propiedades</a></li>
+                <!-- Agrega más enlaces según sea necesario -->
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}
+        <!-- El contenido específico de cada página se insertará aquí -->
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Mi Aplicación</p>
+    </footer>
+</body>
+</html>

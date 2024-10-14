@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Propiedades</h2>
+    <ul>
+        {% for properties in object_list %}
+            <li>{{ Property.owner }}</li>
+            <li>{{ title.owner }}</li>
+            <li>{{ description.owner }}</li>
+            <li>{{ location.owner }}</li>
+            <li>{{ created_at.owner }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+{#ASI SE COMENTA, HAZ ALGO CON TU VIDA Y MODIFICA ESTA VISTA#}
