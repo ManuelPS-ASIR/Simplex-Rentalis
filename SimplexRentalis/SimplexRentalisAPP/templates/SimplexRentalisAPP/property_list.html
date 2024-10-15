@@ -3,13 +3,12 @@
 {% block content %}
     <h2>Propiedades</h2>
     <ul>
-        {% for properties in object_list %}
-            <li>{{ Property.owner }}</li>
-            <li>{{ title.owner }}</li>
-            <li>{{ description.owner }}</li>
-            <li>{{ location.owner }}</li>
-            <li>{{ created_at.owner }}</li>
+        {% for property in object_list %}
+            <li><strong>Propietario:</strong> {{ property.owner }}</li>
+            <li><strong>Título:</strong> {{ property.title }}</li>
+            <li><strong>Descripción:</strong> {{ property.description }}</li>
+            <li><strong>Ubicación:</strong> {{ property.location }}</li>
+            <li><strong>Fecha de Creación:</strong> {{ property.created_at }}</li>
         {% endfor %}
     </ul>
 {% endblock %}
-{#ASI SE COMENTA, HAZ ALGO CON TU VIDA Y MODIFICA ESTA VISTA#}
