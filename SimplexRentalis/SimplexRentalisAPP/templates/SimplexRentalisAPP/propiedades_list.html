@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Propiedades</h2>
+    <ul>
+        {% for property in object_list %}
+            <li><strong>Propietario:</strong> {{ Propiedad.owner }}</li>
+            <li><strong>Título:</strong> {{ Propiedad.title }}</li>
+            <li><strong>Descripción:</strong> {{ Propiedad.description }}</li>
+            <li><strong>Ubicación:</strong> {{ Propiedad.location }}</li>
+            <li><strong>Fecha de Creación:</strong> {{ Propiedad.created_at }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

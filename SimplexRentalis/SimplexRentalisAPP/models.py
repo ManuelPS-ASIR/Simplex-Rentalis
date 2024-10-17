@@ -19,6 +19,7 @@ class Propiedad(models.Model):
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     calificacion = models.FloatField(default=0.0)
     porcentaje_reserva = models.DecimalField(max_digits=5, decimal_places=2)
+    visitas = models.IntegerField(default=0)
 
     def __str__(self):
         return self.titulo
