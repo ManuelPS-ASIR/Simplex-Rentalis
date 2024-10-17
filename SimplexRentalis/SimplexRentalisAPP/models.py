@@ -26,11 +26,15 @@ class Propiedad(models.Model):
 
 class Imagen(models.Model):
     propiedad = models.ForeignKey(Propiedad, on_delete=models.CASCADE)
-    url = models.URLField(max_length=255)
+    imagen = models.ImageField(upload_to='imagenes/')  # Change from URLField to ImageField
     es_portada = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.url
+        return f'Imagen de {self.propiedad}'
+
+    def clean(self):
+        # Optional: Validate image size or type if needed
+        pass
 
 
 class Opinion(models.Model):
@@ -39,6 +43,7 @@ class Opinion(models.Model):
     puntuacion = models.IntegerField()
     comentario = models.TextField(blank=True, null=True)
     fecha = models.DateField(auto_now_add=True)
+    imagen = models.ImageField(upload_to='opiniones/', blank=True, null=True)  # New ImageField
 
     class Meta:
         unique_together = ('propiedad', 'usuario')
@@ -46,6 +51,9 @@ class Opinion(models.Model):
     def __str__(self):
         return f'Opinion of {self.usuario} on {self.propiedad}'
 
+    def clean(self):
+        # Optional: Validate image size or type if needed
+        pass
 
 class Reserva(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)

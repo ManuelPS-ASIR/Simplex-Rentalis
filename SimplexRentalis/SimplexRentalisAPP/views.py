@@ -28,4 +28,5 @@ class UserDataView(ListView):
         return context
 
 def index(request):
-    return HttpResponse("Página Index de SimplesRentalisAPP")
+    template_name = "SimplexRentalisAPP/index_view.html"
+    return render(request, template_name)  # Cambia HttpResponse por render
