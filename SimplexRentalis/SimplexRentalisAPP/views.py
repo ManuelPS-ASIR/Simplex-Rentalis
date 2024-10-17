@@ -1,24 +1,24 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
-
 from django.views.generic import ListView
-from SimplexRentalisAPP.models import Property,User
+from SimplexRentalisAPP.models import Usuario, Propiedad  # Asegúrate de usar los nombres correctos
+
 # Create your views here.
+
 class PropertyViews(ListView):
-    model = Property
+    model = Propiedad  # Usa 'Propiedad' en lugar de 'Property'
     context_object_name = "propietarios_de_los_hogares"
-    queryset = Property.objects.all()
-    #Puedo usar queryset para traer solo la información necesario e incluso aplicar filtros
-    template_name="SimplexRentalisAPP/property_list.html"
+    queryset = Propiedad.objects.all()
+    template_name = "SimplexRentalisAPP/property_list.html"  # Asegúrate de que esta plantilla exista
 
 class UserDataView(ListView):
     template_name = "SimplexRentalisAPP/user_data.html"  # Ruta de la plantilla
 
     def get_queryset(self):
         # Captura el username de la URL
-        self.user = get_object_or_404(User, username=self.kwargs["username"])
+        self.user = get_object_or_404(Usuario, username=self.kwargs["username"])  # Usa 'Usuario'
         # Filtra las propiedades por el usuario
-        return Property.objects.filter(owner=self.user)
+        return Propiedad.objects.filter(propietario=self.user)  # Usa 'propietario'
 
     def get_context_data(self, **kwargs):
         # Llama a la implementación base para obtener un contexto

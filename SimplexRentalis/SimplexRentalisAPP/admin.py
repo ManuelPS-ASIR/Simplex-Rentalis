@@ -1,14 +1,12 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import User, Property, Traveler, Booking, Review, Availability, Pricing, PropertyImage
+from .models import Usuario, Propiedad, Imagen, Opinion, Reserva, DocumentoIdentidad
 
 # Registrar cada modelo de forma individual
-admin.site.register(User)
-admin.site.register(Property)
-admin.site.register(Traveler)
-admin.site.register(Booking)
-admin.site.register(Review)
-admin.site.register(Availability)
-admin.site.register(Pricing)
-admin.site.register(PropertyImage)
+admin.site.register(Usuario)
+admin.site.register(Propiedad)
+admin.site.register(Imagen)
+admin.site.register(Opinion)
+admin.site.register(Reserva)
+admin.site.register(DocumentoIdentidad)
