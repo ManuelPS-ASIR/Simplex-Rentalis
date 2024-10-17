@@ -6,11 +6,11 @@ class Command(BaseCommand):
     help = 'Crea datos de prueba en la base de datos'
 
     def handle(self, *args, **kwargs):
-        # Crear usuarios
+        # Crear usuarios con el campo nombre
         usuarios = [
-            Usuario(correo='usuario1@example.com', contrasena='contrasena123', es_propietario=True),
-            Usuario(correo='usuario2@example.com', contrasena='contrasena123', es_propietario=False),
-            Usuario(correo='usuario3@example.com', contrasena='contrasena123', es_propietario=False),
+            Usuario(nombre='Juan', correo='usuario1@example.com', contrasena='contrasena123', es_propietario=True),
+            Usuario(nombre='Ana', correo='usuario2@example.com', contrasena='contrasena123', es_propietario=False),
+            Usuario(nombre='Pedro', correo='usuario3@example.com', contrasena='contrasena123', es_propietario=False),
         ]
         Usuario.objects.bulk_create(usuarios)
 
@@ -24,12 +24,12 @@ class Command(BaseCommand):
                       direccion='Calle de la Naturaleza, 123, Montaña', 
                       descripcion='Una cabaña acogedora con vistas espectaculares.', 
                       precio=150.00, calificacion=4.5, 
-                      porcentaje_reserva=20.00, visitas=100),
+                      porcentaje_reserva=20.00),
             Propiedad(usuario=usuario2, titulo='Apartamento moderno en la ciudad', 
                       direccion='Avenida del Centro, 456, Ciudad', 
                       descripcion='Un apartamento elegante en el corazón de la ciudad.', 
                       precio=200.00, calificacion=4.8, 
-                      porcentaje_reserva=15.00, visitas=150),
+                      porcentaje_reserva=15.00),
         ]
         Propiedad.objects.bulk_create(propiedades)
 
@@ -48,10 +48,10 @@ class Command(BaseCommand):
         opiniones = [
             Opinion(propiedad=propiedad1, usuario=usuario2, puntuacion=5, 
                     comentario='¡Increíble experiencia! Recomendado.', 
-                    imagen='opiniones/opinion1.jpg'),
+                    imagen='opiniones/opinion1.jpg'),  # Cambiar la ruta si es necesario
             Opinion(propiedad=propiedad2, usuario=usuario1, puntuacion=4, 
                     comentario='Muy bien ubicado y cómodo.', 
-                    imagen='opiniones/opinion2.jpg'),
+                    imagen='opiniones/opinion2.jpg'),  # Cambiar la ruta si es necesario
         ]
         Opinion.objects.bulk_create(opiniones)
 

@@ -1,18 +1,20 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-class Usuario(models.Model):
+class Usuarios(models.Model):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=255, default='Sin nombre')  # Aquí defines el valor por defecto
     correo = models.EmailField(max_length=255, unique=True)
     contrasena = models.CharField(max_length=255)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     es_propietario = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.correo
+        return self.nombre
 
 
-class Propiedad(models.Model):
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+class Propiedades(models.Model):
+    usuario = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
     titulo = models.CharField(max_length=255)
     direccion = models.CharField(max_length=255)
     descripcion = models.TextField(blank=True, null=True)
@@ -25,8 +27,8 @@ class Propiedad(models.Model):
         return self.titulo
 
 
-class Imagen(models.Model):
-    propiedad = models.ForeignKey(Propiedad, on_delete=models.CASCADE)
+class Imagenes(models.Model):
+    propiedad = models.ForeignKey(Propiedades, on_delete=models.CASCADE)
     imagen = models.ImageField(upload_to='imagenes/')  # Change from URLField to ImageField
     es_portada = models.BooleanField(default=False)
 
@@ -38,9 +40,9 @@ class Imagen(models.Model):
         pass
 
 
-class Opinion(models.Model):
-    propiedad = models.ForeignKey(Propiedad, on_delete=models.CASCADE)
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+class Opiniones(models.Model):
+    propiedad = models.ForeignKey(Propiedades, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
     puntuacion = models.IntegerField()
     comentario = models.TextField(blank=True, null=True)
     fecha = models.DateField(auto_now_add=True)
@@ -56,9 +58,9 @@ class Opinion(models.Model):
         # Optional: Validate image size or type if needed
         pass
 
-class Reserva(models.Model):
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    propiedad = models.ForeignKey(Propiedad, on_delete=models.CASCADE)
+class Reservas(models.Model):
+    usuario = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
+    propiedad = models.ForeignKey(Propiedades, on_delete=models.CASCADE)
     fecha_entrada = models.DateField()
     fecha_salida = models.DateField()
     adultos = models.IntegerField(default=0)
@@ -76,8 +78,8 @@ class Reserva(models.Model):
         return f'Reserva de {self.usuario} para {self.propiedad}'
 
 
-class DocumentoIdentidad(models.Model):
-    reserva = models.ForeignKey(Reserva, on_delete=models.CASCADE)
+class DocumentosDeIdentidades(models.Model):
+    reserva = models.ForeignKey(Reservas, on_delete=models.CASCADE)
     tipo_documento = models.CharField(max_length=30, choices=[
         ('DNI', 'DNI'),
         ('carnet de conducir', 'Carnet de Conducir'),
