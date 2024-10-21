@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% load static %}
+  <title>{% block title %}Página{% endblock %}</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Enlace al archivo CSS dentro de la carpeta static -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+  <!-- Menú de la hamburguesa en el lateral -->
+  <div id="menu">
+    <span class="hamburguesa">&#9776;</span> <!-- Ícono de hamburguesa -->
+    <a href="#" class="menu-item">Inicio</a>
+    <a href="#" class="menu-item">Servicios</a>
+    <a href="#" class="menu-item">Acerca de</a>
+    <a href="#" class="menu-item">Contacto</a>
+  </div>
+
+  <!-- Barra superior fija -->
+  <div class="navbar">
+    <div class="container-fluid">
+      <button class="btn btn-outline-light btn-login">Iniciar Sesión</button>
+    </div>
+  </div>
+
+  <!-- Contenido principal -->
+  <div id="main-content">
+    {% block content %}
+    <!-- Aquí se incluirá el contenido específico de las plantillas que hereden de base.html -->
+    {% endblock %}
+  </div>
+
+  <!-- Bootstrap JS y dependencias -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

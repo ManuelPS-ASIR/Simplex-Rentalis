@@ -2,18 +2,26 @@
 
 {% block content %}
     <h2>Lista de Propiedades</h2>
-    <ul>
-        {% for propiedad in propiedades %}  <!-- Cambia Propiedades a object_list -->
-            <li><strong>Usuario:</strong> {{ propiedad.usuario }}</li>
-            <li><strong>Título:</strong> {{ propiedad.titulo }}</li>
-            <li><strong>Dirección:</strong> {{ propiedad.direccion }}</li>
-            <li><strong>Descripción:</strong> {{ propiedad.descripcion }}</li>
-            <li><strong>Precio:</strong> {{ propiedad.precio }}</li>
-            <li><strong>Calificación:</strong> {{ propiedad.calificacion }}</li>
-            <li><strong>Porcentaje Reserva:</strong> {{ propiedad.porcentaje_reserva }}</li>
-            <li><strong>Visitas:</strong> {{ propiedad.visitas }}</li>
-        {% empty %}
-            <p>No hay propiedades disponibles.</p>
-        {% endfor %}
-    </ul>
+    <div class="container">
+        <div class="row">
+            {% for propiedad in propiedades %}
+                <div class="col-md-4">  <!-- Cada tarjeta ocupará 4 columnas -->
+                    <div class="card mb-4">
+                        <img src="{{ propiedad.imagen_portada }}" class="card-img-top" alt="{{ propiedad.titulo }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ propiedad.titulo }}</h5>
+                            <p class="card-text">
+                                <strong>Dueño:</strong> {{ propiedad.usuario }}<br>
+                                <strong>Precio:</strong> {{ propiedad.precio }}<br>
+                                <strong>Calificación:</strong> {{ propiedad.calificacion }}
+                            </p>
+                            <a href="{% url 'propiedad_detallada' propiedad.pk %}" class="btn btn-primary">Ver Detalles</a>  <!-- Enlace a la vista de detalle -->
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No hay propiedades disponibles.</p>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

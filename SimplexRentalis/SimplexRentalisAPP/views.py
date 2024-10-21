@@ -5,6 +5,16 @@ from django.views.generic import View,ListView, DetailView
 from .models import Usuarios, Propiedades  # Asegúrate de usar los nombres correctos
 
 # Create your views here.
+class Probando(View):
+    def get(self, request):
+        return render(request, 'SimplexRentalisAPP/probandohtml.html')
+
+def detalle_propiedad(request, propiedad_id):
+    propiedad = Propiedades.objects.get(id=propiedad_id)
+    imagen_portada = propiedad.imagenes.filter(es_portada=True).first()  # Obtiene la imagen portada
+    return render(request, 'detalle_propiedad.html', {'propiedad': propiedad, 'imagen_portada': imagen_portada})
+
+
 class PropiedadesListView(ListView):
     model = Propiedades
     template_name = 'SimplexRentalisAPP/propiedades_list.html'
@@ -12,7 +22,11 @@ class PropiedadesListView(ListView):
 
     def get_queryset(self):
         return Propiedades.objects.all()  # Filtra o retorna todas las propiedades
-
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            for propiedad in context['propiedades']:
+                propiedad.imagen_portada = propiedad.obtener_imagen_portada()  # Añade la imagen de portada al contexto
+            return context
 
 
 # class PropiedadesUsuarioListView(ListView):

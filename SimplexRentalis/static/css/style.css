@@ -1,0 +1,82 @@
+/* Estilos para el contenedor del menú lateral */
+#menu {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 60px;
+    background-color: #333;
+    transition: width 0.3s;
+    overflow-x: hidden;
+    z-index: 1000; /* Asegura que esté sobre la barra superior */
+}
+  
+/* Estilos del icono de hamburguesa */
+#menu:hover {
+    width: 200px;
+}
+
+/* Ocultar los enlaces cuando el menú está colapsado */
+#menu .menu-item {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+/* Mostrar los enlaces cuando el menú se despliega */
+#menu:hover .menu-item {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Estilos de los enlaces del menú */
+.menu-item {
+    padding: 15px;
+    color: white;
+    text-align: left;
+    text-decoration: none;
+    display: block;
+    white-space: nowrap;
+}
+
+.menu-item:hover {
+    background-color: #555;
+}
+
+/* Barra superior fija */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #004080; /* Color de la barra superior */
+    color: white;
+    z-index: 900; /* Asegura que esté debajo del menú lateral */
+    padding: 10px 20px;
+}
+
+/* Botón de iniciar sesión en la barra (alineado a la derecha) */
+.navbar .btn-login {
+    color: white;
+    border: 2px solid white;
+}
+
+.navbar .container-fluid {
+    display: flex;
+    justify-content: flex-end; /* Alinea el botón a la derecha */
+}
+
+/* Ajustar contenido principal para que no esté debajo del menú lateral ni de la barra superior */
+#main-content {
+    margin-left: 60px; /* Espacio para el menú lateral */
+    margin-top: 60px; /* Espacio para la barra superior */
+    padding: 20px;
+}
+
+.hamburguesa {
+    font-size: 30px;
+    color: white;
+    padding: 15px;
+    display: block;
+    cursor: pointer;
+}
