@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from .models import Propiedades
 from .forms import UserRegistrationForm
+from django.contrib import messages
+
 
 # Vista para la página de inicio
 def index(request):
@@ -29,22 +31,38 @@ def propiedades_usuario(request):
 
 # Vista para el registro de usuario
 def register(request):
-    if request.user.is_authenticated:
-        return redirect('/')
-    
     if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('/')
-    else:
-        form = UserRegistrationForm()
+        # Crear una instancia del formulario con los datos del POST y los archivos (para el avatar)
+        formulario = UserRegistrationForm(request.POST, request.FILES)
+        
+        if formulario.is_valid():
+            # Guardar el usuario sin aplicar el hash a la contraseña aún
+            usuario = formulario.save(commit=False)
+            
+            # Establecer la contraseña de forma segura
+            usuario.set_password(formulario.cleaned_data['contraseña'])
+            
+            # Guardar el usuario con la contraseña ya hasheada
+            usuario.save()
+            
+            # Mostrar un mensaje de éxito
+            messages.success(request, '¡Te has registrado exitosamente! Ahora puedes iniciar sesión.')
+            
+            # Redirigir a la página de inicio de sesión (o donde desees)
+            return redirect('login')  # Asume que tienes una URL de login configurada
 
-    return render(request, 'register.html', {'form': form})
+    else:
+        # Si no es un POST, crear un formulario vacío
+        formulario = UserRegistrationForm()
+
+    return render(request, 'registro.html', {'formulario': formulario})
 
 # Vista personalizada de inicio de sesión (login) para responder en formato JSON
 def login_view(request):
+    if request.user.is_authenticated:
+        # Si el usuario ya está autenticado, redirigimos a la página principal
+        return redirect('index')
+
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -65,6 +83,11 @@ def login_view(request):
             return JsonResponse({'success': False, 'message': 'Credenciales incorrectas'})
     
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
+
+# Vista de cierre de sesión
+def logout_view(request):
+    logout(request)
+    return redirect('index')  # Redirige al usuario a la página principal después de cerrar sesión
 
 # Vista para propiedades de usuario
 @login_required

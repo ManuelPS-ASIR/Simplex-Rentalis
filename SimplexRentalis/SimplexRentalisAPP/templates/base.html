@@ -38,6 +38,7 @@
         </a>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
           <li><a class="dropdown-item" href="{% url 'account_settings' %}">Configuración de la cuenta</a></li>
+          <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>  <!-- Botón de cerrar sesión -->
         </ul>
         {% else %}
         <!-- Si no está autenticado, mostramos el botón de Iniciar sesión -->
@@ -114,7 +115,7 @@
               <input type="date" class="form-control" id="register_birthday" name="birthday">
             </div>
             <div class="mb-3">
-              <label for="register_avatar" class="form-label">Avatar (Opcional)</label>
+              <label for="register_avatar" class="form-label">Imagen de Perfil (Opcional)</label>
               <input type="file" class="form-control" id="register_avatar" name="avatar">
             </div>
             <button type="submit" class="btn btn-primary w-100">Registrar</button>
@@ -160,34 +161,30 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
               <li><a class="dropdown-item" href="{% url 'account_settings' %}">Configuración de la cuenta</a></li>
+              <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
             </ul>
           `;
-          
+
           // Cierra el modal de inicio de sesión
-          const modal = new bootstrap.Modal(document.getElementById('loginModal'));
-          modal.hide();
-          
-          // Recargar la página para actualizar los tokens CSRF después de iniciar sesión
-          location.reload();
+          const loginModalElement = document.getElementById('loginModal');  // Obtén el modal de inicio de sesión
+          const loginModal = bootstrap.Modal.getInstance(loginModalElement);  // Obtiene la instancia existente del modal
+
+          // Si el modal no está instanciado aún, lo creamos y luego lo cerramos
+          if (!loginModal) {
+            const loginModalNew = new bootstrap.Modal(loginModalElement);  // Instancia el modal si no existe
+            loginModalNew.hide();  // Cierra el modal de manera programática
+          } else {
+            loginModal.hide();  // Si ya está instanciado, lo ocultamos directamente
+          }
+
         } else {
-          alert(data.message || "Error en el inicio de sesión.");
+          alert(data.error);  // Muestra un error si las credenciales no son correctas
         }
       })
-      .catch(error => {
-        alert("Hubo un problema con la solicitud.");
-      });
+      .catch(error => console.log('Error:', error));
     });
 
-    // Mostrar el formulario de registro
-    document.getElementById('showRegisterForm').addEventListener('click', function() {
-      // Ocultar el texto de "¿No tienes cuenta? Registrate aquí"
-      document.querySelector('#modalContent p').style.display = 'none';
-      
-      // Mostrar el formulario de registro
-      document.getElementById('loginForm').style.display = 'none';
-      document.getElementById('registerForm').style.display = 'block';
-      document.getElementById('loginModalLabel').innerText = "Registrar cuenta";
-    });
+
   </script>
 
 </body>

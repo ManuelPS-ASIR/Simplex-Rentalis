@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container">
+    <h2>Registro de Usuario</h2>
+
+    <!-- Mostrar mensajes de éxito o error -->
+    {% if messages %}
+      <div class="alert alert-info">
+        {% for message in messages %}
+          <p>{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Formulario de Registro -->
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="id_username" class="form-label">Nombre de Usuario</label>
+        {{ formulario.username }}
+        {% for error in formulario.username.errors %}
+          <div class="alert alert-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="mb-3">
+        <label for="id_email" class="form-label">Correo Electrónico</label>
+        {{ formulario.email }}
+        {% for error in formulario.email.errors %}
+          <div class="alert alert-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="mb-3">
+        <label for="id_telefono" class="form-label">Teléfono</label>
+        {{ formulario.telefono }}
+        {% for error in formulario.telefono.errors %}
+          <div class="alert alert-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="mb-3">
+        <label for="id_genero" class="form-label">Género</label>
+        {{ formulario.genero }}
+        {% for error in formulario.genero.errors %}
+          <div class="alert alert-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="mb-3">
+        <label for="id_fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+        {{ formulario.fecha_nacimiento }}
+        {% for error in formulario.fecha_nacimiento.errors %}
+          <div class="alert alert-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="mb-3">
+        <label for="id_avatar" class="form-label">Imagen de perfil</label>
+        {{ formulario.avatar }}
+        {% for error in formulario.avatar.errors %}
+          <div class="alert alert-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="mb-3">
+        <label for="id_contraseña" class="form-label">Contraseña</label>
+        {{ formulario.contraseña }}
+        {% for error in formulario.contraseña.errors %}
+          <div class="alert alert-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="mb-3">
+        <label for="id_contraseña2" class="form-label">Confirmar Contraseña</label>
+        {{ formulario.contraseña2 }}
+        {% for error in formulario.contraseña2.errors %}
+          <div class="alert alert-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <button type="submit" class="btn btn-primary">Registrar</button>
+    </form>
+  </div>
+{% endblock %}
