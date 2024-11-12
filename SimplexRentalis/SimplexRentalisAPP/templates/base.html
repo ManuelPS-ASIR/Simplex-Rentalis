@@ -38,12 +38,6 @@
         </a>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
           <li><a class="dropdown-item" href="{% url 'account_settings' %}">Configuración de la cuenta</a></li>
-          <li>
-            <form action="{% url 'logout' %}" method="post">
-              {% csrf_token %}
-              <button type="submit" class="dropdown-item">Cerrar sesión</button>
-            </form>
-          </li>
         </ul>
         {% else %}
         <!-- Si no está autenticado, mostramos el botón de Iniciar sesión -->
@@ -82,9 +76,49 @@
             </div>
             <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
           </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <p class="mt-3">¿No tienes cuenta? <a href="#" id="showRegisterForm">Registrate aquí</a></p>
+
+          <!-- Formulario de registro (inicialmente oculto) -->
+          <form id="registerForm" method="post" style="display:none;">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="register_username" class="form-label">Nombre de usuario</label>
+              <input type="text" class="form-control" id="register_username" name="username" required>
+            </div>
+            <div class="mb-3">
+              <label for="register_email" class="form-label">Correo</label>
+              <input type="email" class="form-control" id="register_email" name="email" required>
+            </div>
+            <div class="mb-3">
+              <label for="register_phone" class="form-label">Teléfono</label>
+              <input type="text" class="form-control" id="register_phone" name="phone" required>
+            </div>
+            <div class="mb-3">
+              <label for="register_password" class="form-label">Contraseña</label>
+              <input type="password" class="form-control" id="register_password" name="password" required>
+            </div>
+            <div class="mb-3">
+              <label for="register_confirm_password" class="form-label">Repetir Contraseña</label>
+              <input type="password" class="form-control" id="register_confirm_password" name="confirm_password" required>
+            </div>
+            <div class="mb-3">
+              <label for="register_gender" class="form-label">Género</label>
+              <select class="form-control" id="register_gender" name="gender">
+                <option value="male">Masculino</option>
+                <option value="female">Femenino</option>
+                <option value="other">Otro</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="register_birthday" class="form-label">Fecha de nacimiento</label>
+              <input type="date" class="form-control" id="register_birthday" name="birthday">
+            </div>
+            <div class="mb-3">
+              <label for="register_avatar" class="form-label">Avatar (Opcional)</label>
+              <input type="file" class="form-control" id="register_avatar" name="avatar">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Registrar</button>
+          </form>
         </div>
       </div>
     </div>
@@ -126,12 +160,6 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
               <li><a class="dropdown-item" href="{% url 'account_settings' %}">Configuración de la cuenta</a></li>
-              <li>
-                <form action="{% url 'logout' %}" method="post">
-                  {% csrf_token %}
-                  <button type="submit" class="dropdown-item">Cerrar sesión</button>
-                </form>
-              </li>
             </ul>
           `;
           
@@ -148,6 +176,17 @@
       .catch(error => {
         alert("Hubo un problema con la solicitud.");
       });
+    });
+
+    // Mostrar el formulario de registro
+    document.getElementById('showRegisterForm').addEventListener('click', function() {
+      // Ocultar el texto de "¿No tienes cuenta? Registrate aquí"
+      document.querySelector('#modalContent p').style.display = 'none';
+      
+      // Mostrar el formulario de registro
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+      document.getElementById('loginModalLabel').innerText = "Registrar cuenta";
     });
   </script>
 
