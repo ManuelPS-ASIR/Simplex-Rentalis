@@ -77,7 +77,7 @@
             </div>
             <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
           </form>
-          <p class="mt-3">¿No tienes cuenta? <a href="#" id="showRegisterForm">Registrate aquí</a></p>
+          <p class="mt-3" id="registerPrompt">¿No tienes cuenta? <a href="#" id="showRegisterForm">Regístrate aquí</a></p>
 
           <!-- Formulario de registro (inicialmente oculto) -->
           <form id="registerForm" method="post" style="display:none;">
@@ -129,12 +129,13 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
+    // Manejador para el envío del formulario de inicio de sesión
     document.getElementById("loginForm").addEventListener("submit", function(e) {
       e.preventDefault();  // Evita que el formulario se envíe de forma tradicional
-
+  
       const formData = new FormData(this);  // Obtén los datos del formulario
       const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;  // Obtén el token CSRF
-
+  
       fetch("{% url 'login' %}", {  // Realiza la solicitud a la vista de login
         method: 'POST',
         body: formData,
@@ -164,28 +165,44 @@
               <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
             </ul>
           `;
-
-          // Cierra el modal de inicio de sesión
-          const loginModalElement = document.getElementById('loginModal');  // Obtén el modal de inicio de sesión
-          const loginModal = bootstrap.Modal.getInstance(loginModalElement);  // Obtiene la instancia existente del modal
-
-          // Si el modal no está instanciado aún, lo creamos y luego lo cerramos
+          
+          // Cierra el modal de login
+          const loginModalElement = document.getElementById('loginModal');
+          
+          // Verifica si ya existe una instancia del modal
+          let loginModal = bootstrap.Modal.getInstance(loginModalElement);
           if (!loginModal) {
-            const loginModalNew = new bootstrap.Modal(loginModalElement);  // Instancia el modal si no existe
-            loginModalNew.hide();  // Cierra el modal de manera programática
-          } else {
-            loginModal.hide();  // Si ya está instanciado, lo ocultamos directamente
+            // Si no existe, la creamos
+            loginModal = new bootstrap.Modal(loginModalElement);
           }
-
+          
+          loginModal.hide();  // Cierra el modal
+          
         } else {
-          alert(data.error);  // Muestra un error si las credenciales no son correctas
+          // Si ocurre un error en el login, muestra el error
+          alert(data.error);
         }
       })
-      .catch(error => console.log('Error:', error));
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Hubo un error al intentar iniciar sesión.');
+      });
     });
-
-
+  
+    // Mostrar el formulario de registro
+    document.getElementById("showRegisterForm").addEventListener("click", function() {
+      document.getElementById("loginForm").style.display = "none";  // Ocultar el formulario de login
+      document.getElementById("registerForm").style.display = "block";  // Mostrar el formulario de registro
+      document.getElementById("registerPrompt").style.display = "none";  // Ocultar el mensaje
+    });
+  
+    // Regresar al formulario de login
+    document.getElementById("showLoginForm").addEventListener("click", function() {
+      document.getElementById("registerForm").style.display = "none";  // Ocultar el formulario de registro
+      document.getElementById("loginForm").style.display = "block";  // Mostrar el formulario de login
+      document.getElementById("registerPrompt").style.display = "block";  // Mostrar el mensaje
+    });
   </script>
-
+  
 </body>
 </html>
