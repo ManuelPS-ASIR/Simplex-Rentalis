@@ -20,19 +20,17 @@ class User(AbstractUser):
         null=True
     )
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
-    biografia = models.TextField(blank=True, null=True)
     es_propietario = models.BooleanField(default=False)
     ultimo_acceso = models.DateTimeField(null=True, blank=True)
 
-    # Añadir related_name para evitar el conflicto con las relaciones inversas de grupos y permisos
     groups = models.ManyToManyField(
         'auth.Group',
-        related_name='custom_user_groups',  # Cambia el nombre del acceso inverso
+        related_name='custom_user_groups',
         blank=True
     )
     user_permissions = models.ManyToManyField(
         'auth.Permission',
-        related_name='custom_user_permissions',  # Cambia el nombre del acceso inverso
+        related_name='custom_user_permissions',
         blank=True
     )
 
@@ -43,7 +41,7 @@ class User(AbstractUser):
         return self.es_propietario
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} ({self.username})"
+        return f"{self.username}"  # Solo mostrar el nombre de usuario
 
     def clean(self):
         if self.telefono:
@@ -58,6 +56,7 @@ class User(AbstractUser):
                 edad -= 1
             if edad < 18:
                 raise ValidationError("El usuario debe ser mayor de 18 años.")
+
 
 # Señal para actualizar `ultimo_acceso` cuando el usuario inicie sesión
 @receiver(user_logged_in)

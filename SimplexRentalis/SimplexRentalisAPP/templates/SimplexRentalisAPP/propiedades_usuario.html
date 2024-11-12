@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Mis Propiedades
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Mis Propiedades</h2>
+    <div class="row justify-content-center">
+        {% if propiedades %}
+            {% for propiedad in propiedades %}
+                <div class="col-6 col-md-4 col-lg-3 mb-4 d-flex align-items-stretch">
+                    <a href="{% url 'detalle_propiedad' propiedad.pk %}" class="propiedad-card text-center text-decoration-none">
+                        <div class="card shadow-sm">
+                            <div class="card-image">
+                                {% if propiedad.imagen %}
+                                    <img src="{{ propiedad.imagen.url }}" class="img-fluid rounded" alt="Imagen de {{ propiedad.nombre }}">
+                                {% else %}
+                                    <div class="no-imagen">
+                                        <p>No hay imagen disponible.</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ propiedad.nombre }} > {{ propiedad.precio_noche }}€</h5>
+                                <p class="card-text">{{ propiedad.direccion }}</p>
+                                <p class="text-muted">Calificación: {{ propiedad.calificacion }}/5</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-center">No tienes propiedades registradas.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,70 +1,79 @@
-# # SimplexRentalisAPP/views.py
-from django.shortcuts import render#, get_object_or_404
-# from django.http import HttpResponse
-# from django.views.generic import View, ListView, DetailView
-from .models import Propiedades  # Asegúrate de usar los nombres correctos
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from .models import Propiedades
+from .forms import UserRegistrationForm
 
-# # Create your views here.
-# class Probando(View):
-#     def get(self, request):
-#         return render(request, 'SimplexRentalisAPP/probandohtml.html')
-
-
-# class PropiedadesListView(ListView):
-#     model = Propiedades
-#     template_name = 'SimplexRentalisAPP/propiedades_list.html'
-#     context_object_name = 'propiedades'  # Cambia esto para que sea más legible
-
-#     def get_queryset(self):
-#         return Propiedades.objects.all()  # Filtra o retorna todas las propiedades
-
-#     def get_context_data(self, **kwargs):
-#         # Llama a la implementación del contexto padre
-#         context = super().get_context_data(**kwargs)
-
-#         # Añade la imagen de portada a cada propiedad
-#         for propiedad in context['propiedades']:
-#             propiedad.imagen_portada = propiedad.obtener_imagen_portada()  # Accede al método del modelo
-
-#         return context
-
-
-# class PropiedadDetailView(DetailView):
-#     model = Propiedades
-#     template_name = 'SimplexRentalisAPP/propiedad_detallada.html'  # La plantilla que usarás para mostrar los detalles
-#     context_object_name = 'propiedad'  # Este será el nombre en el contexto
-
-#     def get_context_data(self, **kwargs):
-#         # Llama a la implementación del contexto padre
-#         context = super().get_context_data(**kwargs)
-#         # Obtiene la propiedad actual
-#         propiedad = self.object
-#         # Obtiene la imagen portada
-#         imagen_portada = propiedad.imagenes_set.filter(es_portada=True).first()
-#         # Añade la imagen de portada al contexto
-#         context['imagen_portada'] = imagen_portada
-#         return context
-
-
-# def detalle_propiedad(request, propiedad_id):
-#     propiedad = get_object_or_404(Propiedades, id=propiedad_id)
-
-#     # Obtiene la imagen de portada utilizando la relación inversa
-#     imagen_portada = propiedad.imagenes_set.filter(es_portada=True).first()  # Cambia 'visual' a 'imagenes_set'
-    
-#     # Obtiene todas las imágenes de la propiedad
-#     imagenes = propiedad.imagenes_set.all()  # Esto obtendrá todas las imágenes relacionadas con la propiedad
-
-#     return render(request, 'detalle_propiedad.html', {
-#         'propiedad': propiedad,
-#         'imagen_portada': imagen_portada,
-#         'imagenes': imagenes  # Agrega esta línea para pasar todas las imágenes
-#     })
-
-
+# Vista para la página de inicio
 def index(request):
-    # Filtrar propiedades según el criterio que elijas
-    propiedades_mas_visitadas = Propiedades.objects.filter(visitas__gte=10)  # Cambia a otro campo si es necesario
+    propiedades_mas_visitadas = Propiedades.objects.all()[:5]
     return render(request, 'SimplexRentalisAPP/index.html', {
         'propiedades_mas_visitadas': propiedades_mas_visitadas
     })
+
+# Vista para mostrar todas las propiedades
+def propiedades(request):
+    propiedades = Propiedades.objects.all()
+    return render(request, 'SimplexRentalisAPP/propiedades_list.html', {
+        'propiedades': propiedades
+    })
+
+# Vista para mostrar las propiedades del usuario autenticado
+@login_required
+def propiedades_usuario(request):
+    propiedades = Propiedades.objects.filter(propietario=request.user)
+    return render(request, 'SimplexRentalisAPP/propiedades_usuario.html', {
+        'propiedades': propiedades
+    })
+
+# Vista para el registro de usuario
+def register(request):
+    if request.user.is_authenticated:
+        return redirect('/')
+    
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('/')
+    else:
+        form = UserRegistrationForm()
+
+    return render(request, 'register.html', {'form': form})
+
+# Vista personalizada de inicio de sesión (login) para responder en formato JSON
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            
+            # Responder con los datos del usuario en formato JSON
+            return JsonResponse({
+                'success': True,
+                'username': user.username,
+                'avatar_url': user.profile.avatar.url if hasattr(user, 'profile') else '',  # Avatar si existe el perfil
+            })
+        else:
+            # Si las credenciales son incorrectas, se responde con un error
+            return JsonResponse({'success': False, 'message': 'Credenciales incorrectas'})
+    
+    return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
+
+# Vista para propiedades de usuario
+@login_required
+def propiedades_usuario(request):
+    propiedades = Propiedades.objects.filter(propietario=request.user)
+    return render(request, 'propiedades_usuario.html', {
+        'propiedades': propiedades
+    })
+
+# Vista para la configuración de la cuenta
+def account_settings(request):
+    return render(request, 'SimplexRentalisAPP/account_settings.html')

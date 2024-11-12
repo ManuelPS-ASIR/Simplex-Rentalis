@@ -8,24 +8,25 @@ Lista de Propiedades
 {% block content %}
 <div class="container mt-5">
     <h2 class="text-center mb-4">Lista de Propiedades</h2>
-    <div class="row propiedades-container">
+    <div class="row justify-content-center">
         {% for propiedad in propiedades %}
-            <div class="col-md-4 mb-4">
-                <a href="{% url 'detalle_propiedad' propiedad.pk %}" class="propiedad-card text-center">
-                    <div class="propiedad-image">
-                        {% if propiedad.imagen_portada %}
-                            <img src="{{ propiedad.imagen_portada.imagen.url }}" class="img-fluid" alt="Imagen de {{ propiedad.titulo }}">
-                        {% else %}
-                            <div class="no-imagen">
-                                <p>No hay imagen de portada disponible.</p>
-                            </div>
-                        {% endif %}
-                    </div>
-                    <div class="propiedad-details">
-                        <h3>{{ propiedad.titulo }}</h3>
-                        <p><strong>Dirección:</strong> {{ propiedad.direccion }}</p>
-                        <p><strong>Precio:</strong> {{ propiedad.precio }} €</p>
-                        <p><strong>Calificación:</strong> {{ propiedad.calificacion }}</p>
+            <div class="col-6 col-md-4 col-lg-3 mb-4 d-flex align-items-stretch">
+                <a href="{% url 'detalle_propiedad' propiedad.pk %}" class="propiedad-card text-center text-decoration-none">
+                    <div class="card shadow-sm">
+                        <div class="card-image">
+                            {% if propiedad.imagen %}
+                                <img src="{{ propiedad.imagen.url }}" class="img-fluid rounded" alt="Imagen de {{ propiedad.nombre }}">
+                            {% else %}
+                                <div class="no-imagen">
+                                    <p>No hay imagen de portada disponible.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ propiedad.nombre }} > {{ propiedad.precio_noche }}€</h5>
+                            <p class="card-text">{{ propiedad.direccion }}</p>
+                            <p class="text-muted">Calificación: {{ propiedad.calificacion }}/5</p>
+                        </div>
                     </div>
                 </a>
             </div>

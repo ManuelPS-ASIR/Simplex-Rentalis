@@ -1,0 +1,30 @@
+<!-- SimplexRentalisAPP/templates/account/settings.html -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración de Cuenta</title>
+</head>
+<body>
+
+    <h1>Configuración de tu Cuenta</h1>
+
+    <div>
+        <h3>Detalles del Usuario</h3>
+        <p><strong>Nombre de usuario:</strong> {{ user.username }}</p>
+        <p><strong>Correo electrónico:</strong> {{ user.email }}</p>
+        <p><strong>Fecha de registro:</strong> {{ user.date_joined }}</p>
+        
+        <h3>Actualizar Contraseña</h3>
+        <p>Puedes actualizar tu contraseña desde aquí:</p>
+        <a href="{% url 'password_change' %}">Cambiar contraseña</a>
+
+        <h3>Actualizar Perfil</h3>
+        <!-- Aquí puedes agregar un formulario para que el usuario actualice su información -->
+        <p>Puedes actualizar tu perfil aquí (en caso de que tengas un modelo de perfil).</p>
+    </div>
+
+</body>
+</html>

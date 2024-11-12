@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}
+    SimplexRentalis
+{% endblock %}
+
+{% block content %}
+    <div class="hero text-center"> <!-- Añadida la clase text-center -->
+        <div>
+            <h1>¡Bienvenido a la página favorita para el alquiler de Hogares!</h1>
+            <p>Encuentra la casa de tus sueños para vacaciones con nosotros.</p>
+            <a href="{% url 'propiedades' %}" class="btn btn-primary btn-lg">Explora Propiedades</a>  <!-- Asegúrate de que este enlace sea correcto -->
+        </div>
+    </div>
+
+    <!-- Carrusel de propiedades más visitadas -->
+    <div id="propertyCarousel" class="carousel slide mt-5" data-ride="carousel">
+        <div class="carousel-inner">
+            {% if propiedades_mas_visitadas %}
+                {% for propiedad in propiedades_mas_visitadas %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <img src="{{ propiedad.imagen_url }}" class="d-block w-100" alt="{{ propiedad.titulo }}">
+                        <div class="carousel-caption d-none d-md-block">
+                            <h5>{{ propiedad.titulo }}</h5>
+                            <p>{{ propiedad.descripcion }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="carousel-item active">
+                    <div class="d-block w-100 text-center">
+                        <h5>No hay propiedades disponibles.</h5>
+                        <p>¡Regresa más tarde para ver nuevas opciones!</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <a class="carousel-control-prev" href="#propertyCarousel" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Anterior</span>
+        </a>
+        <a class="carousel-control-next" href="#propertyCarousel" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Siguiente</span>
+        </a>
+    </div>
+
+    <div class="container mt-5">
+        <h2>Nuestros Servicios</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1568605114967-3134a36b05f5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&q=80&w=1080" class="card-img-top" alt="Propiedad 1">
+                    <div class="card-body">
+                        <h5 class="card-title">Alquiler de Propiedades</h5>
+                        <p class="card-text">Ofrecemos una amplia variedad de propiedades para alquilar.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1574169208503-0c1f82f7cb7a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&q=80&w=1080" class="card-img-top" alt="Propiedad 2">
+                    <div class="card-body">
+                        <h5 class="card-title">Asesoramiento Personalizado</h5>
+                        <p class="card-text">Te ayudamos a encontrar la propiedad que mejor se adapte a tus necesidades.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1597751727513-b438e5b70c84?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&q=80&w=1080" class="card-img-top" alt="Propiedad 3">
+                    <div class="card-body">
+                        <h5 class="card-title">Soporte Legal</h5>
+                        <p class="card-text">Proporcionamos asesoramiento legal para asegurar una transacción segura.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center mt-5">
+        <p>&copy; 2024 Alquiler de Hogares. Todos los derechos reservados.</p>
+    </footer>
+{% endblock %}
