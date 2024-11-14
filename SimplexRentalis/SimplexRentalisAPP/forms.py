@@ -5,6 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import User
 import re
 from datetime import date
+import dns.resolver
 
 class RegistroForm(UserCreationForm):
     username = forms.CharField(
@@ -21,6 +22,7 @@ class RegistroForm(UserCreationForm):
         error_messages={
             'required': _("Este campo es obligatorio."),
             'unique': _("Este correo electrónico ya está en uso."),
+            'invalid': _("Ingrese un correo electrónico válido."),
         }
     )
     telefono = forms.CharField(
@@ -111,3 +113,17 @@ class RegistroForm(UserCreationForm):
             raise ValidationError(_("Debe tener al menos 18 años para registrarse."))
 
         return fecha_nacimiento
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        domain = email.split('@')[1]
+
+        try:
+            dns.resolver.resolve(domain, 'MX')
+        except dns.resolver.NXDOMAIN:
+            raise ValidationError(_("El dominio del correo electrónico no parece ser válido."))
+        except dns.resolver.NoAnswer:
+            raise ValidationError(_("El dominio del correo electrónico no parece ser válido."))
+        except dns.resolver.NoNameservers:
+            raise ValidationError(_("El dominio del correo electrónico no parece ser válido."))
+        return email

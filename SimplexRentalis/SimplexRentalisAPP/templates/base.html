@@ -309,6 +309,20 @@
         this.classList.remove('is-invalid');
         this.nextElementSibling.textContent = "";
       }
+    const emailInput = document.getElementById("register_email");
+    emailInput.addEventListener("input", function() {
+      const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+      if (!emailPattern.test(this.value)) {
+        this.setCustomValidity("Ingrese un correo electrónico válido.");
+        this.classList.add('is-invalid');
+        this.nextElementSibling.textContent = "Ingrese un correo electrónico válido.";
+      } else {
+        this.setCustomValidity("");
+        this.classList.remove('is-invalid');
+        this.nextElementSibling.textContent = "";
+      }
+    });
+
     });
     });
   </script>
