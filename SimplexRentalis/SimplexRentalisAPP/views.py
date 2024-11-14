@@ -57,6 +57,8 @@ def register(request):
 
 
 # Vista personalizada de inicio de sesión (login) para responder en formato JSON
+from .models import User
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('index')
@@ -64,18 +66,21 @@ def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        
-        user = authenticate(request, username=username, password=password)
-        
-        if user is not None:
-            login(request, user)
-            return JsonResponse({
-                'success': True,
-                'username': user.username,
-                'avatar_url': user.profile.avatar.url if hasattr(user, 'profile') else '', 
-            })
-        else:
-            return JsonResponse({'success': False, 'error': {'username': 'Nombre de usuario o contraseña incorrectos'}})
+
+        try:
+            user = User.objects.get(username=username)
+            user_authenticated = authenticate(request, username=username, password=password)
+            if user_authenticated is not None:
+                login(request, user_authenticated)
+                return JsonResponse({
+                    'success': True,
+                    'username': user.username,
+                    'avatar_url': user.profile.avatar.url if hasattr(user, 'profile') else '',
+                })
+            else:
+                return JsonResponse({'success': False, 'error': {'password': _('Contraseña incorrecta')}})
+        except User.DoesNotExist:
+            return JsonResponse({'success': False, 'error': {'username': _('El nombre de usuario no existe')}})
     
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
 
