@@ -157,7 +157,7 @@
           // Muestra el dropdown con el avatar y nombre del usuario
           userMenu.innerHTML = `
             <a href="#" class="d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="${data.avatar_url}" alt="Avatar" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
+              <img src="${data.avatar}" alt="Avatar" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
               <span class="text-light">${data.username}</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
@@ -166,17 +166,10 @@
             </ul>
           `;
           
-          // Cierra el modal de login
+          // Cierra el modal
           const loginModalElement = document.getElementById('loginModal');
-          
-          // Verifica si ya existe una instancia del modal
-          let loginModal = bootstrap.Modal.getInstance(loginModalElement);
-          if (!loginModal) {
-            // Si no existe, la creamos
-            loginModal = new bootstrap.Modal(loginModalElement);
-          }
-          
-          loginModal.hide();  // Cierra el modal
+          const loginModal = bootstrap.Modal.getInstance(loginModalElement);
+          loginModal.hide();
           
         } else {
           // Si ocurre un error en el login, muestra el error
@@ -216,10 +209,34 @@
       .then(data => {
         if (data.success) {
           // Si el registro es exitoso, muestra un mensaje de éxito o redirige
-          alert('Registro exitoso. Por favor, inicia sesión.');
-          // Cierra el modal
-          const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-          loginModal.hide();  // Cierra el modal de registro
+          //alert('Registro exitoso. Iniciando sesión automáticamente...');
+          
+          // Actualizar el menú de usuario en la interfaz sin recargar la página
+          const userMenu = document.getElementById('userMenu');
+          
+          // Ocultar el formulario de registro
+          document.getElementById("registerForm").style.display = "none";
+          
+          // Mostrar el nuevo menú de usuario con avatar y nombre
+          userMenu.innerHTML = `
+            <a href="#" class="d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="${data.avatar_url}" alt="Avatar" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
+              <span class="text-light">${data.username}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="{% url 'account_settings' %}">Configuración de la cuenta</a></li>
+              <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
+            </ul>
+          `;
+
+          // Cierra el modal de login/regsitro
+          const loginModalElement = document.getElementById('loginModal');
+          let loginModal = bootstrap.Modal.getInstance(loginModalElement);
+          if (!loginModal) {
+            loginModal = new bootstrap.Modal(loginModalElement);
+          }
+          loginModal.hide();  // Cierra el modal
+
         } else {
           // Si ocurre un error, muestra el mensaje de error
           alert(data.error);
@@ -230,6 +247,7 @@
         alert('Hubo un error al intentar registrarse.');
       });
     });
+
 
     // Al cerrar el modal, volver al formulario de inicio de sesión
     const loginModalElement = document.getElementById('loginModal');

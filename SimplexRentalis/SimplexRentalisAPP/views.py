@@ -32,13 +32,31 @@ def register(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST, request.FILES)
         if form.is_valid():
-            user = form.save()  # Guardar el nuevo usuario
-            # Aquí puedes agregar datos adicionales como el avatar si lo deseas.
-            return JsonResponse({
-                'success': True,
-                'message': 'Registro exitoso. Ahora puedes iniciar sesión.',
-            })
+            # Guardar el nuevo usuario en la base de datos
+            user = form.save()
+
+            # Autenticar al usuario con el nombre de usuario y la contraseña
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password1')  # Contraseña proporcionada en el formulario
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                # Si el usuario se autentica correctamente, iniciar sesión automáticamente
+                login(request, user)
+
+                # Responder con datos del usuario ya autenticado
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Registro exitoso e inicio de sesión automático.',
+                    'username': user.username,
+                    'avatar_url': user.avatar.url if user.avatar else '',  # Si tiene avatar, lo mostramos
+                })
+            else:
+                # Si no se puede autenticar al usuario, enviar un error
+                return JsonResponse({'success': False, 'message': 'Error al autenticar al usuario.'})
+
         else:
+            # Si el formulario no es válido, devolver los errores del formulario
             errors = form.errors.as_json()
             return JsonResponse({
                 'success': False,
