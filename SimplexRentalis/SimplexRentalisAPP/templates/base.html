@@ -105,11 +105,12 @@
             <div class="mb-3">
               <label for="register_gender" class="form-label">Género</label>
               <select class="form-control" id="register_gender" name="genero" required>
+                  <option value="" selected>Seleccionar género</option>  <!-- Opción por defecto -->
                   <option value="masculino">Masculino</option>
                   <option value="femenino">Femenino</option>
                   <option value="otro">Otro</option>
               </select>
-            </div>
+            </div>            
             <div class="mb-3">
               <label for="register_birthday" class="form-label">Fecha de nacimiento</label>
               <input type="date" class="form-control" id="register_birthday" name="fecha_nacimiento" required>
