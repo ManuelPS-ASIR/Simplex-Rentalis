@@ -92,27 +92,27 @@
             </div>
             <div class="mb-3">
               <label for="register_phone" class="form-label">Teléfono</label>
-              <input type="text" class="form-control" id="register_phone" name="phone" required>
+              <input type="text" class="form-control" id="register_phone" name="telefono" required>
             </div>
             <div class="mb-3">
               <label for="register_password" class="form-label">Contraseña</label>
-              <input type="password" class="form-control" id="register_password" name="password" required>
+              <input type="password" class="form-control" id="register_password" name="password1" required>
             </div>
             <div class="mb-3">
               <label for="register_confirm_password" class="form-label">Repetir Contraseña</label>
-              <input type="password" class="form-control" id="register_confirm_password" name="confirm_password" required>
+              <input type="password" class="form-control" id="register_confirm_password" name="password2" required>
             </div>
             <div class="mb-3">
               <label for="register_gender" class="form-label">Género</label>
-              <select class="form-control" id="register_gender" name="gender">
-                <option value="male">Masculino</option>
-                <option value="female">Femenino</option>
-                <option value="other">Otro</option>
+              <select class="form-control" id="register_gender" name="genero" required>
+                  <option value="masculino">Masculino</option>
+                  <option value="femenino">Femenino</option>
+                  <option value="otro">Otro</option>
               </select>
             </div>
             <div class="mb-3">
               <label for="register_birthday" class="form-label">Fecha de nacimiento</label>
-              <input type="date" class="form-control" id="register_birthday" name="birthday">
+              <input type="date" class="form-control" id="register_birthday" name="fecha_nacimiento" required>
             </div>
             <div class="mb-3">
               <label for="register_avatar" class="form-label">Imagen de Perfil (Opcional)</label>
@@ -132,10 +132,10 @@
     // Manejador para el envío del formulario de inicio de sesión
     document.getElementById("loginForm").addEventListener("submit", function(e) {
       e.preventDefault();  // Evita que el formulario se envíe de forma tradicional
-  
+
       const formData = new FormData(this);  // Obtén los datos del formulario
       const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;  // Obtén el token CSRF
-  
+
       fetch("{% url 'login' %}", {  // Realiza la solicitud a la vista de login
         method: 'POST',
         body: formData,
@@ -188,21 +188,57 @@
         alert('Hubo un error al intentar iniciar sesión.');
       });
     });
-  
+
     // Mostrar el formulario de registro
-    document.getElementById("showRegisterForm").addEventListener("click", function() {
+    document.getElementById("showRegisterForm").addEventListener("click", function(e) {
+      e.preventDefault();  // Evita la acción de enlace
       document.getElementById("loginForm").style.display = "none";  // Ocultar el formulario de login
       document.getElementById("registerForm").style.display = "block";  // Mostrar el formulario de registro
       document.getElementById("registerPrompt").style.display = "none";  // Ocultar el mensaje
     });
-  
-    // Regresar al formulario de login
-    document.getElementById("showLoginForm").addEventListener("click", function() {
-      document.getElementById("registerForm").style.display = "none";  // Ocultar el formulario de registro
-      document.getElementById("loginForm").style.display = "block";  // Mostrar el formulario de login
-      document.getElementById("registerPrompt").style.display = "block";  // Mostrar el mensaje
+
+    // Manejador para el envío del formulario de registro con AJAX
+    document.getElementById("registerForm").addEventListener("submit", function(e) {
+      e.preventDefault();  // Evita que el formulario se envíe de forma tradicional
+
+      const formData = new FormData(this);  // Obtén los datos del formulario
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;  // Obtén el token CSRF
+
+      fetch("{% url 'register' %}", {  // Realiza la solicitud a la vista de registro
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',  // Asegura que se hace una solicitud AJAX
+          'X-CSRFToken': csrfToken  // Enviamos el token CSRF
+        }
+      })
+      .then(response => response.json())  // Espera la respuesta en formato JSON
+      .then(data => {
+        if (data.success) {
+          // Si el registro es exitoso, muestra un mensaje de éxito o redirige
+          alert('Registro exitoso. Por favor, inicia sesión.');
+          // Cierra el modal
+          const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+          loginModal.hide();  // Cierra el modal de registro
+        } else {
+          // Si ocurre un error, muestra el mensaje de error
+          alert(data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Hubo un error al intentar registrarse.');
+      });
+    });
+
+    // Al cerrar el modal, volver al formulario de inicio de sesión
+    const loginModalElement = document.getElementById('loginModal');
+    loginModalElement.addEventListener('hidden.bs.modal', function() {
+      document.getElementById("loginForm").style.display = "block";  // Asegura que el formulario de login se muestre
+      document.getElementById("registerForm").style.display = "none";  // Oculta el formulario de registro
+      document.getElementById("registerPrompt").style.display = "block";  // Muestra el mensaje de registro
     });
   </script>
-  
+
 </body>
 </html>

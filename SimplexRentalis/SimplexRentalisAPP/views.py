@@ -3,9 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from .models import Propiedades
-from .forms import UserRegistrationForm
-from django.contrib import messages
-
+from .forms import RegistroForm
 
 # Vista para la página de inicio
 def index(request):
@@ -32,31 +30,22 @@ def propiedades_usuario(request):
 # Vista para el registro de usuario
 def register(request):
     if request.method == 'POST':
-        # Crear una instancia del formulario con los datos del POST y los archivos (para el avatar)
-        formulario = UserRegistrationForm(request.POST, request.FILES)
-        
-        if formulario.is_valid():
-            # Guardar el usuario sin aplicar el hash a la contraseña aún
-            usuario = formulario.save(commit=False)
-            
-            # Establecer la contraseña de forma segura
-            usuario.set_password(formulario.cleaned_data['contraseña'])
-            
-            # Guardar el usuario con la contraseña ya hasheada
-            usuario.save()
-            
-            # Mostrar un mensaje de éxito
-            messages.success(request, '¡Te has registrado exitosamente! Ahora puedes iniciar sesión.')
-            
-            # Redirigir a la página de inicio de sesión (o donde desees)
-            return redirect('login')  # Asume que tienes una URL de login configurada
+        form = RegistroForm(request.POST, request.FILES)
+        if form.is_valid():
+            user = form.save()  # Guardar el nuevo usuario
+            # Aquí puedes agregar datos adicionales como el avatar si lo deseas.
+            return JsonResponse({
+                'success': True,
+                'message': 'Registro exitoso. Ahora puedes iniciar sesión.',
+            })
+        else:
+            errors = form.errors.as_json()
+            return JsonResponse({
+                'success': False,
+                'error': errors
+            }, status=400)
 
-    else:
-        # Si no es un POST, crear un formulario vacío
-        formulario = UserRegistrationForm()
-
-    return render(request, 'registro.html', {'formulario': formulario})
-
+    return render(request, 'registration/registro.html', {'form': RegistroForm()})
 # Vista personalizada de inicio de sesión (login) para responder en formato JSON
 def login_view(request):
     if request.user.is_authenticated:
