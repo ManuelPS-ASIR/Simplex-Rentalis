@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm
 from .models import User
 import re
+from datetime import date
 
 class RegistroForm(UserCreationForm):
     username = forms.CharField(
@@ -32,7 +33,7 @@ class RegistroForm(UserCreationForm):
     )
     fecha_nacimiento = forms.DateField(
         label=_("Fecha de nacimiento"),
-        required=False,
+        required=True,
         error_messages={
             'invalid': _("Ingrese una fecha válida.")
         }
@@ -100,3 +101,13 @@ class RegistroForm(UserCreationForm):
             self.add_error('password1', _("Las contraseñas no coinciden."))
             raise ValidationError(_("Las contraseñas no coinciden."))
         return password2
+
+    def clean_fecha_nacimiento(self):
+        fecha_nacimiento = self.cleaned_data.get("fecha_nacimiento")
+        today = date.today()
+        age = today.year - fecha_nacimiento.year - ((today.month, today.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
+
+        if age < 18:
+            raise ValidationError(_("Debe tener al menos 18 años para registrarse."))
+
+        return fecha_nacimiento

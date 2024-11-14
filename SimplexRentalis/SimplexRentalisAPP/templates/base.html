@@ -290,6 +290,26 @@
       if (this.value.length > 9) {
         this.value = this.value.slice(0, 9);
       }
+    // Validación de la fecha de nacimiento para asegurar que el usuario tenga al menos 18 años
+    const birthdayInput = document.getElementById("register_birthday");
+    birthdayInput.addEventListener("input", function() {
+      const birthDate = new Date(this.value);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      const month = today.getMonth() - birthDate.getMonth();
+      const day = today.getDate() - birthDate.getDate();
+      const isValidAge = age > 18 || (age === 18 && (month > 0 || (month === 0 && day >= 0)));
+
+      if (!isValidAge) {
+        this.setCustomValidity("Debe tener al menos 18 años para registrarse.");
+        this.classList.add('is-invalid');
+        this.nextElementSibling.textContent = "Debe tener al menos 18 años para registrarse.";
+      } else {
+        this.setCustomValidity("");
+        this.classList.remove('is-invalid');
+        this.nextElementSibling.textContent = "";
+      }
+    });
     });
   </script>
 </body>
