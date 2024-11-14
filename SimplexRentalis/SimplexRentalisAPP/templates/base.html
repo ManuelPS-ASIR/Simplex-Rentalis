@@ -150,6 +150,10 @@
         element.classList.remove('is-invalid');
       });
 
+      form.querySelectorAll('.invalid-feedback').forEach(function(element) {
+        element.textContent = ''; // Limpiar mensajes de error anteriores
+      });
+
       for (const [field, message] of Object.entries(errors)) {
         const input = form.querySelector(`[name=${field}]`);
         if (input) {
@@ -249,11 +253,14 @@
         errors.push("La contraseña debe contener al menos dos números.");
       }
 
+      const feedbackElement = input.nextElementSibling;
+
       if (errors.length > 0) {
-        input.setCustomValidity(errors.join(" "));
-        input.reportValidity();
+        feedbackElement.textContent = errors.join(" ");
+        input.classList.add('is-invalid');
       } else {
-        input.setCustomValidity("");
+        feedbackElement.textContent = "";
+        input.classList.remove('is-invalid');
       }
     }
 
@@ -268,9 +275,11 @@
     // Verificar que las contraseñas coincidan
     confirmPasswordInput.addEventListener("input", function() {
       if (confirmPasswordInput.value !== passwordInput.value) {
-        confirmPasswordInput.setCustomValidity("Las contraseñas no coinciden.");
+        confirmPasswordInput.classList.add('is-invalid');
+        confirmPasswordInput.nextElementSibling.textContent = "Las contraseñas no coinciden.";
       } else {
-        confirmPasswordInput.setCustomValidity("");
+        confirmPasswordInput.classList.remove('is-invalid');
+        confirmPasswordInput.nextElementSibling.textContent = "";
       }
     });
   </script>
