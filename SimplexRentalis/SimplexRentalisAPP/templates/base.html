@@ -155,6 +155,33 @@
         }
       }
     }
+    // Manejo de errores para el formulario de inicio de sesión
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+      fetch("{% url 'login' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': csrfToken
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          location.reload();
+        } else {
+          showErrors(this, data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    });
 
     // Manejo de errores para el formulario de registro
     document.getElementById("registerForm").addEventListener("submit", function(e) {
