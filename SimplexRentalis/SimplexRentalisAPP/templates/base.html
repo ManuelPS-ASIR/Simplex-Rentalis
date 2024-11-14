@@ -102,16 +102,16 @@
                   <div class="invalid-feedback"></div>
               </div>
           </div>          
-            <div class="mb-3">
-              <label for="register_password" class="form-label">Contraseña</label>
-              <input type="password" class="form-control" id="register_password" name="password1" required>
-              <div class="invalid-feedback"></div>
-            </div>
-            <div class="mb-3">
-              <label for="register_confirm_password" class="form-label">Repetir Contraseña</label>
-              <input type="password" class="form-control" id="register_confirm_password" name="password2" required>
-              <div class="invalid-feedback"></div>
-            </div>
+          <div class="mb-3">
+            <label for="register_password" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="register_password" name="password1" required>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="mb-3">
+            <label for="register_confirm_password" class="form-label">Repetir Contraseña</label>
+            <input type="password" class="form-control" id="register_confirm_password" name="password2" required>
+            <div class="invalid-feedback"></div>
+          </div>          
             <div class="mb-3">
               <label for="register_gender" class="form-label">Género</label>
               <select class="form-control" id="register_gender" name="genero" required>
@@ -215,7 +215,6 @@
       });
     });
 
-
     // Mostrar el formulario de registro
     document.getElementById("showRegisterForm").addEventListener("click", function(e) {
       e.preventDefault();
@@ -231,7 +230,49 @@
       document.getElementById("registerForm").style.display = "none";
       document.getElementById("registerPrompt").style.display = "block";
     });
-  </script>
 
+    // Función para validar el campo de la contraseña
+    function validatePassword(input) {
+      const password = input.value;
+      const errors = [];
+
+      if (password.length < 10) {
+        errors.push("La contraseña debe tener al menos 10 caracteres.");
+      }
+      if (!/[A-Z]/.test(password)) {
+        errors.push("La contraseña debe contener al menos una letra mayúscula.");
+      }
+      if (!/[!@#$%^&*(),.?\":{}|<>]/.test(password)) {
+        errors.push("La contraseña debe contener al menos un carácter especial.");
+      }
+      if (password.replace(/[^0-9]/g, "").length < 2) {
+        errors.push("La contraseña debe contener al menos dos números.");
+      }
+
+      if (errors.length > 0) {
+        input.setCustomValidity(errors.join(" "));
+        input.reportValidity();
+      } else {
+        input.setCustomValidity("");
+      }
+    }
+
+    const passwordInput = document.getElementById("register_password");
+    const confirmPasswordInput = document.getElementById("register_confirm_password");
+
+    // Validar el campo de la contraseña en cada cambio
+    passwordInput.addEventListener("input", function() {
+      validatePassword(passwordInput);
+    });
+
+    // Verificar que las contraseñas coincidan
+    confirmPasswordInput.addEventListener("input", function() {
+      if (confirmPasswordInput.value !== passwordInput.value) {
+        confirmPasswordInput.setCustomValidity("Las contraseñas no coinciden.");
+      } else {
+        confirmPasswordInput.setCustomValidity("");
+      }
+    });
+  </script>
 </body>
 </html>

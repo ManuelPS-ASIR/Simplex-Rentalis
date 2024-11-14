@@ -70,3 +70,33 @@ class RegistroForm(UserCreationForm):
             raise ValidationError(_("Ingrese un número de móvil español válido. Debe contener 9 dígitos y empezar con 6 o 7."))
 
         return telefono
+
+    def clean_password1(self):
+        password1 = self.cleaned_data.get("password1")
+        
+        # Verificar la longitud mínima de la contraseña
+        if len(password1) < 10:
+            raise ValidationError(_("La contraseña debe tener al menos 10 caracteres."))
+
+        # Verificar que contenga al menos una mayúscula
+        if not re.search(r'[A-Z]', password1):
+            raise ValidationError(_("La contraseña debe contener al menos una letra mayúscula."))
+
+        # Verificar que contenga al menos un carácter especial
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password1):
+            raise ValidationError(_("La contraseña debe contener al menos un carácter especial."))
+
+        # Verificar que contenga al menos dos números
+        if len(re.findall(r'[0-9]', password1)) < 2:
+            raise ValidationError(_("La contraseña debe contener al menos dos números."))
+
+        return password1
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+        
+        if password1 and password2 and password1 != password2:
+            self.add_error('password1', _("Las contraseñas no coinciden."))
+            raise ValidationError(_("Las contraseñas no coinciden."))
+        return password2
