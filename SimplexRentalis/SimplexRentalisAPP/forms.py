@@ -1,7 +1,9 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm
 from .models import User
+import re
 
 class RegistroForm(UserCreationForm):
     username = forms.CharField(
@@ -22,10 +24,10 @@ class RegistroForm(UserCreationForm):
     )
     telefono = forms.CharField(
         label=_("Teléfono"),
-        max_length=15,
-        required=False,
+        max_length=9,
+        required=True,
         error_messages={
-            'invalid': _("Ingrese un número de teléfono válido.")
+            'invalid': _("Ingrese un número de móvil español válido.")
         }
     )
     fecha_nacimiento = forms.DateField(
@@ -59,3 +61,12 @@ class RegistroForm(UserCreationForm):
                 'password_mismatch': _("Las contraseñas no coinciden."),
             },
         }
+
+    def clean_telefono(self):
+        telefono = self.cleaned_data.get("telefono")
+
+        # Verificar que el número contiene solo números y comienza con 6 o 7
+        if not re.match(r'^[67]\d{8}$', telefono):
+            raise ValidationError(_("Ingrese un número de móvil español válido. Debe contener 9 dígitos y empezar con 6 o 7."))
+
+        return telefono

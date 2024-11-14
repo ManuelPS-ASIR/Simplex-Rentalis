@@ -96,9 +96,12 @@
             </div>
             <div class="mb-3">
               <label for="register_phone" class="form-label">Teléfono</label>
-              <input type="text" class="form-control" id="register_phone" name="telefono" required>
-              <div class="invalid-feedback"></div>
-            </div>
+              <div class="input-group">
+                  <span class="input-group-text">+34</span>
+                  <input type="text" class="form-control" id="register_phone" name="telefono" required>
+                  <div class="invalid-feedback"></div>
+              </div>
+          </div>          
             <div class="mb-3">
               <label for="register_password" class="form-label">Contraseña</label>
               <input type="password" class="form-control" id="register_password" name="password1" required>
