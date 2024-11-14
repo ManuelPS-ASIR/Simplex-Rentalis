@@ -28,46 +28,37 @@ def propiedades_usuario(request):
     })
 
 # Vista para el registro de usuario
+from django.utils.translation import gettext as _
+
 def register(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST, request.FILES)
         if form.is_valid():
-            # Guardar el nuevo usuario en la base de datos
             user = form.save()
-
-            # Autenticar al usuario con el nombre de usuario y la contraseña
             username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password1')  # Contraseña proporcionada en el formulario
+            password = form.cleaned_data.get('password1')
             user = authenticate(request, username=username, password=password)
 
             if user is not None:
-                # Si el usuario se autentica correctamente, iniciar sesión automáticamente
                 login(request, user)
-
-                # Responder con datos del usuario ya autenticado
                 return JsonResponse({
                     'success': True,
                     'message': 'Registro exitoso e inicio de sesión automático.',
                     'username': user.username,
-                    'avatar_url': user.avatar.url if user.avatar else '',  # Si tiene avatar, lo mostramos
+                    'avatar_url': user.avatar.url if user.avatar else '',
                 })
             else:
-                # Si no se puede autenticar al usuario, enviar un error
-                return JsonResponse({'success': False, 'message': 'Error al autenticar al usuario.'})
-
+                return JsonResponse({'success': False, 'error': {'general': 'Error al autenticar al usuario.'}})
         else:
-            # Si el formulario no es válido, devolver los errores del formulario
-            errors = form.errors.as_json()
-            return JsonResponse({
-                'success': False,
-                'error': errors
-            }, status=400)
+            errors = {field: error[0].__str__() for field, error in form.errors.items()}
+            return JsonResponse({'success': False, 'error': errors}, status=400)
 
     return render(request, 'registration/registro.html', {'form': RegistroForm()})
+
+
 # Vista personalizada de inicio de sesión (login) para responder en formato JSON
 def login_view(request):
     if request.user.is_authenticated:
-        # Si el usuario ya está autenticado, redirigimos a la página principal
         return redirect('index')
 
     if request.method == 'POST':
@@ -78,16 +69,13 @@ def login_view(request):
         
         if user is not None:
             login(request, user)
-            
-            # Responder con los datos del usuario en formato JSON
             return JsonResponse({
                 'success': True,
                 'username': user.username,
-                'avatar_url': user.profile.avatar.url if hasattr(user, 'profile') else '',  # Avatar si existe el perfil
+                'avatar_url': user.profile.avatar.url if hasattr(user, 'profile') else '', 
             })
         else:
-            # Si las credenciales son incorrectas, se responde con un error
-            return JsonResponse({'success': False, 'message': 'Credenciales incorrectas'})
+            return JsonResponse({'success': False, 'error': {'username': 'Nombre de usuario o contraseña incorrectos'}})
     
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
 

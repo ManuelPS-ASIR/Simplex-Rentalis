@@ -70,13 +70,15 @@
             <div class="mb-3">
               <label for="username" class="form-label">Nombre de usuario</label>
               <input type="text" class="form-control" id="username" name="username" required>
+              <div class="invalid-feedback">Nombre de usuario o contraseña incorrectos</div>
             </div>
             <div class="mb-3">
               <label for="password" class="form-label">Contraseña</label>
               <input type="password" class="form-control" id="password" name="password" required>
+              <div class="invalid-feedback">Nombre de usuario o contraseña incorrectos</div>
             </div>
             <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
-          </form>
+          </form>                             
           <p class="mt-3" id="registerPrompt">¿No tienes cuenta? <a href="#" id="showRegisterForm">Regístrate aquí</a></p>
 
           <!-- Formulario de registro (inicialmente oculto) -->
@@ -85,39 +87,47 @@
             <div class="mb-3">
               <label for="register_username" class="form-label">Nombre de usuario</label>
               <input type="text" class="form-control" id="register_username" name="username" required>
+              <div class="invalid-feedback"></div>
             </div>
             <div class="mb-3">
               <label for="register_email" class="form-label">Correo</label>
               <input type="email" class="form-control" id="register_email" name="email" required>
+              <div class="invalid-feedback"></div>
             </div>
             <div class="mb-3">
               <label for="register_phone" class="form-label">Teléfono</label>
               <input type="text" class="form-control" id="register_phone" name="telefono" required>
+              <div class="invalid-feedback"></div>
             </div>
             <div class="mb-3">
               <label for="register_password" class="form-label">Contraseña</label>
               <input type="password" class="form-control" id="register_password" name="password1" required>
+              <div class="invalid-feedback"></div>
             </div>
             <div class="mb-3">
               <label for="register_confirm_password" class="form-label">Repetir Contraseña</label>
               <input type="password" class="form-control" id="register_confirm_password" name="password2" required>
+              <div class="invalid-feedback"></div>
             </div>
             <div class="mb-3">
               <label for="register_gender" class="form-label">Género</label>
               <select class="form-control" id="register_gender" name="genero" required>
-                  <option value="" selected>Seleccionar género</option>  <!-- Opción por defecto -->
-                  <option value="masculino">Masculino</option>
-                  <option value="femenino">Femenino</option>
-                  <option value="otro">Otro</option>
+                <option value="" selected>Seleccionar género</option>
+                <option value="masculino">Masculino</option>
+                <option value="femenino">Femenino</option>
+                <option value="otro">Otro</option>
               </select>
-            </div>            
+              <div class="invalid-feedback"></div>
+            </div>
             <div class="mb-3">
               <label for="register_birthday" class="form-label">Fecha de nacimiento</label>
               <input type="date" class="form-control" id="register_birthday" name="fecha_nacimiento" required>
+              <div class="invalid-feedback"></div>
             </div>
             <div class="mb-3">
               <label for="register_avatar" class="form-label">Imagen de Perfil (Opcional)</label>
               <input type="file" class="form-control" id="register_avatar" name="avatar">
+              <div class="invalid-feedback"></div>
             </div>
             <button type="submit" class="btn btn-primary w-100">Registrar</button>
           </form>
@@ -127,135 +137,68 @@
   </div>
 
   <!-- Aquí va el código JavaScript -->
+  <!-- Aquí va el código JavaScript -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // Manejador para el envío del formulario de inicio de sesión
-    document.getElementById("loginForm").addEventListener("submit", function(e) {
-      e.preventDefault();  // Evita que el formulario se envíe de forma tradicional
+    // Función para mostrar errores de validación
+    function showErrors(form, errors) {
+      form.querySelectorAll('.is-invalid').forEach(function(element) {
+        element.classList.remove('is-invalid');
+      });
 
-      const formData = new FormData(this);  // Obtén los datos del formulario
-      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;  // Obtén el token CSRF
+      for (const [field, message] of Object.entries(errors)) {
+        const input = form.querySelector(`[name=${field}]`);
+        if (input) {
+          input.classList.add('is-invalid');
+          input.nextElementSibling.textContent = message;
+        }
+      }
+    }
 
-      fetch("{% url 'login' %}", {  // Realiza la solicitud a la vista de login
+    // Manejo de errores para el formulario de registro
+    document.getElementById("registerForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+      fetch("{% url 'register' %}", {
         method: 'POST',
         body: formData,
         headers: {
-          'X-Requested-With': 'XMLHttpRequest',  // Asegura que se hace una solicitud AJAX
-          'X-CSRFToken': csrfToken  // Enviamos el token CSRF
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': csrfToken
         }
       })
-      .then(response => response.json())  // Espera la respuesta en formato JSON
+      .then(response => response.json())
       .then(data => {
         if (data.success) {
-          // Si el inicio de sesión es exitoso, actualiza la interfaz
-          const userMenu = document.getElementById('userMenu');
-          const loginButton = document.querySelector('.btn-login');
-          
-          // Oculta el botón de login
-          loginButton.style.display = 'none';
-          
-          // Muestra el dropdown con el avatar y nombre del usuario
-          userMenu.innerHTML = `
-            <a href="#" class="d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="${data.avatar}" alt="Avatar" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
-              <span class="text-light">${data.username}</span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-              <li><a class="dropdown-item" href="{% url 'account_settings' %}">Configuración de la cuenta</a></li>
-              <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
-            </ul>
-          `;
-          
-          // Cierra el modal
-          const loginModalElement = document.getElementById('loginModal');
-          const loginModal = bootstrap.Modal.getInstance(loginModalElement);
-          loginModal.hide();
-          
+          location.reload();
         } else {
-          // Si ocurre un error en el login, muestra el error
-          alert(data.error);
+          showErrors(this, data.error);
         }
       })
       .catch(error => {
         console.error('Error:', error);
-        alert('Hubo un error al intentar iniciar sesión.');
       });
     });
+
 
     // Mostrar el formulario de registro
     document.getElementById("showRegisterForm").addEventListener("click", function(e) {
-      e.preventDefault();  // Evita la acción de enlace
-      document.getElementById("loginForm").style.display = "none";  // Ocultar el formulario de login
-      document.getElementById("registerForm").style.display = "block";  // Mostrar el formulario de registro
-      document.getElementById("registerPrompt").style.display = "none";  // Ocultar el mensaje
+      e.preventDefault();
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("registerForm").style.display = "block";
+      document.getElementById("registerPrompt").style.display = "none";
     });
-
-    // Manejador para el envío del formulario de registro con AJAX
-    document.getElementById("registerForm").addEventListener("submit", function(e) {
-      e.preventDefault();  // Evita que el formulario se envíe de forma tradicional
-
-      const formData = new FormData(this);  // Obtén los datos del formulario
-      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;  // Obtén el token CSRF
-
-      fetch("{% url 'register' %}", {  // Realiza la solicitud a la vista de registro
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',  // Asegura que se hace una solicitud AJAX
-          'X-CSRFToken': csrfToken  // Enviamos el token CSRF
-        }
-      })
-      .then(response => response.json())  // Espera la respuesta en formato JSON
-      .then(data => {
-        if (data.success) {
-          // Si el registro es exitoso, muestra un mensaje de éxito o redirige
-          //alert('Registro exitoso. Iniciando sesión automáticamente...');
-          
-          // Actualizar el menú de usuario en la interfaz sin recargar la página
-          const userMenu = document.getElementById('userMenu');
-          
-          // Ocultar el formulario de registro
-          document.getElementById("registerForm").style.display = "none";
-          
-          // Mostrar el nuevo menú de usuario con avatar y nombre
-          userMenu.innerHTML = `
-            <a href="#" class="d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="${data.avatar_url}" alt="Avatar" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
-              <span class="text-light">${data.username}</span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-              <li><a class="dropdown-item" href="{% url 'account_settings' %}">Configuración de la cuenta</a></li>
-              <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
-            </ul>
-          `;
-
-          // Cierra el modal de login/regsitro
-          const loginModalElement = document.getElementById('loginModal');
-          let loginModal = bootstrap.Modal.getInstance(loginModalElement);
-          if (!loginModal) {
-            loginModal = new bootstrap.Modal(loginModalElement);
-          }
-          loginModal.hide();  // Cierra el modal
-
-        } else {
-          // Si ocurre un error, muestra el mensaje de error
-          alert(data.error);
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Hubo un error al intentar registrarse.');
-      });
-    });
-
 
     // Al cerrar el modal, volver al formulario de inicio de sesión
     const loginModalElement = document.getElementById('loginModal');
     loginModalElement.addEventListener('hidden.bs.modal', function() {
-      document.getElementById("loginForm").style.display = "block";  // Asegura que el formulario de login se muestre
-      document.getElementById("registerForm").style.display = "none";  // Oculta el formulario de registro
-      document.getElementById("registerPrompt").style.display = "block";  // Muestra el mensaje de registro
+      document.getElementById("loginForm").style.display = "block";
+      document.getElementById("registerForm").style.display = "none";
+      document.getElementById("registerPrompt").style.display = "block";
     });
   </script>
 

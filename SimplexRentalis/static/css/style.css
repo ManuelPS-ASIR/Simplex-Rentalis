@@ -274,3 +274,17 @@ h3 {
     background-color: #0056b3;
     transition: background-color 0.3s;
 }
+
+.is-invalid {
+    border-color: #dc3545; /* Color del borde para los campos con error */
+  }
+  
+  .invalid-feedback {
+    display: none; /* Inicialmente oculto */
+  }
+  
+  .is-invalid + .invalid-feedback {
+    display: block; /* Mostrar el mensaje de error */
+    color: #dc3545; /* Color del texto de error */
+  }
+  
