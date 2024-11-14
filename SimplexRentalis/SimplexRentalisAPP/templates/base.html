@@ -98,10 +98,10 @@
               <label for="register_phone" class="form-label">Teléfono</label>
               <div class="input-group">
                   <span class="input-group-text">+34</span>
-                  <input type="text" class="form-control" id="register_phone" name="telefono" required>
+                  <input type="text" class="form-control" id="register_phone" name="telefono" required maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
                   <div class="invalid-feedback"></div>
               </div>
-          </div>          
+            </div>                   
           <div class="mb-3">
             <label for="register_password" class="form-label">Contraseña</label>
             <input type="password" class="form-control" id="register_password" name="password1" required>
@@ -280,6 +280,15 @@
       } else {
         confirmPasswordInput.classList.remove('is-invalid');
         confirmPasswordInput.nextElementSibling.textContent = "";
+      }
+    });
+
+    // Validación del campo de teléfono para permitir solo números y un máximo de 9 dígitos
+    const telefonoInput = document.getElementById("register_phone");
+    telefonoInput.addEventListener("input", function() {
+      this.value = this.value.replace(/[^0-9]/g, '');
+      if (this.value.length > 9) {
+        this.value = this.value.slice(0, 9);
       }
     });
   </script>
