@@ -116,10 +116,15 @@ def account_settings(request):
                 messages.success(request, 'Tu perfil ha sido actualizado con éxito.')
                 return redirect('settings')
         else:
+            # Imprime los errores del formulario para depuración
+            print("Errores del formulario:", form.errors)
+
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                # Manejo de errores para solicitudes AJAX
                 errors = {field: error[0] for field, error in form.errors.items()}
                 return JsonResponse({'success': False, 'error': errors}, status=400)
             else:
+                # Manejo de errores para solicitudes normales
                 messages.error(request, 'Por favor, corrige los errores a continuación.')
 
     else:
