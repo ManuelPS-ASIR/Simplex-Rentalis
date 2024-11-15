@@ -277,14 +277,20 @@ h3 {
 
 .is-invalid {
     border-color: #dc3545; /* Color del borde para los campos con error */
-  }
+}
   
-  .invalid-feedback {
+.invalid-feedback {
     display: none; /* Inicialmente oculto */
-  }
+}
   
-  .is-invalid + .invalid-feedback {
+.is-invalid + .invalid-feedback {
     display: block; /* Mostrar el mensaje de error */
     color: #dc3545; /* Color del texto de error */
-  }
-  
+}
+.toast-body {
+    padding: 10px 20px !important; /* Ajusta el padding para hacer el toast más bajo */
+    font-size: 1rem !important; /* Tamaño de la fuente */
+    font-weight: bold !important; /* Fuente en negrita */
+    line-height: 1.5 !important; /* Altura de la línea */
+    width: 400px !important; /* Ajusta el ancho del toast */
+}

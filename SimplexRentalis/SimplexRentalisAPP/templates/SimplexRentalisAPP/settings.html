@@ -2,7 +2,11 @@
 
 {% block title %}Configuración de Cuenta{% endblock %}
 
+{% load static %}
+
+
 {% block content %}
+
 <div class="container mt-5">
     <h1 class="text-center">Configuración de Cuenta</h1>
     <hr>
@@ -103,6 +107,21 @@
     </div>
 </div>
 
+<!-- Toast para mostrar éxito -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="successToast" class="toast align-items-center text-bg-success border-0 custom-toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                ¡Los cambios se realizaron con éxito!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Añadir estilo para aumentar el tamaño del texto del toast -->
+
+
 <script>
     // Función para mostrar errores de validación
     function showErrors(form, errors) {
@@ -144,7 +163,15 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                // Mostrar el toast de éxito
+                const toastElement = document.getElementById('successToast');
+                const toast = new bootstrap.Toast(toastElement);
+                toast.show();
+
+                // Opcional: recargar después de un tiempo
+                setTimeout(() => {
+                    location.reload();
+                }, 6000);
             } else {
                 showErrors(form, data.error);
             }
@@ -153,28 +180,6 @@
             console.error('Error:', error);
         });
     });
-
-
-    function showErrors(form, errors) {
-        form.querySelectorAll('.is-invalid').forEach(function(element) {
-            element.classList.remove('is-invalid');
-        });
-
-        form.querySelectorAll('.invalid-feedback').forEach(function(element) {
-            element.textContent = ''; // Limpiar mensajes de error anteriores
-        });
-
-        for (const [field, message] of Object.entries(errors)) {
-            const input = form.querySelector(`[name=${field}]`);
-            if (input) {
-                input.classList.add('is-invalid');
-                input.nextElementSibling.textContent = message;
-            }
-        }
-    }
-
-
-
 
     // Validación del campo de teléfono para permitir solo números y un máximo de 9 dígitos
     const telefonoInput = document.getElementById("telefono");
