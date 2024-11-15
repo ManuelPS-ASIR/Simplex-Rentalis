@@ -1,30 +1,188 @@
-<!-- SimplexRentalisAPP/templates/account/settings.html -->
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuración de Cuenta</title>
-</head>
-<body>
+{% block title %}Configuración de Cuenta{% endblock %}
 
-    <h1>Configuración de tu Cuenta</h1>
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center">Configuración de Cuenta</h1>
+    <hr>
 
-    <div>
-        <h3>Detalles del Usuario</h3>
-        <p><strong>Nombre de usuario:</strong> {{ user.username }}</p>
-        <p><strong>Correo electrónico:</strong> {{ user.email }}</p>
-        <p><strong>Fecha de registro:</strong> {{ user.date_joined }}</p>
-        
-        <h3>Actualizar Contraseña</h3>
-        <p>Puedes actualizar tu contraseña desde aquí:</p>
-        <a href="{% url 'password_change' %}">Cambiar contraseña</a>
-
-        <h3>Actualizar Perfil</h3>
-        <!-- Aquí puedes agregar un formulario para que el usuario actualice su información -->
-        <p>Puedes actualizar tu perfil aquí (en caso de que tengas un modelo de perfil).</p>
+    <!-- Detalles del Usuario -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3>Información de {{ user.username }}</h3>
+        </div>
+        <div class="card-body">
+            <p><strong>Nombre de usuario:</strong> {{ user.username }}</p>
+            <p><strong>Correo electrónico:</strong> {{ user.email }}</p>
+            <p><strong>Fecha de registro:</strong> {{ user.date_joined|date:"d M Y" }}</p>
+        </div>
     </div>
 
-</body>
-</html>
+    <!-- Actualizar Contraseña -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h3>Actualizar Contraseña</h3>
+        </div>
+        <div class="card-body">
+            <p>Puedes actualizar tu contraseña desde aquí:</p>
+            <a href="{% url 'password_change' %}" class="btn btn-warning">Cambiar contraseña</a>
+        </div>
+    </div>
+
+    <!-- Actualizar Perfil -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-info text-white">
+            <h3>Actualizar Perfil</h3>
+        </div>
+        <div class="card-body">
+            <form id="settingsForm" method="post" enctype="multipart/form-data" action="{% url 'settings' %}">
+                {% csrf_token %}
+                <!-- campos del formulario -->
+        
+                <div class="mb-3">
+                    <label for="username" class="form-label">Nombre de usuario</label>
+                    <input type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}" id="username" name="username" value="{{ form.username.value|default:user.username }}" required>
+                    <div class="invalid-feedback">
+                        {% for error in form.username.errors %}{{ error }}{% endfor %}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="telefono" class="form-label">Teléfono</label>
+                    <div class="input-group">
+                        <span class="input-group-text">+34</span>
+                        <input type="tel" class="form-control {% if form.telefono.errors %}is-invalid{% endif %}" id="telefono" name="telefono" value="{{ form.telefono.value|default:user.telefono }}" required maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                        <div class="invalid-feedback">
+                            {% for error in form.telefono.errors %}{{ error }}{% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
+                    <input type="date" class="form-control {% if form.fecha_nacimiento.errors %}is-invalid{% endif %}" id="fecha_nacimiento" name="fecha_nacimiento" value="{{ form.fecha_nacimiento.value|default:user.fecha_nacimiento|date:'Y-m-d' }}" required>
+                    <div class="invalid-feedback">
+                        {% for error in form.fecha_nacimiento.errors %}{{ error }}{% endfor %}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="genero" class="form-label">Género</label>
+                    <select class="form-control {% if form.genero.errors %}is-invalid{% endif %}" id="genero" name="genero" required>
+                        <option value="" {% if form.genero.value == "" or user.genero == "" %}selected{% endif %}>Seleccionar género</option>
+                        <option value="masculino" {% if form.genero.value == "masculino" or user.genero == "masculino" %}selected{% endif %}>Masculino</option>
+                        <option value="femenino" {% if form.genero.value == "femenino" or user.genero == "femenino" %}selected{% endif %}>Femenino</option>
+                        <option value="otro" {% if form.genero.value == "otro" or user.genero == "otro" %}selected{% endif %}>Otro</option>
+                    </select>
+                    <div class="invalid-feedback">
+                        {% for error in form.genero.errors %}{{ error }}{% endfor %}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="avatar" class="form-label">Imagen de Perfil</label>
+                    <input type="file" class="form-control {% if form.avatar.errors %}is-invalid{% endif %}" id="avatar" name="avatar">
+                    <div class="invalid-feedback">
+                        {% for error in form.avatar.errors %}{{ error }}{% endfor %}
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-info">Actualizar Perfil</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Eliminar Cuenta -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-danger text-white">
+            <h3>Eliminar Cuenta</h3>
+        </div>
+        <div class="card-body">
+            <p>¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.</p>
+            <form method="post" action="{% url 'delete_account' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.');">Eliminar Cuenta</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Función para mostrar errores de validación
+    function showErrors(form, errors) {
+        form.querySelectorAll('.is-invalid').forEach(function(element) {
+            element.classList.remove('is-invalid');
+        });
+
+        form.querySelectorAll('.invalid-feedback').forEach(function(element) {
+            element.textContent = ''; // Limpiar mensajes de error anteriores
+        });
+
+        for (const [field, message] of Object.entries(errors)) {
+            const input = form.querySelector(`[name=${field}]`);
+            if (input) {
+                input.classList.add('is-invalid');
+                input.nextElementSibling.textContent = message;
+            }
+        }
+    }
+
+    // Manejo de errores para el formulario de configuración
+    document.getElementById("settingsForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const form = this;
+        const formData = new FormData(form);
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Añadir el CSRF token
+        formData.append('csrfmiddlewaretoken', csrfToken);
+
+        fetch("{% url 'settings' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                showErrors(form, data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
+
+    function showErrors(form, errors) {
+        form.querySelectorAll('.is-invalid').forEach(function(element) {
+            element.classList.remove('is-invalid');
+        });
+
+        form.querySelectorAll('.invalid-feedback').forEach(function(element) {
+            element.textContent = ''; // Limpiar mensajes de error anteriores
+        });
+
+        for (const [field, message] of Object.entries(errors)) {
+            const input = form.querySelector(`[name=${field}]`);
+            if (input) {
+                input.classList.add('is-invalid');
+                input.nextElementSibling.textContent = message;
+            }
+        }
+    }
+
+
+
+
+    // Validación del campo de teléfono para permitir solo números y un máximo de 9 dígitos
+    const telefonoInput = document.getElementById("telefono");
+    telefonoInput.addEventListener("input", function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        if (this.value.length > 9) {
+            this.value = this.value.slice(0, 9);
+        }
+    });
+</script>
+{% endblock %}

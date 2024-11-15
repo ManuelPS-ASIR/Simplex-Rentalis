@@ -7,6 +7,7 @@ import re
 from datetime import date
 import dns.resolver
 
+
 class RegistroForm(UserCreationForm):
     username = forms.CharField(
         label=_("Nombre de usuario"),
@@ -107,6 +108,97 @@ class RegistroForm(UserCreationForm):
             self.add_error('password1', _("Las contraseñas no coinciden."))
             raise ValidationError(_("Las contraseñas no coinciden."))
         return password2
+
+    def clean_fecha_nacimiento(self):
+        fecha_nacimiento = self.cleaned_data.get("fecha_nacimiento")
+        today = date.today()
+        age = today.year - fecha_nacimiento.year - ((today.month, today.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
+
+        if age < 18:
+            raise ValidationError(_("Debe tener al menos 18 años para registrarse."))
+
+        return fecha_nacimiento
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        domain = email.split('@')[1]
+
+        try:
+            dns.resolver.resolve(domain, 'MX')
+        except dns.resolver.NXDOMAIN:
+            raise ValidationError(_("El dominio del correo electrónico no parece ser válido."))
+        except dns.resolver.NoAnswer:
+            raise ValidationError(_("El dominio del correo electrónico no parece ser válido."))
+        except dns.resolver.NoNameservers:
+            raise ValidationError(_("El dominio del correo electrónico no parece ser válido."))
+        return email
+
+
+class ConfiguracionCuentaForm(forms.ModelForm):
+    username = forms.CharField(
+        label=_("Nombre de usuario"),
+        max_length=30,
+        error_messages={
+            'required': _("Este campo es obligatorio."),
+            'unique': _("Este nombre de usuario ya está en uso."),
+        }
+    )
+    email = forms.EmailField(
+        label=_("Correo electrónico"),
+        max_length=254,
+        error_messages={
+            'required': _("Este campo es obligatorio."),
+            'unique': _("Este correo electrónico ya está en uso."),
+            'invalid': _("Ingrese un correo electrónico válido."),
+        }
+    )
+    telefono = forms.CharField(
+        label=_("Teléfono"),
+        max_length=9,
+        required=True,
+        error_messages={
+            'required': _("Este campo es obligatorio."),
+            'invalid': _("Ingrese un número de móvil español válido."),
+            'unique': _("Este número de móvil español ya está en uso."),
+        }
+    )
+    fecha_nacimiento = forms.DateField(
+        label=_("Fecha de nacimiento"),
+        required=True,
+        error_messages={
+            'required': _("Este campo es obligatorio."),
+            'invalid': _("Ingrese una fecha válida.")
+        }
+    )
+    genero = forms.ChoiceField(
+        label=_("Género"),
+        choices=[('masculino', 'Masculino'), ('femenino', 'Femenino'), ('otro', 'Otro')],
+        required=False,
+        error_messages={
+            'required': _("Este campo es obligatorio."),
+            'invalid_choice': _("Seleccione una opción válida.")
+        }
+    )
+    avatar = forms.ImageField(
+        label=_("Avatar"),
+        required=False,
+        error_messages={
+            'invalid': _("Ingrese una imagen válida.")
+        }
+    )
+
+    class Meta:
+        model = User
+        fields = ("username", "email", "telefono", "fecha_nacimiento", "genero", "avatar")
+
+    def clean_telefono(self):
+        telefono = self.cleaned_data.get("telefono")
+
+        # Verificar que el número contiene solo números y comienza con 6 o 7
+        if not re.match(r'^[67]\d{8}$', telefono):
+            raise ValidationError(_("Ingrese un número de móvil español válido. Debe contener 9 dígitos y empezar con 6 o 7."))
+
+        return telefono
 
     def clean_fecha_nacimiento(self):
         fecha_nacimiento = self.cleaned_data.get("fecha_nacimiento")
