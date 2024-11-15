@@ -4,7 +4,6 @@
 
 {% load static %}
 
-
 {% block content %}
 
 <div class="container mt-5">
@@ -87,7 +86,8 @@
                         {% for error in form.avatar.errors %}{{ error }}{% endfor %}
                     </div>
                 </div>
-                <button type="submit" class="btn btn-info">Actualizar Perfil</button>
+                <button id="updateProfileBtn" type="submit" class="btn btn-info">Actualizar Perfil</button>
+                <span id="timer" style="margin-left: 10px; font-weight: bold; color: red;"></span> <!-- Contador -->
             </form>
         </div>
     </div>
@@ -119,9 +119,6 @@
     </div>
 </div>
 
-<!-- Añadir estilo para aumentar el tamaño del texto del toast -->
-
-
 <script>
     // Función para mostrar errores de validación
     function showErrors(form, errors) {
@@ -144,15 +141,40 @@
 
     // Manejo de errores para el formulario de configuración
     document.getElementById("settingsForm").addEventListener("submit", function(e) {
-        e.preventDefault();
+        e.preventDefault();  // Prevenir el envío del formulario inicialmente
 
         const form = this;
         const formData = new FormData(form);
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
+        // Deshabilitar el botón de actualización y activar el contador
+        const updateButton = document.getElementById('updateProfileBtn');
+        const timerElement = document.getElementById('timer');
+        let remainingTime = 180; // 3 minutos en segundos
+
+        // Deshabilitar el botón y mostrar el contador
+        updateButton.disabled = true;
+        updateButton.textContent = "Bloqueado...";
+        timerElement.textContent = `Tiempo restante: ${remainingTime}s`;
+
+        // Actualizar el contador cada segundo
+        const interval = setInterval(function() {
+            remainingTime--;
+            timerElement.textContent = `Tiempo restante: ${remainingTime}s`;
+
+            // Cuando el tiempo llegue a 0, habilitar el botón
+            if (remainingTime <= 0) {
+                clearInterval(interval);
+                updateButton.disabled = false;  // Habilitar el botón
+                updateButton.textContent = "Actualizar Perfil";  // Restablecer texto
+                timerElement.textContent = '';  // Limpiar el contador
+            }
+        }, 1000);
+
         // Añadir el CSRF token
         formData.append('csrfmiddlewaretoken', csrfToken);
 
+        // Enviar el formulario a través de fetch
         fetch("{% url 'settings' %}", {
             method: 'POST',
             body: formData,
@@ -171,7 +193,7 @@
                 // Opcional: recargar después de un tiempo
                 setTimeout(() => {
                     location.reload();
-                }, 6000);
+                }, 180000);
             } else {
                 showErrors(form, data.error);
             }
@@ -181,13 +203,6 @@
         });
     });
 
-    // Validación del campo de teléfono para permitir solo números y un máximo de 9 dígitos
-    const telefonoInput = document.getElementById("telefono");
-    telefonoInput.addEventListener("input", function() {
-        this.value = this.value.replace(/[^0-9]/g, '');
-        if (this.value.length > 9) {
-            this.value = this.value.slice(0, 9);
-        }
-    });
 </script>
+
 {% endblock %}
