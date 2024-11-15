@@ -9,7 +9,7 @@ urlpatterns = [
     path('registro/', views.register, name='register'),
 
     # Otras rutas
-    path('account/settings/', views.account_settings, name='account_settings'),
+    path('settings/', views.account_settings, name='settings'),
     # Rutas para la aplicación
     path("", views.index, name="index"),
     path('propiedades/', views.propiedades, name='propiedades'),

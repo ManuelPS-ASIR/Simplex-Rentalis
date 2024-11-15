@@ -11,7 +11,8 @@ import re
 ##### 0. Modelo de Usuarios #####
 ####################################
 class User(AbstractUser):
-    telefono = models.CharField(max_length=15, blank=True, null=True)
+    email = models.EmailField(unique=True, max_length=254)
+    telefono = models.CharField(unique=True, max_length=15, blank=True, null=True)
     fecha_nacimiento = models.DateField(null=True, blank=True)
     genero = models.CharField(
         max_length=10,

@@ -37,7 +37,7 @@
           <span class="text-light">{{ user.username }}</span>
         </a>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-          <li><a class="dropdown-item" href="{% url 'account_settings' %}">Configuración de la cuenta</a></li>
+          <li><a class="dropdown-item" href="{% url 'settings' %}">Configuración de la cuenta</a></li>
           <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>  <!-- Botón de cerrar sesión -->
         </ul>
         {% else %}

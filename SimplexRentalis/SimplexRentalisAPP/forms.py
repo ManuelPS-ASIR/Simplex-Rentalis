@@ -30,13 +30,16 @@ class RegistroForm(UserCreationForm):
         max_length=9,
         required=True,
         error_messages={
-            'invalid': _("Ingrese un número de móvil español válido.")
+            'required': _("Este campo es obligatorio."),
+            'invalid': _("Ingrese un número de móvil español válido."),
+            'unique': _("Este número de móvil español ya está en uso."),
         }
     )
     fecha_nacimiento = forms.DateField(
         label=_("Fecha de nacimiento"),
         required=True,
         error_messages={
+            'required': _("Este campo es obligatorio."),
             'invalid': _("Ingrese una fecha válida.")
         }
     )
@@ -45,6 +48,7 @@ class RegistroForm(UserCreationForm):
         choices=[('masculino', 'Masculino'), ('femenino', 'Femenino'), ('otro', 'Otro')],
         required=False,
         error_messages={
+            'required': _("Este campo es obligatorio."),
             'invalid_choice': _("Seleccione una opción válida.")
         }
     )

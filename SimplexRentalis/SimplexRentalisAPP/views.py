@@ -99,4 +99,4 @@ def propiedades_usuario(request):
 
 # Vista para la configuración de la cuenta
 def account_settings(request):
-    return render(request, 'SimplexRentalisAPP/account_settings.html')
+    return render(request, 'SimplexRentalisAPP/settings.html')
