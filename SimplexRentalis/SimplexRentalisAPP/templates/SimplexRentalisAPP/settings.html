@@ -5,7 +5,6 @@
 {% load static %}
 
 {% block content %}
-
 <div class="container mt-5">
     <h1 class="text-center">Configuración de Cuenta</h1>
     <hr>
@@ -86,7 +85,7 @@
                         {% for error in form.avatar.errors %}{{ error }}{% endfor %}
                     </div>
                 </div>
-                <button id="updateProfileBtn" type="submit" class="btn btn-info">Actualizar Perfil</button>
+                <button id="updateProfileBtn" type="submit" class="btn btn-info" disabled>Actualizar Perfil</button>
                 <span id="timer" style="margin-left: 10px; font-weight: bold; color: red;"></span> <!-- Contador -->
             </form>
         </div>
@@ -120,89 +119,134 @@
 </div>
 
 <script>
-    // Función para mostrar errores de validación
-    function showErrors(form, errors) {
-        form.querySelectorAll('.is-invalid').forEach(function(element) {
-            element.classList.remove('is-invalid');
-        });
-
-        form.querySelectorAll('.invalid-feedback').forEach(function(element) {
-            element.textContent = ''; // Limpiar mensajes de error anteriores
-        });
-
-        for (const [field, message] of Object.entries(errors)) {
-            const input = form.querySelector(`[name=${field}]`);
-            if (input) {
-                input.classList.add('is-invalid');
-                input.nextElementSibling.textContent = message;
-            }
-        }
-    }
-
-    // Manejo de errores para el formulario de configuración
-    document.getElementById("settingsForm").addEventListener("submit", function(e) {
-        e.preventDefault();  // Prevenir el envío del formulario inicialmente
-
-        const form = this;
-        const formData = new FormData(form);
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-        // Deshabilitar el botón de actualización y activar el contador
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('settingsForm');
         const updateButton = document.getElementById('updateProfileBtn');
         const timerElement = document.getElementById('timer');
-        let remainingTime = 180; // 3 minutos en segundos
 
-        // Deshabilitar el botón y mostrar el contador
-        updateButton.disabled = true;
-        updateButton.textContent = "Bloqueado...";
-        timerElement.textContent = `Tiempo restante: ${remainingTime}s`;
+        // Guardar los valores originales del formulario
+        const originalValues = {
+            username: document.getElementById('username').value,
+            telefono: document.getElementById('telefono').value,
+            fecha_nacimiento: document.getElementById('fecha_nacimiento').value,
+            genero: document.getElementById('genero').value,
+            avatar: document.getElementById('avatar').value
+        };
 
-        // Actualizar el contador cada segundo
-        const interval = setInterval(function() {
-            remainingTime--;
-            timerElement.textContent = `Tiempo restante: ${remainingTime}s`;
+        // Obtener la hora del último clic almacenada
+        const lastClickTime = localStorage.getItem('lastClickTime');
+        const currentTime = new Date().getTime();
+        const remainingTime = lastClickTime ? Math.max(0, (parseInt(lastClickTime) + 180000) - currentTime) : 0;
 
-            // Cuando el tiempo llegue a 0, habilitar el botón
-            if (remainingTime <= 0) {
-                clearInterval(interval);
-                updateButton.disabled = false;  // Habilitar el botón
-                updateButton.textContent = "Actualizar Perfil";  // Restablecer texto
-                timerElement.textContent = '';  // Limpiar el contador
+        // Deshabilitar botón si aún no han pasado 3 minutos
+        if (remainingTime > 0) {
+            disableButtonWithTimer(remainingTime);
+        }
+
+        // Función para verificar si los valores del formulario han cambiado
+        function checkIfFormChanged() {
+            const currentValues = {
+                username: document.getElementById('username').value,
+                telefono: document.getElementById('telefono').value,
+                fecha_nacimiento: document.getElementById('fecha_nacimiento').value,
+                genero: document.getElementById('genero').value,
+                avatar: document.getElementById('avatar').value
+            };
+
+            let isChanged = false;
+            for (const key in currentValues) {
+                if (currentValues[key] !== originalValues[key]) {
+                    isChanged = true;
+                    break;
+                }
             }
-        }, 1000);
 
-        // Añadir el CSRF token
-        formData.append('csrfmiddlewaretoken', csrfToken);
-
-        // Enviar el formulario a través de fetch
-        fetch("{% url 'settings' %}", {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Mostrar el toast de éxito
-                const toastElement = document.getElementById('successToast');
-                const toast = new bootstrap.Toast(toastElement);
-                toast.show();
-
-                // Opcional: recargar después de un tiempo
-                setTimeout(() => {
-                    location.reload();
-                }, 180000);
+            // Habilitar o deshabilitar el botón si no hay temporizador activo
+            if (remainingTime === 0 && isChanged) {
+                updateButton.disabled = false;
+                updateButton.classList.remove('btn-secondary');
+                updateButton.classList.add('btn-info');
             } else {
-                showErrors(form, data.error);
+                updateButton.disabled = true;
+                updateButton.classList.remove('btn-info');
+                updateButton.classList.add('btn-secondary');
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    });
+        }
 
+        // Comprobar cambios cuando los campos cambian
+        form.querySelectorAll('input, select').forEach(function (input) {
+            input.addEventListener('input', checkIfFormChanged);
+        });
+
+        // Función para deshabilitar botón y mostrar temporizador
+        function disableButtonWithTimer(duration) {
+            const endTime = new Date().getTime() + duration;
+
+            updateButton.disabled = true;
+            updateButton.classList.add('btn-secondary');
+            updateButton.classList.remove('btn-info');
+
+            const interval = setInterval(function () {
+                const remaining = Math.max(0, endTime - new Date().getTime());
+                if (remaining === 0) {
+                    clearInterval(interval);
+                    localStorage.removeItem('lastClickTime');
+                    updateButton.disabled = false;
+                    updateButton.classList.remove('btn-secondary');
+                    updateButton.classList.add('btn-info');
+                    timerElement.textContent = '';
+                } else {
+                    timerElement.textContent = `Tiempo restante hasta poder volver a modificar: ${Math.ceil(remaining / 1000)}s`;
+                }
+            }, 1000);
+        }
+
+        // Enviar formulario con temporizador
+        form.addEventListener("submit", function (e) {
+            e.preventDefault(); // Prevenir el envío
+
+            const formData = new FormData(form);
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            // Deshabilitar botón, guardar hora del clic y activar temporizador
+            const clickTime = new Date().getTime();
+            localStorage.setItem('lastClickTime', clickTime);
+            disableButtonWithTimer(180000); // 3 minutos en milisegundos
+
+            formData.append('csrfmiddlewaretoken', csrfToken);
+
+            fetch("{% url 'settings' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mostrar éxito
+                    const toastElement = document.getElementById('successToast');
+                    const toast = new bootstrap.Toast(toastElement);
+                    toast.show();
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000); // 3 segundos para recargar la página (si se necesita)
+                } else {
+                    showErrors(form, data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        // Llamar a la función inicialmente para configurar el estado
+        checkIfFormChanged();
+    });
 </script>
 
+
 {% endblock %}
+<!-- SI RECARGO, EL TIEMPO DE ESPERA DA IGUAL -->
