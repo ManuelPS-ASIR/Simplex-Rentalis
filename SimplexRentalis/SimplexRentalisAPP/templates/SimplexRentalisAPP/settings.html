@@ -15,9 +15,17 @@
             <h3>Información de {{ user.username }}</h3>
         </div>
         <div class="card-body">
-            <p><strong>Nombre de usuario:</strong> {{ user.username }}</p>
             <p><strong>Correo electrónico:</strong> {{ user.email }}</p>
             <p><strong>Fecha de registro:</strong> {{ user.date_joined|date:"d M Y" }}</p>
+            <p><strong>Teléfono:</strong> {{ user.telefono }}</p>
+            <p><strong>Fecha de nacimiento:</strong> {{ user.fecha_nacimiento|date:"d M Y" }}</p>
+            <p><strong>Género:</strong> {{ user.genero }}</p>
+            <p><strong>Imagen de perfil:</strong></p>
+            {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" alt="Avatar de {{ user.username }}" class="img-thumbnail" style="max-width: 150px;">
+            {% else %}
+                <p>No hay imagen de perfil.</p>
+            {% endif %}
         </div>
     </div>
 
