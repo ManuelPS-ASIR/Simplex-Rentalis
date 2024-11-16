@@ -140,6 +140,8 @@ def password_change_view(request):
 
 # Vista para eliminar la cuenta
 @login_required
-def delete_account_view(request):
-    # Lógica para eliminar la cuenta
-    return render(request, 'delete_account.html')
+def delete_account(request):
+    if request.method == 'POST':
+        user = request.user
+        user.delete()
+        return redirect('index')  # redirigir a una página adecuada tras la eliminación

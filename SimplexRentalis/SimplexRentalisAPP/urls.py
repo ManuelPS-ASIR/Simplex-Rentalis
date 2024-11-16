@@ -10,7 +10,8 @@ urlpatterns = [
     #Modificación en cuenta
     path('settings/', views.account_settings, name='account_settings'),
     path('password_change/', views.password_change_view, name='password_change'),
-    path('delete_account/', views.delete_account_view, name='delete_account'),
+    path('delete_account/', views.delete_account, name='delete_account'),
+    
 
     # Otras rutas
     path('settings/', views.account_settings, name='settings'),

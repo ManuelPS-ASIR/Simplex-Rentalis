@@ -100,8 +100,8 @@
             <p>¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.</p>
             <form method="post" action="{% url 'delete_account' %}">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.');">Eliminar Cuenta</button>
-            </form>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">Eliminar Cuenta</button>
+            </form>            
         </div>
     </div>
 </div>
@@ -118,7 +118,74 @@
     </div>
 </div>
 
+<!-- Botón para abrir el modal -->
+<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+    Eliminar Cuenta
+</button>
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteAccountModalLabel">{{ user.username }}, ¿estás seguro de querer borrar tu cuenta?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Primera etapa -->
+                <div id="confirmationStep">
+                    <p>Esta acción no se puede deshacer.</p>
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                        <button type="button" class="btn btn-success" id="confirmDeletionBtn">Sí</button>
+                    </div>
+                </div>
+                <!-- Segunda etapa -->
+                <div id="finalConfirmationStep" class="d-none">
+                    <p>{{ user.username }}, confirme la acción:</p>
+                    <form id="finalConfirmationForm" method="post" action="{% url 'delete_account' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="usernameConfirm" class="form-label">Nombre de usuario</label>
+                            <input type="text" class="form-control" id="usernameConfirm" name="usernameConfirm" placeholder="{{ user.username }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmationCode" class="form-label">Escribe "CONFIRMAR"</label>
+                            <input type="text" class="form-control" id="confirmationCode" name="confirmationCode" placeholder="CONFIRMAR" required>
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100" id="deleteAccountBtn" disabled>Eliminar Cuenta</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const confirmDeletionBtn = document.getElementById('confirmDeletionBtn');
+        const finalConfirmationStep = document.getElementById('finalConfirmationStep');
+        const confirmationStep = document.getElementById('confirmationStep');
+        const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+        const usernameConfirm = document.getElementById('usernameConfirm');
+        const confirmationCode = document.getElementById('confirmationCode');
+
+        // Mostrar la segunda etapa al confirmar
+        confirmDeletionBtn.addEventListener('click', function () {
+            confirmationStep.classList.add('d-none');
+            finalConfirmationStep.classList.remove('d-none');
+        });
+
+        // Habilitar el botón de eliminación solo si los campos son válidos
+        function validateInputs() {
+            const isUsernameValid = usernameConfirm.value.trim() === "{{ user.username }}";
+            const isConfirmationCodeValid = confirmationCode.value.trim().toUpperCase() === "CONFIRMAR";
+            deleteAccountBtn.disabled = !(isUsernameValid && isConfirmationCodeValid);
+        }
+
+        usernameConfirm.addEventListener('input', validateInputs);
+        confirmationCode.addEventListener('input', validateInputs);
+    });
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('settingsForm');
         const updateButton = document.getElementById('updateProfileBtn');
