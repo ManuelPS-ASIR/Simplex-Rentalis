@@ -90,7 +90,7 @@ def logout_view(request):
 @login_required
 def propiedades_usuario(request):
     propiedades = Propiedades.objects.filter(propietario=request.user)
-    return render(request, 'propiedades_usuario.html', {
+    return render(request, 'SimplexRentalisAPP/propiedades_usuario.html', {
         'propiedades': propiedades
     })
 
