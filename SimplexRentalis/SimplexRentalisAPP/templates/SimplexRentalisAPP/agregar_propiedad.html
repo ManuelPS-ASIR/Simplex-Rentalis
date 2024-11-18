@@ -58,17 +58,6 @@
                     {% endif %}
                 </div>
 
-                <!-- Calificación -->
-                <div class="form-group">
-                    <label for="id_calificacion">Calificación (1-5)</label>
-                    <input type="number" name="calificacion" class="form-control" min="1" max="5" required>
-                    {% if errors.calificacion %}
-                        <div class="invalid-feedback d-block">
-                            <p>{{ errors.calificacion }}</p>
-                        </div>
-                    {% endif %}
-                </div>
-
                 <!-- Imágenes -->
                 <div class="form-group">
                     <label for="id_imagenes">Imágenes</label>
