@@ -17,7 +17,7 @@
                 <!-- Nombre de la propiedad -->
                 <div class="form-group">
                     <label for="id_nombre">Nombre de la propiedad</label>
-                    <input type="text" name="nombre" class="form-control" required>
+                    <input type="text" name="nombre" class="form-control form-control-lg" required>
                     {% if errors.nombre %}
                         <div class="invalid-feedback d-block">
                             <p>{{ errors.nombre }}</p>
@@ -28,7 +28,7 @@
                 <!-- Descripción -->
                 <div class="form-group">
                     <label for="id_descripcion">Descripción</label>
-                    <textarea name="descripcion" class="form-control" required></textarea>
+                    <textarea name="descripcion" class="form-control form-control-lg" rows="4" required></textarea>
                     {% if errors.descripcion %}
                         <div class="invalid-feedback d-block">
                             <p>{{ errors.descripcion }}</p>
@@ -39,7 +39,7 @@
                 <!-- Dirección -->
                 <div class="form-group">
                     <label for="id_direccion">Dirección</label>
-                    <input type="text" name="direccion" class="form-control" required>
+                    <input type="text" name="direccion" class="form-control form-control-lg" required>
                     {% if errors.direccion %}
                         <div class="invalid-feedback d-block">
                             <p>{{ errors.direccion }}</p>
@@ -50,7 +50,7 @@
                 <!-- Precio por noche -->
                 <div class="form-group">
                     <label for="id_precio_noche">Precio por noche</label>
-                    <input type="number" name="precio_noche" class="form-control" required>
+                    <input type="number" name="precio_noche" class="form-control form-control-lg" required>
                     {% if errors.precio_noche %}
                         <div class="invalid-feedback d-block">
                             <p>{{ errors.precio_noche }}</p>
@@ -61,7 +61,7 @@
                 <!-- Imágenes -->
                 <div class="form-group">
                     <label for="id_imagenes">Imágenes</label>
-                    <input type="file" name="imagenes" multiple class="form-control" required>
+                    <input type="file" name="imagenes" multiple class="form-control-file" required>
                     {% if errors.imagenes %}
                         <div class="invalid-feedback d-block">
                             <p>{{ errors.imagenes }}</p>
@@ -72,29 +72,31 @@
                 <!-- Permite mascotas -->
                 <div class="form-group">
                     <label for="id_permite_mascotas">¿Permite mascotas?</label>
-                    <input type="checkbox" name="permite_mascotas">
+                    <input type="checkbox" name="permite_mascotas" id="permite_mascotas">
                     {% if errors.permite_mascotas %}
                         <div class="invalid-feedback d-block">
                             <p>{{ errors.permite_mascotas }}</p>
                         </div>
                     {% endif %}
+                    <small class="form-text text-muted">Los usuarios podrán filtrar las propiedades que permiten mascotas.</small>
                 </div>
 
                 <!-- En mantenimiento -->
                 <div class="form-group">
                     <label for="id_en_mantenimiento">¿En mantenimiento?</label>
-                    <input type="checkbox" name="en_mantenimiento">
+                    <input type="checkbox" name="en_mantenimiento" id="en_mantenimiento">
                     {% if errors.en_mantenimiento %}
                         <div class="invalid-feedback d-block">
                             <p>{{ errors.en_mantenimiento }}</p>
                         </div>
                     {% endif %}
+                    <small class="form-text text-muted">Si marcas esta opción, la propiedad no aparecerá en las búsquedas ya que está en mantenimiento y no disponible para alquiler.</small>
                 </div>
 
                 <!-- Capacidad máxima -->
                 <div class="form-group">
                     <label for="id_capacidad_maxima">Capacidad máxima</label>
-                    <input type="number" name="capacidad_maxima" class="form-control" required>
+                    <input type="number" name="capacidad_maxima" class="form-control form-control-lg" required>
                     {% if errors.capacidad_maxima %}
                         <div class="invalid-feedback d-block">
                             <p>{{ errors.capacidad_maxima }}</p>
@@ -104,7 +106,7 @@
 
                 <!-- Botón de enviar -->
                 <div class="form-group text-center">
-                    <button type="submit" class="btn btn-primary btn-lg">Guardar Propiedad</button>
+                    <button type="submit" class="btn btn-primary btn-lg w-100">Guardar Propiedad</button>
                 </div>
             </form>
         </div>

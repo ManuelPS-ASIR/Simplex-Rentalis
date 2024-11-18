@@ -20,7 +20,7 @@
         {% if propiedades %}
             {% for propiedad in propiedades %}
                 <div class="col-12 col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
-                    <a href="{% url 'detalle_propiedad' propiedad.pk %}" class="propiedad-card text-center text-decoration-none">
+                    <a href="{% url 'propiedad_detallada' propiedad.pk %}" class="propiedad-card text-center text-decoration-none">
                         <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
                             <div class="card-image">
                                 {% if propiedad.imagen %}

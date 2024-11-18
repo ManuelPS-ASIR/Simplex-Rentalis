@@ -144,22 +144,27 @@ def delete_account(request):
 @login_required
 def agregar_propiedad(request):
     if request.method == 'POST':
-        # Guardamos la propiedad sin hacer commit para añadir el propietario
+        # Guardamos los datos recibidos del formulario
         nombre = request.POST.get('nombre')
         descripcion = request.POST.get('descripcion')
         direccion = request.POST.get('direccion')
         precio_noche = request.POST.get('precio_noche')
-        calificacion = request.POST.get('calificacion')
         permite_mascotas = 'permite_mascotas' in request.POST
         en_mantenimiento = 'en_mantenimiento' in request.POST
         capacidad_maxima = request.POST.get('capacidad_maxima')
 
+        # Verificamos si ya existe una propiedad con la misma dirección y propietario
+        if Propiedades.objects.filter(direccion=direccion, propietario=request.user).exists():
+            # Si ya existe, puedes enviar un error o mensaje
+            messages.error(request, "Ya tienes una propiedad con esta dirección.")
+            return redirect('agregar_propiedad')  # O la URL adecuada
+
+        # Si no existe, creamos la propiedad
         propiedad = Propiedades.objects.create(
             nombre=nombre,
             descripcion=descripcion,
             direccion=direccion,
             precio_noche=precio_noche,
-            calificacion=calificacion,
             permite_mascotas=permite_mascotas,
             en_mantenimiento=en_mantenimiento,
             capacidad_maxima=capacidad_maxima,
@@ -170,7 +175,7 @@ def agregar_propiedad(request):
         if 'imagenes' in request.FILES:
             images = request.FILES.getlist('imagenes')
             for image in images:
-                Galeria.objects.create(propiedad=propiedad, image=image)
+                Galeria.objects.create(propiedad=propiedad, imagen=image)
 
             # Opcional: Marcar la primera imagen como portada
             if images:
@@ -202,3 +207,14 @@ def agregar_imagenes(request, propiedad_id):
         return JsonResponse({"success": True, "message": "Imágenes cargadas correctamente."})
 
     return render(request, "SimplexRentalisAPP/agregar_imagenes.html", {'propiedad': propiedad})
+
+# views.py
+from django.shortcuts import render, get_object_or_404
+from .models import Propiedades
+
+# Vista para mostrar los detalles de una propiedad
+def propiededad_detallada(request, propiedad_id):
+    propiedad = get_object_or_404(Propiedades, pk=propiedad_id)
+    return render(request, 'SimplexRentalisAPP/propiededad_detallada.html', {
+        'propiedad': propiedad
+    })

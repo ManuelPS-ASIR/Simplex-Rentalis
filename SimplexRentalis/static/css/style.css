@@ -399,3 +399,57 @@ h3 {
     z-index: 1100; /* Asegura que el botón esté sobre otros elementos */
 }
 
+/* Mejora el espaciado y alineación de las etiquetas */
+form .form-group label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+/* Mejora el aspecto de los campos de entrada */
+.form-control, .form-control-lg {
+    border-radius: 8px; /* Bordes redondeados */
+    padding: 15px; /* Más padding para una mayor facilidad de escritura */
+}
+
+/* Estilo de los mensajes de error */
+.invalid-feedback {
+    font-size: 0.875rem;
+    color: #dc3545;
+}
+
+/* Estilo de las casillas de verificación */
+input[type="checkbox"] {
+    margin-right: 8px; /* Espacio entre el checkbox y el texto */
+}
+
+/* Mejorar la apariencia de los botones */
+.btn-primary {
+    background-color: #007bff;
+    border-radius: 8px;
+    padding: 12px 20px; /* Botones más grandes */
+    text-transform: uppercase; /* Texto en mayúsculas */
+    transition: background-color 0.3s ease;
+}
+
+/* Botón de submit al pasar el ratón */
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Mejorar el texto de ayuda */
+.form-text {
+    font-size: 0.9rem;
+    color: #6c757d; /* Color de texto gris */
+    margin-top: 5px;
+}
+
+/* Mejorar el tamaño de las imágenes */
+input[type="file"] {
+    padding: 8px; /* Añadir padding para hacer más visible el área de carga */
+}
+
+/* Estilos para los campos de texto grandes */
+textarea.form-control {
+    height: 150px; /* Altura del textarea */
+    resize: vertical; /* Permitir redimensionar solo en la dirección vertical */
+}
