@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Agregar Propiedad
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Agregar Nueva Propiedad</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Formulario -->
+                <div class="form-group">
+                    <label for="id_nombre">Nombre de la propiedad</label>
+                    {{ form.nombre }}
+                    {% if form.nombre.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.nombre.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_descripcion">Descripción</label>
+                    {{ form.descripcion }}
+                    {% if form.descripcion.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.descripcion.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_direccion">Dirección</label>
+                    {{ form.direccion }}
+                    {% if form.direccion.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.direccion.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_precio_noche">Precio por noche</label>
+                    {{ form.precio_noche }}
+                    {% if form.precio_noche.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.precio_noche.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_calificacion">Calificación (1-5)</label>
+                    {{ form.calificacion }}
+                    {% if form.calificacion.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.calificacion.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_imagen">Imagen</label>
+                    {{ form.imagen }}
+                    {% if form.imagen.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.imagen.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_permite_mascotas">¿Permite mascotas?</label>
+                    {{ form.permite_mascotas }}
+                    {% if form.permite_mascotas.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.permite_mascotas.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_en_mantenimiento">¿En mantenimiento?</label>
+                    {{ form.en_mantenimiento }}
+                    {% if form.en_mantenimiento.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.en_mantenimiento.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_capacidad_maxima">Capacidad máxima</label>
+                    {{ form.capacidad_maxima }}
+                    {% if form.capacidad_maxima.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.capacidad_maxima.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Botón de enviar -->
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary btn-lg">Guardar Propiedad</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

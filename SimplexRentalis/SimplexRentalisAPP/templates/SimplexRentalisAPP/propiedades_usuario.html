@@ -7,25 +7,33 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Mis Propiedades</h2>
+    <!-- Contenedor para Título y Botón -->
+    <div class="position-relative mb-4">
+        <!-- Botón alineado a la izquierda y más grande -->
+        <a href="{% url 'agregar_propiedad' %}" class="btn btn-primary position-absolute btn-agregar">Agregar Propiedad</a>
+        <!-- Título centrado -->
+        <h2 class="text-center m-0">Mis Propiedades</h2>
+    </div>
+
+    <!-- Contenedor de tarjetas de propiedades -->
     <div class="row justify-content-center">
         {% if propiedades %}
             {% for propiedad in propiedades %}
-                <div class="col-6 col-md-4 col-lg-3 mb-4 d-flex align-items-stretch">
+                <div class="col-12 col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
                     <a href="{% url 'detalle_propiedad' propiedad.pk %}" class="propiedad-card text-center text-decoration-none">
-                        <div class="card shadow-sm">
+                        <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
                             <div class="card-image">
                                 {% if propiedad.imagen %}
-                                    <img src="{{ propiedad.imagen.url }}" class="img-fluid rounded" alt="Imagen de {{ propiedad.nombre }}">
+                                    <img src="{{ propiedad.imagen.url }}" class="img-fluid rounded-top" alt="Imagen de {{ propiedad.nombre }}">
                                 {% else %}
-                                    <div class="no-imagen">
-                                        <p>No hay imagen disponible.</p>
+                                    <div class="no-imagen d-flex justify-content-center align-items-center bg-light" style="height: 200px;">
+                                        <p class="text-muted">No hay imagen disponible.</p>
                                     </div>
                                 {% endif %}
                             </div>
-                            <div class="card-body">
-                                <h5 class="card-title">{{ propiedad.nombre }} > {{ propiedad.precio_noche }}€</h5>
-                                <p class="card-text">{{ propiedad.direccion }}</p>
+                            <div class="card-body p-4">
+                                <h5 class="card-title">{{ propiedad.nombre }} - <span class="text-primary">{{ propiedad.precio_noche }}€</span></h5>
+                                <p class="card-text text-muted">{{ propiedad.direccion }}</p>
                                 <p class="text-muted">Calificación: {{ propiedad.calificacion }}/5</p>
                             </div>
                         </div>
@@ -33,7 +41,7 @@
                 </div>
             {% endfor %}
         {% else %}
-            <p class="text-center">No tienes propiedades registradas.</p>
+            <p class="text-center text-muted">No tienes propiedades registradas.</p>
         {% endif %}
     </div>
 </div>

@@ -195,3 +195,46 @@ class ConfiguracionCuentaForm(forms.ModelForm):
         if age < 18:
             raise ValidationError(_("Debe tener al menos 18 años para registrarse."))
         return fecha_nacimiento
+
+from django import forms
+from .models import Propiedades
+
+class PropiedadForm(forms.ModelForm):
+    class Meta:
+        model = Propiedades
+        fields = [
+            'nombre',
+            'descripcion',
+            'direccion',
+            'precio_noche',
+            'calificacion',
+            'porcentaje_reserva',
+            'imagen',
+            'permite_mascotas',
+            'en_mantenimiento',
+            'capacidad_maxima',
+        ]
+        widgets = {
+            'descripcion': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
+            'precio_noche': forms.NumberInput(attrs={'step': 0.01}),
+            'imagen': forms.ClearableFileInput(attrs={'accept': 'image/*'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(PropiedadForm, self).__init__(*args, **kwargs)
+        # Agregar una clase de Bootstrap para mejorar el estilo del formulario
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
+
+    # Validación personalizada para los campos si es necesario
+    def clean_calificacion(self):
+        calificacion = self.cleaned_data.get('calificacion')
+        if calificacion < 1 or calificacion > 5:
+            raise forms.ValidationError("La calificación debe estar entre 1 y 5.")
+        return calificacion
+
+    def clean_porcentaje_reserva(self):
+        porcentaje_reserva = self.cleaned_data.get('porcentaje_reserva')
+        if porcentaje_reserva < 5 or porcentaje_reserva > 35:
+            raise forms.ValidationError("El porcentaje de reserva debe estar entre 5% y 35%.")
+        return porcentaje_reserva

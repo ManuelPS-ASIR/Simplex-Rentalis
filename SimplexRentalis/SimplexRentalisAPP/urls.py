@@ -20,4 +20,6 @@ urlpatterns = [
     path('propiedades/', views.propiedades, name='propiedades'),
     path('mis_propiedades/', views.propiedades_usuario, name='propiedades_usuario'),
     path('propiedades/mis_propiedades/', views.propiedades_usuario, name='propiedades_usuario'),
+    path('propiedades/agregar/', views.agregar_propiedad, name='agregar_propiedad'),
+    path('agregar/', views.agregar_propiedad, name='agregar_propiedad'),
 ]

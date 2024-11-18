@@ -6,6 +6,11 @@ from django.utils.translation import gettext as _
 from django.contrib import messages
 from .models import Propiedades, User
 from .forms import RegistroForm, ConfiguracionCuentaForm
+from .forms import PropiedadForm
+
+
+
+
 
 # Vista para la página de inicio
 def index(request):
@@ -93,6 +98,19 @@ def propiedades_usuario(request):
     return render(request, 'SimplexRentalisAPP/propiedades_usuario.html', {
         'propiedades': propiedades
     })
+@login_required
+def agregar_propiedad(request):
+    if request.method == 'POST':
+        form = PropiedadForm(request.POST, request.FILES)
+        if form.is_valid():
+            propiedad = form.save(commit=False)
+            propiedad.propietario = request.user  # Asocia la propiedad al usuario autenticado
+            propiedad.save()
+            return redirect('propiedades_usuario')  # Redirige a la vista de propiedades del usuario
+    else:
+        form = PropiedadForm()
+
+    return render(request, 'SimplexRentalisAPP/agregar_propiedad.html', {'form': form})
 
 # Vista para la configuración de la cuenta
 @login_required
