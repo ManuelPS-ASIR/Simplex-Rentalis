@@ -4,13 +4,9 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
 from django.contrib import messages
-from .models import Propiedades, User
+from .models import Propiedades, User, Galeria
 from .forms import RegistroForm, ConfiguracionCuentaForm
-from .forms import PropiedadForm
-
-
-
-
+from .models import Propiedades, Galeria
 
 # Vista para la página de inicio
 def index(request):
@@ -91,27 +87,6 @@ def logout_view(request):
     logout(request)
     return redirect('index')  # Redirige al usuario a la página principal después de cerrar sesión
 
-# Vista para propiedades de usuario (ya definida anteriormente)
-@login_required
-def propiedades_usuario(request):
-    propiedades = Propiedades.objects.filter(propietario=request.user)
-    return render(request, 'SimplexRentalisAPP/propiedades_usuario.html', {
-        'propiedades': propiedades
-    })
-@login_required
-def agregar_propiedad(request):
-    if request.method == 'POST':
-        form = PropiedadForm(request.POST, request.FILES)
-        if form.is_valid():
-            propiedad = form.save(commit=False)
-            propiedad.propietario = request.user  # Asocia la propiedad al usuario autenticado
-            propiedad.save()
-            return redirect('propiedades_usuario')  # Redirige a la vista de propiedades del usuario
-    else:
-        form = PropiedadForm()
-
-    return render(request, 'SimplexRentalisAPP/agregar_propiedad.html', {'form': form})
-
 # Vista para la configuración de la cuenta
 @login_required
 def account_settings(request):
@@ -163,3 +138,67 @@ def delete_account(request):
         user = request.user
         user.delete()
         return redirect('index')  # redirigir a una página adecuada tras la eliminación
+
+
+# Vista para agregar propiedades y cargar múltiples imágenes
+@login_required
+def agregar_propiedad(request):
+    if request.method == 'POST':
+        # Guardamos la propiedad sin hacer commit para añadir el propietario
+        nombre = request.POST.get('nombre')
+        descripcion = request.POST.get('descripcion')
+        direccion = request.POST.get('direccion')
+        precio_noche = request.POST.get('precio_noche')
+        calificacion = request.POST.get('calificacion')
+        permite_mascotas = 'permite_mascotas' in request.POST
+        en_mantenimiento = 'en_mantenimiento' in request.POST
+        capacidad_maxima = request.POST.get('capacidad_maxima')
+
+        propiedad = Propiedades.objects.create(
+            nombre=nombre,
+            descripcion=descripcion,
+            direccion=direccion,
+            precio_noche=precio_noche,
+            calificacion=calificacion,
+            permite_mascotas=permite_mascotas,
+            en_mantenimiento=en_mantenimiento,
+            capacidad_maxima=capacidad_maxima,
+            propietario=request.user  # Asociamos al propietario
+        )
+
+        # Manejar las imágenes subidas
+        if 'imagenes' in request.FILES:
+            images = request.FILES.getlist('imagenes')
+            for image in images:
+                Galeria.objects.create(propiedad=propiedad, image=image)
+
+            # Opcional: Marcar la primera imagen como portada
+            if images:
+                portada_imagen = Galeria.objects.filter(propiedad=propiedad).first()
+                portada_imagen.portada = True
+                portada_imagen.save()
+
+        return redirect('propiedades_usuario')
+    else:
+        return render(request, 'SimplexRentalisAPP/agregar_propiedad.html')
+
+# Vista para agregar imágenes adicionales a una propiedad
+@login_required
+def agregar_imagenes(request, propiedad_id):
+    propiedad = Propiedades.objects.get(id=propiedad_id)
+
+    if request.method == "POST":
+        images = request.FILES.getlist('images')  # Obtener las imágenes desde el formulario
+
+        for image in images:
+            Galeria.objects.create(propiedad=propiedad, image=image)
+
+        # Opcional: Marcar la primera imagen como la imagen principal (portada)
+        if images:
+            gallery = Galeria.objects.filter(propiedad=propiedad).first()
+            gallery.portada = True
+            gallery.save()
+
+        return JsonResponse({"success": True, "message": "Imágenes cargadas correctamente."})
+
+    return render(request, "SimplexRentalisAPP/agregar_imagenes.html", {'propiedad': propiedad})

@@ -84,10 +84,12 @@ class Propiedades(models.Model):
         decimal_places=1  # Decimal con 1 lugar
     )
     porcentaje_reserva = models.DecimalField(max_digits=5, decimal_places=2, blank=False, null=False, default=5.0)
-    imagen = models.ImageField(upload_to='img/propiedades/', null=False, blank=False)
     permite_mascotas = models.BooleanField(default=False)
     en_mantenimiento = models.BooleanField(default=False)
     capacidad_maxima = models.IntegerField(default=10)  # Limita la cantidad de personas
+
+    # Relación con el modelo Galeria para almacenar múltiples imágenes
+    galeria = models.ForeignKey('Galeria', on_delete=models.CASCADE, related_name='propiedades', blank=True, null=True)
 
     class Meta:
         constraints = [
@@ -119,6 +121,24 @@ class Propiedades(models.Model):
         ).exists():
             return False
         return True
+
+####################################
+###### 1.1. Modelo de Galeria ######
+####################################
+
+class Galeria(models.Model):
+    id = models.AutoField(primary_key=True)
+    propiedad = models.ForeignKey('Propiedades', related_name='gallery_images', on_delete=models.CASCADE)
+    imagen = models.ImageField(upload_to='media/propiedades/', null=False, blank=False)
+    descripcion = models.CharField(max_length=255, blank=True, null=True)
+    portada = models.BooleanField(default=False)  # Si es la imagen principal de la propiedad
+
+    class Meta:
+        verbose_name = 'Imagen de la propiedad'
+        verbose_name_plural = 'Galería de imágenes de las propiedades'
+
+    def __str__(self):
+        return f"Imagen de {self.propiedad.nombre} - {self.id}"
 
 ###################################
 ##### 2. Modelo de Reservas #######

@@ -14,111 +14,101 @@
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
 
-                <!-- Formulario -->
+                <!-- Nombre de la propiedad -->
                 <div class="form-group">
                     <label for="id_nombre">Nombre de la propiedad</label>
-                    {{ form.nombre }}
-                    {% if form.nombre.errors %}
+                    <input type="text" name="nombre" class="form-control" required>
+                    {% if errors.nombre %}
                         <div class="invalid-feedback d-block">
-                            {% for error in form.nombre.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
+                            <p>{{ errors.nombre }}</p>
                         </div>
                     {% endif %}
                 </div>
 
+                <!-- Descripción -->
                 <div class="form-group">
                     <label for="id_descripcion">Descripción</label>
-                    {{ form.descripcion }}
-                    {% if form.descripcion.errors %}
+                    <textarea name="descripcion" class="form-control" required></textarea>
+                    {% if errors.descripcion %}
                         <div class="invalid-feedback d-block">
-                            {% for error in form.descripcion.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
+                            <p>{{ errors.descripcion }}</p>
                         </div>
                     {% endif %}
                 </div>
 
+                <!-- Dirección -->
                 <div class="form-group">
                     <label for="id_direccion">Dirección</label>
-                    {{ form.direccion }}
-                    {% if form.direccion.errors %}
+                    <input type="text" name="direccion" class="form-control" required>
+                    {% if errors.direccion %}
                         <div class="invalid-feedback d-block">
-                            {% for error in form.direccion.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
+                            <p>{{ errors.direccion }}</p>
                         </div>
                     {% endif %}
                 </div>
 
+                <!-- Precio por noche -->
                 <div class="form-group">
                     <label for="id_precio_noche">Precio por noche</label>
-                    {{ form.precio_noche }}
-                    {% if form.precio_noche.errors %}
+                    <input type="number" name="precio_noche" class="form-control" required>
+                    {% if errors.precio_noche %}
                         <div class="invalid-feedback d-block">
-                            {% for error in form.precio_noche.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
+                            <p>{{ errors.precio_noche }}</p>
                         </div>
                     {% endif %}
                 </div>
 
+                <!-- Calificación -->
                 <div class="form-group">
                     <label for="id_calificacion">Calificación (1-5)</label>
-                    {{ form.calificacion }}
-                    {% if form.calificacion.errors %}
+                    <input type="number" name="calificacion" class="form-control" min="1" max="5" required>
+                    {% if errors.calificacion %}
                         <div class="invalid-feedback d-block">
-                            {% for error in form.calificacion.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
+                            <p>{{ errors.calificacion }}</p>
                         </div>
                     {% endif %}
                 </div>
 
+                <!-- Imágenes -->
                 <div class="form-group">
-                    <label for="id_imagen">Imagen</label>
-                    {{ form.imagen }}
-                    {% if form.imagen.errors %}
+                    <label for="id_imagenes">Imágenes</label>
+                    <input type="file" name="imagenes" multiple class="form-control" required>
+                    {% if errors.imagenes %}
                         <div class="invalid-feedback d-block">
-                            {% for error in form.imagen.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
+                            <p>{{ errors.imagenes }}</p>
                         </div>
                     {% endif %}
                 </div>
 
+                <!-- Permite mascotas -->
                 <div class="form-group">
                     <label for="id_permite_mascotas">¿Permite mascotas?</label>
-                    {{ form.permite_mascotas }}
-                    {% if form.permite_mascotas.errors %}
+                    <input type="checkbox" name="permite_mascotas">
+                    {% if errors.permite_mascotas %}
                         <div class="invalid-feedback d-block">
-                            {% for error in form.permite_mascotas.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
+                            <p>{{ errors.permite_mascotas }}</p>
                         </div>
                     {% endif %}
                 </div>
 
+                <!-- En mantenimiento -->
                 <div class="form-group">
                     <label for="id_en_mantenimiento">¿En mantenimiento?</label>
-                    {{ form.en_mantenimiento }}
-                    {% if form.en_mantenimiento.errors %}
+                    <input type="checkbox" name="en_mantenimiento">
+                    {% if errors.en_mantenimiento %}
                         <div class="invalid-feedback d-block">
-                            {% for error in form.en_mantenimiento.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
+                            <p>{{ errors.en_mantenimiento }}</p>
                         </div>
                     {% endif %}
                 </div>
 
+                <!-- Capacidad máxima -->
                 <div class="form-group">
                     <label for="id_capacidad_maxima">Capacidad máxima</label>
-                    {{ form.capacidad_maxima }}
-                    {% if form.capacidad_maxima.errors %}
+                    <input type="number" name="capacidad_maxima" class="form-control" required>
+                    {% if errors.capacidad_maxima %}
                         <div class="invalid-feedback d-block">
-                            {% for error in form.capacidad_maxima.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
+                            <p>{{ errors.capacidad_maxima }}</p>
                         </div>
                     {% endif %}
                 </div>

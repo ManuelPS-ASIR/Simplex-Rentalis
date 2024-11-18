@@ -196,45 +196,50 @@ class ConfiguracionCuentaForm(forms.ModelForm):
             raise ValidationError(_("Debe tener al menos 18 años para registrarse."))
         return fecha_nacimiento
 
-from django import forms
 from .models import Propiedades
+from .models import Galeria
 
-class PropiedadForm(forms.ModelForm):
-    class Meta:
-        model = Propiedades
-        fields = [
-            'nombre',
-            'descripcion',
-            'direccion',
-            'precio_noche',
-            'calificacion',
-            'porcentaje_reserva',
-            'imagen',
-            'permite_mascotas',
-            'en_mantenimiento',
-            'capacidad_maxima',
-        ]
-        widgets = {
-            'descripcion': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
-            'precio_noche': forms.NumberInput(attrs={'step': 0.01}),
-            'imagen': forms.ClearableFileInput(attrs={'accept': 'image/*'}),
-        }
 
-    def __init__(self, *args, **kwargs):
-        super(PropiedadForm, self).__init__(*args, **kwargs)
-        # Agregar una clase de Bootstrap para mejorar el estilo del formulario
-        for field in self.fields.values():
-            field.widget.attrs.update({'class': 'form-control'})
+# # Formulario para crear una propiedad
+# class PropiedadForm(forms.ModelForm):
+#     # Este formulario solo tiene los campos de la propiedad (nombre, descripcion, etc.)
+#     class Meta:
+#         model = Propiedades
+#         fields = ['nombre', 'descripcion']  # Solo los campos que estén en Propiedades, no 'imagen'
 
-    # Validación personalizada para los campos si es necesario
-    def clean_calificacion(self):
-        calificacion = self.cleaned_data.get('calificacion')
-        if calificacion < 1 or calificacion > 5:
-            raise forms.ValidationError("La calificación debe estar entre 1 y 5.")
-        return calificacion
+#     # Campo adicional para cargar las imágenes (no está en el modelo Propiedades)
+#     imagenes = forms.ImageField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False)
+    
+#     def save(self, commit=True):
+#         # Guardamos la propiedad (sin las imágenes)
+#         propiedad = super().save(commit=False)
+#         if commit:
+#             propiedad.save()
 
-    def clean_porcentaje_reserva(self):
-        porcentaje_reserva = self.cleaned_data.get('porcentaje_reserva')
-        if porcentaje_reserva < 5 or porcentaje_reserva > 35:
-            raise forms.ValidationError("El porcentaje de reserva debe estar entre 5% y 35%.")
-        return porcentaje_reserva
+#         # Guardamos las imágenes asociadas a la propiedad en el modelo Galeria
+#         imagenes = self.cleaned_data.get('imagenes')
+#         if imagenes:
+#             for imagen in imagenes:
+#                 Galeria.objects.create(propiedad=propiedad, image=imagen)
+        
+#         return propiedad
+
+# # Formulario para registrar un nuevo usuario
+# class RegistroForm(UserCreationForm):
+#     avatar = forms.ImageField(required=False)  # Si quieres permitir que el usuario suba un avatar
+
+#     class Meta:
+#         model = User
+#         fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2', 'avatar']
+
+# # Formulario para configurar la cuenta del usuario
+# class ConfiguracionCuentaForm(forms.ModelForm):
+#     class Meta:
+#         model = User
+#         fields = ['username', 'first_name', 'last_name', 'email', 'avatar']  # Campos que pueden ser modificados
+
+# # Si necesitas un formulario para las imágenes de las propiedades, también puedes incluir uno aquí
+# class ImagenPropiedadForm(forms.ModelForm):
+#     class Meta:
+#         model = Galeria
+#         fields = ['image', 'portada']
