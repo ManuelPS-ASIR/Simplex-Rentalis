@@ -45,6 +45,10 @@
                     <div id="image-preview-container" class="mt-3">
                         <!-- Las miniaturas de las imágenes seleccionadas aparecerán aquí -->
                     </div>
+                    <!-- Mensaje indicando que la primera imagen será portada si no se hace clic -->
+                    <p class="mt-2 text-muted" style="font-size: 0.9em;">
+                        <strong>Instrucciones:</strong> Puedes hacer clic sobre cualquier imagen para seleccionarla como portada. Si no haces clic en ninguna, la primera imagen subida será la portada por defecto.
+                    </p>
                 </div>
 
                 <!-- Permite mascotas -->
@@ -85,7 +89,7 @@
         previewContainer.innerHTML = '';  // Limpiar cualquier imagen previa
 
         // Mostrar cada archivo seleccionado como miniatura
-        Array.from(files).forEach(file => {
+        Array.from(files).forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = document.createElement('img');
@@ -99,6 +103,11 @@
                     setAsPortada(img); // Marcar esta imagen como portada al hacer clic
                 };
                 previewContainer.appendChild(img);
+
+                // Si es la primera imagen, marcarla automáticamente como portada si no se ha seleccionado ninguna
+                if (index === 0) {
+                    setAsPortada(img);  // Establecer la primera imagen como portada
+                }
             };
             reader.readAsDataURL(file);  // Leer cada archivo seleccionado
         });
@@ -117,21 +126,4 @@
         document.getElementById('portada-id').value = selectedImg.src; // Enviar la URL de la imagen seleccionada
     }
 </script>
-
-<style>
-    /* Estilo para marcar la imagen seleccionada como portada */
-    .image-thumbnail {
-        cursor: pointer;
-        transition: transform 0.2s;
-    }
-
-    .image-thumbnail:hover {
-        transform: scale(1.1);
-    }
-
-    .image-thumbnail.selected {
-        border: 3px solid #007bff; /* Resaltar con un borde azul */
-        transform: scale(1.1); /* Ampliar la imagen seleccionada */
-    }
-</style>
 {% endblock %}
