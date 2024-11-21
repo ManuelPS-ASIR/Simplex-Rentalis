@@ -194,7 +194,7 @@ def agregar_propiedad(request):
         return render(request, 'SimplexRentalisAPP/agregar_propiedad.html', {'imagenes': imagenes})
 
     else:
-        return render(request, 'SimplexRentalisAPP/propiedades_usuario.html')
+        return render(request, 'SimplexRentalisAPP/agregar_propiedad.html')
 
 
 # Vista para agregar imágenes adicionales a una propiedad

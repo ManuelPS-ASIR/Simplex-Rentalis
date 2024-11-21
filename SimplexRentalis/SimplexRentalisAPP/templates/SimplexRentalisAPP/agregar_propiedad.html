@@ -11,7 +11,7 @@
 
     <div class="row justify-content-center">
         <div class="col-12 col-md-8">
-            <form method="POST" enctype="multipart/form-data">
+            <form method="POST" enctype="multipart/form-data" id="agregar-propiedad-form">
                 {% csrf_token %}
 
                 <!-- Nombre de la propiedad -->
@@ -45,9 +45,14 @@
                     <div id="image-preview-container" class="mt-3">
                         <!-- Las miniaturas de las imágenes seleccionadas aparecerán aquí -->
                     </div>
+                    <!-- Mostrar la cantidad de archivos seleccionados debajo del campo de imágenes -->
+                    <p id="selected-count" class="mt-2 text-muted" style="font-size: 0.9em;">
+                        <strong>Cantidad de archivos seleccionados: </strong> 0
+                    </p>
                     <!-- Mensaje indicando que la primera imagen será portada si no se hace clic -->
                     <p class="mt-2 text-muted" style="font-size: 0.9em;">
-                        <strong>Instrucciones:</strong> Puedes hacer clic sobre cualquier imagen para seleccionarla como portada. Si no haces clic en ninguna, la primera imagen subida será la portada por defecto.
+                        <strong>Instrucciones:</strong> Puedes hacer clic sobre cualquier imagen para seleccionarla como portada. Si no haces clic en ninguna, la primera imagen subida será la portada por defecto. <br>
+                        <strong>Recuerda:</strong> Debes subir al menos 5 imágenes y como máximo 15.
                     </p>
                 </div>
 
@@ -82,14 +87,21 @@
 </div>
 
 <script>
+    let selectedImages = [];  // Para almacenar todas las imágenes seleccionadas
+
     // Función para previsualizar imágenes seleccionadas
     function previewImages(event) {
         const files = event.target.files;
         const previewContainer = document.getElementById('image-preview-container');
-        previewContainer.innerHTML = '';  // Limpiar cualquier imagen previa
+        const selectedCount = document.getElementById('selected-count');
 
         // Mostrar cada archivo seleccionado como miniatura
-        Array.from(files).forEach((file, index) => {
+        Array.from(files).forEach((file) => {
+            if (selectedImages.length >= 15) {
+                alert('Ya has seleccionado el máximo de 15 imágenes.');
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = document.createElement('img');
@@ -104,13 +116,29 @@
                 };
                 previewContainer.appendChild(img);
 
-                // Si es la primera imagen, marcarla automáticamente como portada si no se ha seleccionado ninguna
-                if (index === 0) {
-                    setAsPortada(img);  // Establecer la primera imagen como portada
+                // Agregar la imagen a la lista seleccionada
+                selectedImages.push(img);
+
+                // Verificar si ya se alcanzó el límite de imágenes
+                if (selectedImages.length > 15) {
+                    alert('No puedes seleccionar más de 15 imágenes.');
                 }
+
+                // Si es la primera imagen seleccionada, marcarla como portada
+                if (selectedImages.length === 1) {
+                    setAsPortada(img);
+                }
+
+                // Actualizar la cantidad de imágenes seleccionadas
+                selectedCount.innerHTML = `<strong>Cantidad de archivos seleccionados: </strong> ${selectedImages.length}`;
             };
-            reader.readAsDataURL(file);  // Leer cada archivo seleccionado
+            reader.readAsDataURL(file);  // Leer el archivo seleccionado
         });
+
+        // Verificar que se han seleccionado al menos 5 imágenes
+        if (selectedImages.length < 5) {
+            alert('Por favor, selecciona al menos 5 imágenes.');
+        }
     }
 
     // Función para marcar una imagen como portada
@@ -122,8 +150,17 @@
         // Añadir la clase 'selected' a la imagen seleccionada
         selectedImg.classList.add('selected');
 
-        // Guardar el ID de la imagen seleccionada en el campo oculto
-        document.getElementById('portada-id').value = selectedImg.src; // Enviar la URL de la imagen seleccionada
+        // Guardar la URL de la imagen seleccionada en el campo oculto
+        document.getElementById('portada-id').value = selectedImg.src;
     }
+
+    // Validar el formulario antes de enviarlo
+    document.getElementById('agregar-propiedad-form').onsubmit = function(event) {
+        // Verificar que haya al menos 5 imágenes seleccionadas
+        if (selectedImages.length < 5) {
+            event.preventDefault();  // Evitar el envío si no se suben suficientes imágenes
+            alert('Debes subir al menos 5 imágenes.');
+        }
+    };
 </script>
 {% endblock %}
