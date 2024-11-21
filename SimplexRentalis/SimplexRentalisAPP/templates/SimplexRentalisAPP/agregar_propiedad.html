@@ -65,6 +65,9 @@
                     <input type="number" name="capacidad_maxima" class="form-control form-control-lg" required>
                 </div>
 
+                <!-- Campo oculto para la portada -->
+                <input type="hidden" name="portada" id="portada-id">
+
                 <!-- Botón de enviar -->
                 <div class="form-group text-center">
                     <button type="submit" class="btn btn-primary btn-lg w-100">Guardar Propiedad</button>
@@ -91,11 +94,44 @@
                 img.style.width = '100px';
                 img.style.height = '100px';
                 img.style.objectFit = 'cover';
-                img.classList.add('mr-2');
+                img.classList.add('mr-2', 'image-thumbnail');  // Añadir clase para identificación
+                img.onclick = function() {
+                    setAsPortada(img); // Marcar esta imagen como portada al hacer clic
+                };
                 previewContainer.appendChild(img);
             };
             reader.readAsDataURL(file);  // Leer cada archivo seleccionado
         });
     }
+
+    // Función para marcar una imagen como portada
+    function setAsPortada(selectedImg) {
+        // Eliminar la clase 'selected' de todas las miniaturas
+        const allImages = document.querySelectorAll('.image-thumbnail');
+        allImages.forEach(img => img.classList.remove('selected'));
+
+        // Añadir la clase 'selected' a la imagen seleccionada
+        selectedImg.classList.add('selected');
+
+        // Guardar el ID de la imagen seleccionada en el campo oculto
+        document.getElementById('portada-id').value = selectedImg.src; // Enviar la URL de la imagen seleccionada
+    }
 </script>
+
+<style>
+    /* Estilo para marcar la imagen seleccionada como portada */
+    .image-thumbnail {
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .image-thumbnail:hover {
+        transform: scale(1.1);
+    }
+
+    .image-thumbnail.selected {
+        border: 3px solid #007bff; /* Resaltar con un borde azul */
+        transform: scale(1.1); /* Ampliar la imagen seleccionada */
+    }
+</style>
 {% endblock %}

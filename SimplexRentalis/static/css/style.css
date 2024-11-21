@@ -453,3 +453,7 @@ textarea.form-control {
     height: 150px; /* Altura del textarea */
     resize: vertical; /* Permitir redimensionar solo en la dirección vertical */
 }
+.image-thumbnail.selected {
+    border: 3px solid #007bff; /* Resaltar con un borde azul */
+    transform: scale(1.1); /* Ampliar la imagen seleccionada */
+}
