@@ -34,7 +34,11 @@
         {% if user.is_authenticated %}
         <!-- Si está autenticado, mostramos su nombre y avatar con un dropdown -->
         <a href="#" class="d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-          <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
+          {% if user.avatar %}
+              <img src="{{ user.avatar.url }}" alt="Avatar" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
+          {% else %}
+              <img src="/media/defaults/default_avatar.png" alt="Avatar" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
+          {% endif %}
           <span class="text-light">{{ user.username }}</span>
         </a>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">

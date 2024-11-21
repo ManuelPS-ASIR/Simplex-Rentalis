@@ -14,8 +14,6 @@ from django.conf import settings
 import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 # Redirigir al usuario a esta URL después de iniciar sesión
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = 'login'

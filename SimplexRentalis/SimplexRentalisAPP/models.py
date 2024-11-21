@@ -20,7 +20,12 @@ class User(AbstractUser):
         blank=True,
         null=True
     )
-    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+    avatar = models.ImageField(
+        upload_to='avatars/', 
+        null=True, 
+        blank=True, 
+        default='defaults/default_avatar.png'  # Ruta del avatar por defecto
+    )
     es_propietario = models.BooleanField(default=False)
     ultimo_acceso = models.DateTimeField(null=True, blank=True)
 
@@ -129,7 +134,7 @@ class Propiedades(models.Model):
 class Galeria(models.Model):
     id = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey('Propiedades', related_name='gallery_images', on_delete=models.CASCADE)
-    imagen = models.ImageField(upload_to='media/propiedades/', null=False, blank=False)
+    imagen = models.ImageField(upload_to='propiedades/', null=False, blank=False)
     descripcion = models.CharField(max_length=255, blank=True, null=True)
     portada = models.BooleanField(default=False)  # Si es la imagen principal de la propiedad
 

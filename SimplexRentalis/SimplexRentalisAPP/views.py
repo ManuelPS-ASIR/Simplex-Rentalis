@@ -17,10 +17,16 @@ def index(request):
 
 # Vista para mostrar todas las propiedades
 def propiedades(request):
-    propiedades = Propiedades.objects.all()
-    return render(request, 'SimplexRentalisAPP/propiedades_list.html', {
-        'propiedades': propiedades
-    })
+    propiedades = Propiedades.objects.prefetch_related(
+        'gallery_images'
+    ).filter(en_mantenimiento=False)
+
+    for propiedad in propiedades:
+        portada = propiedad.gallery_images.filter(portada=True).first()
+        propiedad.portada = portada.imagen.url if portada else None
+
+    return render(request, 'propiedades.html', {'propiedades': propiedades})
+
 
 # Vista para mostrar las propiedades del usuario autenticado
 @login_required
