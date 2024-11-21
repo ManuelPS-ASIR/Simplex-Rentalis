@@ -146,7 +146,6 @@ def delete_account(request):
         return redirect('index')  # redirigir a una página adecuada tras la eliminación
 
 
-# Vista para agregar propiedades y cargar múltiples imágenes
 @login_required
 def agregar_propiedad(request):
     if request.method == 'POST':
@@ -189,9 +188,14 @@ def agregar_propiedad(request):
                 portada_imagen.portada = True
                 portada_imagen.save()
 
-        return redirect('propiedades_usuario')
+        # Pasar las imágenes al template
+        imagenes = Galeria.objects.filter(propiedad=propiedad)
+
+        return render(request, 'SimplexRentalisAPP/agregar_propiedad.html', {'imagenes': imagenes})
+
     else:
         return render(request, 'SimplexRentalisAPP/agregar_propiedad.html')
+
 
 # Vista para agregar imágenes adicionales a una propiedad
 @login_required

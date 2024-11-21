@@ -18,90 +18,51 @@
                 <div class="form-group">
                     <label for="id_nombre">Nombre de la propiedad</label>
                     <input type="text" name="nombre" class="form-control form-control-lg" required>
-                    {% if errors.nombre %}
-                        <div class="invalid-feedback d-block">
-                            <p>{{ errors.nombre }}</p>
-                        </div>
-                    {% endif %}
                 </div>
 
                 <!-- Descripción -->
                 <div class="form-group">
                     <label for="id_descripcion">Descripción</label>
                     <textarea name="descripcion" class="form-control form-control-lg" rows="4" required></textarea>
-                    {% if errors.descripcion %}
-                        <div class="invalid-feedback d-block">
-                            <p>{{ errors.descripcion }}</p>
-                        </div>
-                    {% endif %}
                 </div>
 
                 <!-- Dirección -->
                 <div class="form-group">
                     <label for="id_direccion">Dirección</label>
                     <input type="text" name="direccion" class="form-control form-control-lg" required>
-                    {% if errors.direccion %}
-                        <div class="invalid-feedback d-block">
-                            <p>{{ errors.direccion }}</p>
-                        </div>
-                    {% endif %}
                 </div>
 
                 <!-- Precio por noche -->
                 <div class="form-group">
                     <label for="id_precio_noche">Precio por noche</label>
                     <input type="number" name="precio_noche" class="form-control form-control-lg" required>
-                    {% if errors.precio_noche %}
-                        <div class="invalid-feedback d-block">
-                            <p>{{ errors.precio_noche }}</p>
-                        </div>
-                    {% endif %}
                 </div>
 
                 <!-- Imágenes -->
                 <div class="form-group">
                     <label for="id_imagenes">Imágenes</label>
-                    <input type="file" name="imagenes" multiple class="form-control-file" required>
-                    {% if errors.imagenes %}
-                        <div class="invalid-feedback d-block">
-                            <p>{{ errors.imagenes }}</p>
-                        </div>
-                    {% endif %}
+                    <input type="file" name="imagenes" multiple class="form-control-file" id="imagenes" required onchange="previewImages(event)">
+                    <div id="image-preview-container" class="mt-3">
+                        <!-- Las miniaturas de las imágenes seleccionadas aparecerán aquí -->
+                    </div>
                 </div>
 
                 <!-- Permite mascotas -->
                 <div class="form-group">
                     <label for="id_permite_mascotas">¿Permite mascotas?</label>
                     <input type="checkbox" name="permite_mascotas" id="permite_mascotas">
-                    {% if errors.permite_mascotas %}
-                        <div class="invalid-feedback d-block">
-                            <p>{{ errors.permite_mascotas }}</p>
-                        </div>
-                    {% endif %}
-                    <small class="form-text text-muted">Los usuarios podrán filtrar las propiedades que permiten mascotas.</small>
                 </div>
 
                 <!-- En mantenimiento -->
                 <div class="form-group">
                     <label for="id_en_mantenimiento">¿En mantenimiento?</label>
                     <input type="checkbox" name="en_mantenimiento" id="en_mantenimiento">
-                    {% if errors.en_mantenimiento %}
-                        <div class="invalid-feedback d-block">
-                            <p>{{ errors.en_mantenimiento }}</p>
-                        </div>
-                    {% endif %}
-                    <small class="form-text text-muted">Si marcas esta opción, la propiedad no aparecerá en las búsquedas ya que está en mantenimiento y no disponible para alquiler.</small>
                 </div>
 
                 <!-- Capacidad máxima -->
                 <div class="form-group">
                     <label for="id_capacidad_maxima">Capacidad máxima</label>
                     <input type="number" name="capacidad_maxima" class="form-control form-control-lg" required>
-                    {% if errors.capacidad_maxima %}
-                        <div class="invalid-feedback d-block">
-                            <p>{{ errors.capacidad_maxima }}</p>
-                        </div>
-                    {% endif %}
                 </div>
 
                 <!-- Botón de enviar -->
@@ -112,4 +73,29 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Función para previsualizar imágenes seleccionadas
+    function previewImages(event) {
+        const files = event.target.files;
+        const previewContainer = document.getElementById('image-preview-container');
+        previewContainer.innerHTML = '';  // Limpiar cualquier imagen previa
+
+        // Mostrar cada archivo seleccionado como miniatura
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = file.name;
+                img.style.width = '100px';
+                img.style.height = '100px';
+                img.style.objectFit = 'cover';
+                img.classList.add('mr-2');
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);  // Leer cada archivo seleccionado
+        });
+    }
+</script>
 {% endblock %}
