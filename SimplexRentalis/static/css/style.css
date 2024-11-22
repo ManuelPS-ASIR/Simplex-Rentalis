@@ -84,7 +84,8 @@
 
 /* Estilo general para las tarjetas de propiedades */
 .propiedad-card {
-    display: block; /* Hace que el enlace sea un bloque */
+    display: flex; /* Usamos flexbox para que los elementos dentro de la tarjeta se ajusten */
+    flex-direction: column; /* Hace que los elementos estén apilados verticalmente */
     border: 1px solid #ddd; /* Borde gris claro */
     border-radius: 5px; /* Esquinas redondeadas */
     overflow: hidden; /* Asegura que el contenido no sobresalga */
@@ -94,11 +95,6 @@
     height: 100%; /* Asegura que todas las tarjetas tengan la misma altura */
 }
 
-/* Efecto al pasar el mouse */
-.propiedad-card:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra al pasar el mouse */
-    transform: translateY(-5px); /* Efecto de desplazamiento hacia arriba */
-}
 
 /* Estilos para la imagen */
 .propiedad-image img {
@@ -130,9 +126,19 @@
     color: #007bff; /* Color del texto del título */
 }
 
-/* Estilo para el contenedor de propiedades */
+/* Asegura que las tarjetas tengan el mismo tamaño */
 .propiedades-container {
-    margin-top: 20px; /* Espacio superior para el contenedor */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Espacio entre las tarjetas */
+}
+.col-12.col-md-6.col-lg-4 {
+    display: flex; /* Hace que las columnas ocupen el mismo espacio */
+    flex-direction: column; /* Apila los elementos verticalmente */
+}
+.row.justify-content-center {
+    display: flex;
+    justify-content: center;
 }
 /* Estilo para el ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssscontenedor de propiedades */
 #main-content {
@@ -336,14 +342,19 @@ h3 {
     height: 100%;
 }
 
+/* Estilo para las tarjetas cuando pasas el mouse */
 .propiedad-card:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    transform: translateY(-10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra al pasar el mouse */
+    transform: translateY(-5px); /* Efecto de desplazamiento hacia arriba */
 }
 
 .card-body {
     padding: 20px;
     color: #333;
+    flex-grow: 1; /* Permite que el contenido ocupe el espacio restante */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .card-title {
@@ -357,16 +368,16 @@ h3 {
     font-size: 0.9rem;
 }
 
+/* Ajustamos la altura de la imagen para que todas tengan el mismo tamaño */
 .card-image {
-    position: relative;
-    height: 200px;
-    overflow: hidden;
+    height: 200px; /* Altura fija para la imagen */
+    overflow: hidden; /* Asegura que la imagen no sobresalga */
 }
 
 .card-image img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: 100%; /* Asegura que la imagen cubra todo el contenedor */
+    object-fit: cover; /* Hace que la imagen se recorte adecuadamente */
 }
 
 .no-imagen {
