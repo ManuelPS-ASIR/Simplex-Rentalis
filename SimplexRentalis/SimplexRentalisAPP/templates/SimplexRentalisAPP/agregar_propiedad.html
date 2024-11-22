@@ -75,7 +75,7 @@
                 </div>
 
                 <!-- Campo oculto para la portada -->
-                <input type="hidden" name="portada" id="portada-id">
+                <input type="hidden" name="portada" id="portada-id" value="0">
 
                 <!-- Botón de enviar -->
                 <div class="form-group text-center">
@@ -87,16 +87,18 @@
 </div>
 
 <script>
-    let selectedImages = [];  // Para almacenar todas las imágenes seleccionadas
+    let selectedImages = []; // Para almacenar todas las imágenes seleccionadas
+    let portadaIndex = 0;    // Índice de la imagen marcada como portada
 
     // Función para previsualizar imágenes seleccionadas
     function previewImages(event) {
         const files = event.target.files;
         const previewContainer = document.getElementById('image-preview-container');
         const selectedCount = document.getElementById('selected-count');
+        previewContainer.innerHTML = ""; // Limpiar previsualizaciones previas
+        selectedImages = []; // Reiniciar las imágenes seleccionadas
 
-        // Mostrar cada archivo seleccionado como miniatura
-        Array.from(files).forEach((file) => {
+        Array.from(files).forEach((file, index) => {
             if (selectedImages.length >= 15) {
                 alert('Ya has seleccionado el máximo de 15 imágenes.');
                 return;
@@ -110,35 +112,25 @@
                 img.style.width = '100px';
                 img.style.height = '100px';
                 img.style.objectFit = 'cover';
-                img.classList.add('mr-2', 'image-thumbnail');  // Añadir clase para identificación
+                img.classList.add('mr-2', 'image-thumbnail'); // Añadir clase para identificación
+                img.dataset.index = index; // Asociar índice con la imagen
                 img.onclick = function() {
                     setAsPortada(img); // Marcar esta imagen como portada al hacer clic
                 };
                 previewContainer.appendChild(img);
 
-                // Agregar la imagen a la lista seleccionada
-                selectedImages.push(img);
+                selectedImages.push(file);
 
-                // Verificar si ya se alcanzó el límite de imágenes
-                if (selectedImages.length > 15) {
-                    alert('No puedes seleccionar más de 15 imágenes.');
-                }
-
-                // Si es la primera imagen seleccionada, marcarla como portada
+                // Si es la primera imagen, se selecciona como portada por defecto
                 if (selectedImages.length === 1) {
                     setAsPortada(img);
                 }
-
-                // Actualizar la cantidad de imágenes seleccionadas
-                selectedCount.innerHTML = `<strong>Cantidad de archivos seleccionados: </strong> ${selectedImages.length}`;
             };
-            reader.readAsDataURL(file);  // Leer el archivo seleccionado
+            reader.readAsDataURL(file); // Leer el archivo seleccionado
         });
 
-        // Verificar que se han seleccionado al menos 5 imágenes
-        if (selectedImages.length < 5) {
-            alert('Por favor, selecciona al menos 5 imágenes.');
-        }
+        // Actualizar el contador de archivos seleccionados
+        selectedCount.innerHTML = `<strong>Cantidad de archivos seleccionados: </strong> ${files.length}`;
     }
 
     // Función para marcar una imagen como portada
@@ -150,15 +142,15 @@
         // Añadir la clase 'selected' a la imagen seleccionada
         selectedImg.classList.add('selected');
 
-        // Guardar la URL de la imagen seleccionada en el campo oculto
-        document.getElementById('portada-id').value = selectedImg.src;
+        // Establecer el índice de la portada
+        portadaIndex = selectedImg.dataset.index;
+        document.getElementById('portada-id').value = portadaIndex;
     }
 
     // Validar el formulario antes de enviarlo
     document.getElementById('agregar-propiedad-form').onsubmit = function(event) {
-        // Verificar que haya al menos 5 imágenes seleccionadas
         if (selectedImages.length < 5) {
-            event.preventDefault();  // Evitar el envío si no se suben suficientes imágenes
+            event.preventDefault(); // Evitar el envío si no hay suficientes imágenes
             alert('Debes subir al menos 5 imágenes.');
         }
     };

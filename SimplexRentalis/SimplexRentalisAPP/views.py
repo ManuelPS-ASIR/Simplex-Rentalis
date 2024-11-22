@@ -14,18 +14,19 @@ def index(request):
         'propiedades_mas_visitadas': propiedades_mas_visitadas
     })
 
-# Mostrar todas las propiedades
+from django.db.models import Case, When, Value
+
 def propiedades(request):
-    propiedades = Propiedades.objects.prefetch_related(
-        'gallery_images'
-    ).filter(en_mantenimiento=False)
+    propiedades = Propiedades.objects.prefetch_related('gallery_images').filter(en_mantenimiento=False)
 
     for propiedad in propiedades:
-        portada = propiedad.gallery_images.filter(portada=True).first()
+        # Intentar obtener la imagen de portada o la primera imagen asociada
+        portada = propiedad.gallery_images.filter(portada=True).order_by('id').first()
         if not portada:
-            # Asignar una imagen predeterminada si no hay portada
-            portada = propiedad.gallery_images.first()
-        propiedad.portada = portada.imagen.url if portada else None
+            portada = propiedad.gallery_images.order_by('id').first()
+
+        # Si no hay imágenes, asignar una URL predeterminada
+        propiedad.portada = portada.imagen.url if portada else "/static/images/default_property.jpg"
 
     return render(request, 'propiedades.html', {'propiedades': propiedades})
 
@@ -128,6 +129,11 @@ def account_settings(request):
     return render(request, 'SimplexRentalisAPP/settings.html', {'form': form})
 
 # Agregar propiedad
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .models import Propiedades, Galeria
+
 @login_required
 def agregar_propiedad(request):
     if request.method == 'POST':
@@ -138,7 +144,7 @@ def agregar_propiedad(request):
         capacidad_maxima = request.POST.get('capacidad_maxima', '0')
         permite_mascotas = 'permite_mascotas' in request.POST
         en_mantenimiento = 'en_mantenimiento' in request.POST
-        portada = request.POST.get('portada', '0')
+        portada = request.POST.get('portada', '0')  # Índice de la imagen de portada
 
         try:
             precio_noche = float(precio_noche)
@@ -147,10 +153,12 @@ def agregar_propiedad(request):
             messages.error(request, "Valores inválidos.")
             return redirect('agregar_propiedad')
 
+        # Verificar si ya existe una propiedad con la misma dirección para el usuario
         if Propiedades.objects.filter(direccion=direccion, propietario=request.user).exists():
-            messages.error(request, "Propiedad ya existe.")
+            messages.error(request, "Ya existe una propiedad con esta dirección.")
             return redirect('agregar_propiedad')
 
+        # Crear la nueva propiedad
         propiedad = Propiedades.objects.create(
             nombre=nombre,
             descripcion=descripcion,
@@ -162,47 +170,59 @@ def agregar_propiedad(request):
             propietario=request.user
         )
 
+        # Manejo de imágenes
         if 'imagenes' in request.FILES:
             images = request.FILES.getlist('imagenes')
             if not (5 <= len(images) <= 15):
                 messages.error(request, "Debes subir entre 5 y 15 imágenes.")
-                propiedad.delete()
+                propiedad.delete()  # Eliminar propiedad creada si hay un error
                 return redirect('agregar_propiedad')
 
+            # Guardar las imágenes y manejar la portada
             for index, image in enumerate(images):
                 nueva_imagen = Galeria.objects.create(propiedad=propiedad, imagen=image)
+                # Establecer la portada según el índice enviado
                 if str(index) == portada:
                     nueva_imagen.portada = True
                     nueva_imagen.save()
 
+            # Si ninguna imagen fue marcada como portada, establecer la primera como predeterminada
             if not any(img.portada for img in Galeria.objects.filter(propiedad=propiedad)):
                 primera_imagen = Galeria.objects.filter(propiedad=propiedad).first()
                 if primera_imagen:
                     primera_imagen.portada = True
                     primera_imagen.save()
-
         else:
             messages.error(request, "Debes subir imágenes.")
-            propiedad.delete()
+            propiedad.delete()  # Eliminar la propiedad si no hay imágenes
             return redirect('agregar_propiedad')
 
-        imagenes = Galeria.objects.filter(propiedad=propiedad)
-        return render(request, 'SimplexRentalisAPP/agregar_propiedad.html', {'imagenes': imagenes})
+        # Redirigir a "Mis Propiedades" después de agregar la propiedad
+        messages.success(request, "Propiedad agregada exitosamente.")
+        return redirect('propiedades_usuario')  # Cambiar 'mis_propiedades' por el nombre correcto de tu vista de "Mis Propiedades"
 
     return render(request, 'SimplexRentalisAPP/agregar_propiedad.html')
 
-# Agregar imágenes a una propiedad
+
+from django.db.models import Min
+
 @login_required
 def agregar_imagenes(request, propiedad_id):
     propiedad = get_object_or_404(Propiedades, id=propiedad_id)
 
     if request.method == "POST":
         images = request.FILES.getlist('images')
+
         for image in images:
             Galeria.objects.create(propiedad=propiedad, imagen=image)
 
+        # Asignar portada solo si no existe una portada asignada
         if not Galeria.objects.filter(propiedad=propiedad, portada=True).exists():
-            primera_imagen = Galeria.objects.filter(propiedad=propiedad).first()
+            # Seleccionar la imagen más antigua según el campo de creación
+            primera_imagen = Galeria.objects.filter(propiedad=propiedad).annotate(
+                min_fecha=Min('id')  # Suponiendo que `id` crece de manera incremental
+            ).order_by('min_fecha').first()
+
             if primera_imagen:
                 primera_imagen.portada = True
                 primera_imagen.save()
