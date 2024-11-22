@@ -392,12 +392,28 @@ h3 {
     }
 }
 .btn-agregar {
-    top: 10px; /* Borde superior */
-    left: 10px; /* Borde izquierdo */
-    padding: 15px 30px; /* Tamaño del botón más grande */
-    font-size: 1.2rem; /* Tamaño de la fuente más grande */
-    z-index: 1100; /* Asegura que el botón esté sobre otros elementos */
+    padding: 15px 30px; /* Tamaño del botón */
+    font-size: 1.2rem; /* Tamaño de la fuente */
+    z-index: 1100; /* Asegura que esté encima de otros elementos */
+    border-radius: 50px; /* Forma redondeada para estética */
+    background-color: #007bff; /* Color azul */
+    color: white; /* Texto blanco */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para destacar */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Animación suave */
 }
+
+.btn-agregar:hover {
+    background-color: #0056b3; /* Color más oscuro al pasar el ratón */
+    transform: scale(1.1); /* Efecto de ampliación */
+}
+.position-fixed {
+    text-align: center;
+    width: 100%;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
 
 /* Mejora el espaciado y alineación de las etiquetas */
 form .form-group label {

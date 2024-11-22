@@ -7,10 +7,8 @@
 
 {% block content %}
 <div class="container mt-5">
-    <!-- Contenedor para Título y Botón -->
+    <!-- Contenedor para Título -->
     <div class="position-relative mb-4">
-        <!-- Botón alineado a la izquierda y más grande -->
-        <a href="{% url 'agregar_propiedad' %}" class="btn btn-primary position-absolute btn-agregar">Agregar Propiedad</a>
         <!-- Título centrado -->
         <h2 class="text-center m-0">Mis Propiedades</h2>
     </div>
@@ -59,4 +57,13 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Botón de "Agregar Propiedad" centrado en la parte inferior -->
+<div class="position-fixed w-100" style="bottom: 20px; left: 50%; transform: translateX(-50%); text-align: center;">
+    <a href="{% url 'agregar_propiedad' %}" class="btn btn-primary btn-agregar">
+        Agregar Propiedad
+    </a>
+</div>
+
+
 {% endblock %}
