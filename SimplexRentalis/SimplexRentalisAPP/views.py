@@ -265,3 +265,42 @@ def password_change_view(request):
         form = PasswordChangeForm(user=request.user)
 
     return render(request, 'SimplexRentalisAPP/password_change.html', {'form': form})
+
+from .forms import PropiedadForm
+
+def editar_propiedad(request, pk):
+    # Obtener la propiedad a editar
+    propiedad = get_object_or_404(Propiedades, pk=pk)
+
+    # Si el método de la solicitud es POST, significa que el formulario fue enviado
+    if request.method == 'POST':
+        form = PropiedadForm(request.POST, instance=propiedad)
+        
+        # Verificamos si el formulario es válido
+        if form.is_valid():
+            # Guardamos los cambios de la propiedad
+            form.save()
+            # Redirigimos a la vista de detalles de la propiedad (puedes cambiar la URL si es necesario)
+            return redirect('propiedad_detallada', pk=propiedad.pk)
+    else:
+        # Si es una solicitud GET, prellenamos el formulario con los datos de la propiedad
+        form = PropiedadForm(instance=propiedad)
+
+    # Renderizamos el formulario en una plantilla
+    return render(request, 'editar_propiedad.html', {'form': form, 'propiedad': propiedad})
+
+from django.shortcuts import get_object_or_404, redirect
+from .models import Propiedades
+
+def eliminar_propiedad(request, pk):
+    # Obtener la propiedad a eliminar
+    propiedad = get_object_or_404(Propiedades, pk=pk)
+    
+    # Verificar si el usuario actual es el propietario de la propiedad
+    if propiedad.propietario == request.user:
+        propiedad.delete()
+        # Redirigir al listado de propiedades
+        return redirect('mis_propiedades')
+    else:
+        # Si el usuario no es el propietario, redirigir con un mensaje de error o simplemente denegar
+        return redirect('mis_propiedades')  # Puedes personalizar el mensaje de error o la redirección

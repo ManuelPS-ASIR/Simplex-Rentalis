@@ -17,39 +17,39 @@
     <div class="row justify-content-center">
         {% if propiedades %}
             {% for propiedad in propiedades %}
-                <div class="col-12 col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
+            <div class="col-12 col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
+                <div class="propiedad-card-wrapper position-relative">
+                    <div class="card-buttons">
+                        <a href="{% url 'editar_propiedad' propiedad.pk %}" class="btn btn-edit">
+                            <img src="{% static 'defaults/boton-editar.png' %}" alt="Editar" class="img-fluid">
+                        </a>
+                        
+                        <a href="{% url 'eliminar_propiedad' propiedad.pk %}" class="btn btn-delete" onclick="return confirm('¿Estás seguro de que quieres eliminar esta propiedad?');">
+                            <img src="{% static 'defaults/boton-eliminar.png' %}" alt="Eliminar" class="img-fluid">
+                        </a>
+                    </div>
                     <!-- Enlace a la página de detalles de la propiedad -->
-                    <a href="{% url 'propiedad_detallada' propiedad.pk %}" class="propiedad-card text-center text-decoration-none">
+                    <a href="{% url 'propiedad_detallada' propiedad.pk %}" class="text-decoration-none">
                         <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
                             <!-- Imagen de la propiedad -->
                             <div class="card-image">
                                 {% if propiedad.gallery_images.all %}
-                                    <!-- Mostrar la primera imagen como portada -->
-                                    <img src="{{ propiedad.gallery_images.all.0.imagen.url }}" 
-                                         class="img-fluid rounded-top" 
-                                         alt="Imagen de {{ propiedad.nombre }}">
+                                    <img src="{{ propiedad.gallery_images.all.0.imagen.url }}" class="img-fluid rounded-top" alt="Imagen de {{ propiedad.nombre }}">
                                 {% else %}
-                                    <!-- Contenedor para propiedades sin imagen -->
                                     <div class="no-imagen d-flex justify-content-center align-items-center bg-light" style="height: 200px;">
                                         <p class="text-muted">No hay imagen disponible.</p>
                                     </div>
                                 {% endif %}
                             </div>
                             <div class="card-body p-4">
-                                <!-- Nombre, precio y dirección de la propiedad -->
-                                <h5 class="card-title">
-                                    {{ propiedad.nombre }} - 
-                                    <span class="text-primary">{{ propiedad.precio_noche }}€</span>
-                                </h5>
+                                <h5 class="card-title">{{ propiedad.nombre }} - <span class="text-primary">{{ propiedad.precio_noche }}€</span></h5>
                                 <p class="card-text text-muted">{{ propiedad.direccion }}</p>
-                                <p class="text-muted">
-                                    Calificación: 
-                                    {{ propiedad.calificacion|default:"-" }}/5
-                                </p>
+                                <p class="text-muted">Calificación: {{ propiedad.calificacion|default:"-" }}/5</p>
                             </div>
                         </div>
                     </a>
                 </div>
+            </div>            
             {% endfor %}
         {% else %}
             <!-- Mensaje cuando no hay propiedades registradas -->
@@ -64,6 +64,5 @@
         Agregar Propiedad
     </a>
 </div>
-
 
 {% endblock %}

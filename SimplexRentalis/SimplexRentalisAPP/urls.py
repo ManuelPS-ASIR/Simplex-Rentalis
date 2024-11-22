@@ -21,6 +21,10 @@ urlpatterns = [
     
     # Ruta correcta para "Mis Propiedades"
     path('mis_propiedades/', views.propiedades_usuario, name='propiedades_usuario'),
+    path('editar_propiedad/<int:pk>/', views.editar_propiedad, name='editar_propiedad'),
+    path('eliminar_propiedad/<int:pk>/', views.eliminar_propiedad, name='eliminar_propiedad'),
+
+
     
     # Ruta para agregar propiedad
     path('propiedades/agregar/', views.agregar_propiedad, name='agregar_propiedad'),

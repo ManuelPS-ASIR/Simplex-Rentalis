@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Editar Propiedad
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Editar Propiedad: {{ propiedad.nombre }}</h2>
+    
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label for="id_nombre" class="form-label">Nombre</label>
+            {{ form.nombre }}
+        </div>
+        <div class="mb-3">
+            <label for="id_descripcion" class="form-label">Descripción</label>
+            {{ form.descripcion }}
+        </div>
+        <div class="mb-3">
+            <label for="id_direccion" class="form-label">Dirección</label>
+            {{ form.direccion }}
+        </div>
+        <div class="mb-3">
+            <label for="id_precio_noche" class="form-label">Precio por Noche</label>
+            {{ form.precio_noche }}
+        </div>
+        <div class="mb-3">
+            <label for="id_calificacion" class="form-label">Calificación</label>
+            {{ form.calificacion }}
+        </div>
+        <div class="mb-3">
+            <label for="id_porcentaje_reserva" class="form-label">Porcentaje de Reserva</label>
+            {{ form.porcentaje_reserva }}
+        </div>
+        <div class="mb-3">
+            <label for="id_permite_mascotas" class="form-label">Permite Mascotas</label>
+            {{ form.permite_mascotas }}
+        </div>
+        <div class="mb-3">
+            <label for="id_en_mantenimiento" class="form-label">En Mantenimiento</label>
+            {{ form.en_mantenimiento }}
+        </div>
+        <div class="mb-3">
+            <label for="id_capacidad_maxima" class="form-label">Capacidad Máxima</label>
+            {{ form.capacidad_maxima }}
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    </form>
+</div>
+{% endblock %}

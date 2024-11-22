@@ -199,7 +199,13 @@ class ConfiguracionCuentaForm(forms.ModelForm):
 from .models import Propiedades
 from .models import Galeria
 
-
+class PropiedadForm(forms.ModelForm):
+    class Meta:
+        model = Propiedades
+        fields = [
+            'nombre', 'descripcion', 'direccion', 'precio_noche', 'calificacion',
+            'porcentaje_reserva', 'permite_mascotas', 'en_mantenimiento', 'capacidad_maxima'
+        ]
 # # Formulario para crear una propiedad
 # class PropiedadForm(forms.ModelForm):
 #     # Este formulario solo tiene los campos de la propiedad (nombre, descripcion, etc.)
