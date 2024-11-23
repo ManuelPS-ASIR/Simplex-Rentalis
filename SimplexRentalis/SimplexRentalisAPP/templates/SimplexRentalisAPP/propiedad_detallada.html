@@ -6,7 +6,7 @@ Propiedad en detalle
 
 {% block content %}
 <div id="main-content">
-    <h1 class="propiedad-title">{{ propiedad.nombre }}</h1>
+    <h1 class="propiedad-title">{{ propiedades.nombre }}</h1>
     
     <div class="detalle-container">
         <!-- Sección de la Imagen Principal -->
@@ -31,25 +31,25 @@ Propiedad en detalle
         
         <!-- Sección de Información -->
         <div class="propiedad-details">
-            <p><strong>Dueño:</strong> {{ propiedad.propietario }}</p>
-            <p><strong>Dirección:</strong> {{ propiedad.direccion }}</p>
-            <p><strong>Precio por noche:</strong> {{ propiedad.precio_noche }} €</p>
-            <p><strong>Calificación:</strong> {{ propiedad.calificacion }}</p>
-            <p><strong>Permite mascotas:</strong> {{ propiedad.permite_mascotas|yesno:"Sí,No" }}</p>
-            <p><strong>Capacidad máxima:</strong> {{ propiedad.capacidad_maxima }} personas</p>
+            <p><strong>Dueño:</strong> {{ propiedades.propietario.username }}</p> <!-- Mostrar el nombre del propietario -->
+            <p><strong>Dirección:</strong> {{ propiedades.direccion }}</p>
+            <p><strong>Precio por noche:</strong> {{ propiedades.precio_noche }} €</p>
+            <p><strong>Calificación:</strong> {{ propiedades.calificacion }}</p>
+            <p><strong>Permite mascotas:</strong> {{ propiedades.permite_mascotas|yesno:"Sí,No" }}</p>
+            <p><strong>Capacidad máxima:</strong> {{ propiedades.capacidad_maxima }} personas</p>
         </div>
     </div>
 
     <!-- Descripción Debajo de la Imagen -->
     <div class="descripcion-container">
         <h3>Descripción</h3>
-        <p>{{ propiedad.descripcion }}</p>
+        <p>{{ propiedades.descripcion }}</p>
     </div>
 
     <!-- Sección de Opiniones -->
     <div class="opiniones-container">
         <h3>Opiniones</h3>
-        {% for opinion in propiedad.opiniones_set.all %}
+        {% for opinion in propiedades.opiniones_set.all %}
             <div class="opinion">
                 <strong>{{ opinion.usuario }}:</strong>
                 <p>{{ opinion.texto }}</p>
