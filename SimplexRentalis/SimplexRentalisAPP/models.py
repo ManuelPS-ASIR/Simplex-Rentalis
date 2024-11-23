@@ -75,7 +75,7 @@ def actualizar_ultimo_acceso(sender, request, user, **kwargs):
 ####################################
 class Propiedades(models.Model):
     id = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=200, blank=False, null=False)
+    nombre = models.CharField(max_length=100, blank=False, null=False)
     descripcion = models.TextField(max_length=3000, blank=True, null=True)
     direccion = models.CharField(max_length=300, blank=False, null=False)
     precio_noche = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)

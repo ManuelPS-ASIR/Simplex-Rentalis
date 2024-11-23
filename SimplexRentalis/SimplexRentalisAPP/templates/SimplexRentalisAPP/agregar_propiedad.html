@@ -35,7 +35,7 @@
                 <!-- Precio por noche -->
                 <div class="form-group">
                     <label for="id_precio_noche">Precio por noche</label>
-                    <input type="number" name="precio_noche" class="form-control form-control-lg" required>
+                    <input type="number" name="precio_noche" class="form-control form-control-lg" required min="0" step="0.01" inputmode="numeric">
                 </div>
 
                 <!-- Imágenes -->
@@ -60,18 +60,24 @@
                 <div class="form-group">
                     <label for="id_permite_mascotas">¿Permite mascotas?</label>
                     <input type="checkbox" name="permite_mascotas" id="permite_mascotas">
+                    <p class="mt-2 text-muted" style="font-size: 0.9em;">
+                        <strong>Recuerda:</strong> Si marcas esta opción, tu propiedad podrá ser filtrada por esta característica en un futuro.
+                    </p>
                 </div>
 
                 <!-- En mantenimiento -->
                 <div class="form-group">
                     <label for="id_en_mantenimiento">¿En mantenimiento?</label>
                     <input type="checkbox" name="en_mantenimiento" id="en_mantenimiento">
+                    <p class="mt-2 text-muted" style="font-size: 0.9em;">
+                        <strong>Aviso:</strong> Esta opción se utiliza para indicar que la propiedad no está disponible. No es necesario eliminarla, solo marca esta opción. Podrás modificarla en cualquier momento desde las opciones de edición de la propiedad. Además, no aparecerá en los resultados de búsqueda para otros usuarios.
+                    </p>
                 </div>
 
                 <!-- Capacidad máxima -->
                 <div class="form-group">
                     <label for="id_capacidad_maxima">Capacidad máxima</label>
-                    <input type="number" name="capacidad_maxima" class="form-control form-control-lg" required>
+                    <input type="number" name="capacidad_maxima" class="form-control form-control-lg" required min="1" inputmode="numeric">
                 </div>
 
                 <!-- Campo oculto para la portada -->
@@ -155,4 +161,5 @@
         }
     };
 </script>
+
 {% endblock %}
