@@ -238,9 +238,9 @@ def agregar_imagenes(request, propiedad_id):
     return render(request, "SimplexRentalisAPP/agregar_imagenes.html", {'propiedad': propiedad})
 
 # Vista detallada de una propiedad
-def propiededad_detallada(request, propiedad_id):
+def propiedad_detallada(request, propiedad_id):
     propiedad = get_object_or_404(Propiedades, pk=propiedad_id)
-    return render(request, 'SimplexRentalisAPP/propiededad_detallada.html', {
+    return render(request, 'SimplexRentalisAPP/propiedad_detallada.html', {
         'propiedad': propiedad
     })
 # Vista para eliminar la cuenta

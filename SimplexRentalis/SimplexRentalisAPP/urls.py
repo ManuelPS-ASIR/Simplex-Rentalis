@@ -31,7 +31,7 @@ urlpatterns = [
     path('agregar/', views.agregar_propiedad, name='agregar_propiedad'),
     
     # Ruta para ver detalle de la propiedad
-    path('propiedad/<int:propiedad_id>/', views.propiededad_detallada, name='propiedad_detallada'),
+    path('propiedad/<int:propiedad_id>/', views.propiedad_detallada, name='propiedad_detallada'),
 ]
 
 if settings.DEBUG:
