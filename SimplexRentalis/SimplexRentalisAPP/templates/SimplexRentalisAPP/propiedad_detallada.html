@@ -11,6 +11,13 @@ Propiedad en detalle
     <div class="detalle-container">
         <!-- Sección de la Imagen Principal -->
         <div class="propiedad-image">
+            <div class="image-navigation">
+                <!-- Flecha izquierda -->
+                <span class="arrow left-arrow" onclick="changeImageByArrow('prev')">
+                    <img src="{% static 'defaults/flecha-izquierda.png' %}" alt="Flecha Izquierda">
+                </span>
+            </div>
+            
             {% if imagen_portada %}
                 <img src="{{ imagen_portada.imagen.url }}" alt="Imagen de Portada" class="img-fluid main-image" id="main-image" onclick="changeImage('{{ imagen_portada.imagen.url }}', this)">
             {% else %}
@@ -26,6 +33,13 @@ Propiedad en detalle
                         <img src="{{ imagen.imagen.url }}" alt="{{ imagen.descripcion }}" class="thumbnail-image" onclick="changeImage('{{ imagen.imagen.url }}', this)">
                     {% endfor %}
                 </div>
+            </div>
+
+            <div class="image-navigation">
+                <!-- Flecha derecha -->
+                <span class="arrow right-arrow" onclick="changeImageByArrow('next')">
+                    <img src="{% static 'defaults/flecha-derecha.png' %}" alt="Flecha Derecha">
+                </span>
             </div>
         </div>
         
@@ -65,15 +79,29 @@ Propiedad en detalle
 </div>
 
 <script>
+    let currentImageIndex = 0; // Índice de la imagen actual
+
+    // Cambia la imagen principal
     function changeImage(imageUrl, thumbnailElement) {
-        // Cambia la imagen principal
         const mainImage = document.getElementById('main-image');
         mainImage.src = imageUrl;
 
-        // Añade clase activa a la miniatura seleccionada
+        // Actualizar el índice de la imagen principal
         const thumbnails = document.querySelectorAll('.thumbnail-image');
         thumbnails.forEach(thumb => thumb.classList.remove('active')); // Elimina la clase activa de todas las miniaturas
         thumbnailElement.classList.add('active'); // Añade la clase activa a la miniatura seleccionada
+    }
+
+    // Cambiar imagen con las flechas
+    function changeImageByArrow(direction) {
+        const images = document.querySelectorAll('.thumbnail-image');
+        if (direction === 'next') {
+            currentImageIndex = (currentImageIndex + 1) % images.length; // Ir a la siguiente imagen
+        } else if (direction === 'prev') {
+            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length; // Ir a la imagen anterior
+        }
+        const newImage = images[currentImageIndex];
+        changeImage(newImage.src, newImage); // Cambia la imagen principal al hacer clic en las flechas
     }
 </script>
 {% endblock %}
