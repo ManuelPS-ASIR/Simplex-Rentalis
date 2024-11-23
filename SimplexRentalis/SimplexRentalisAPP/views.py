@@ -34,9 +34,15 @@ def propiedades(request):
 @login_required
 def propiedades_usuario(request):
     propiedades = Propiedades.objects.filter(propietario=request.user)
+    for propiedad in propiedades:
+        portada = propiedad.gallery_images.filter(portada=True).first()
+        if not portada:
+            portada = propiedad.gallery_images.first()
+        propiedad.portada = portada
     return render(request, 'SimplexRentalisAPP/propiedades_usuario.html', {
         'propiedades': propiedades
     })
+
 
 # Registro de usuario
 def register(request):
