@@ -538,3 +538,34 @@ textarea.form-control {
     width: 30px; /* Tamaño aumentado */
     height: 30px; /* Tamaño aumentado */
 }
+.propiedad-image {
+    border: 2px solid #ddd; /* Borde alrededor del contenedor */
+    border-radius: 8px; /* Opcional: bordes redondeados */
+    padding: 10px; /* Espaciado interno */
+    background-color: #f9f9f9; /* Fondo del marco */
+    max-width: 600px; /* Ancho fijo */
+    margin: 0 auto; /* Centrado automático */
+}
+
+.thumbnails-container {
+    display: flex;
+    justify-content: center; /* Centrar las miniaturas */
+    gap: 10px; /* Espaciado entre miniaturas */
+    margin-top: 10px; /* Separación respecto a la imagen principal */
+}
+
+.thumbnail-wrapper img {
+    border: 1px solid #ccc; /* Borde para cada miniatura */
+    border-radius: 4px; /* Opcional: bordes redondeados */
+    cursor: pointer; /* Cambio de cursor al pasar por encima */
+    width: 60px; /* Tamaño fijo de ancho */
+    height: 60px; /* Tamaño fijo de alto */
+    object-fit: cover; /* Ajustar la imagen sin deformarse */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Transiciones suaves */
+}
+
+.thumbnail-wrapper img:hover,
+.thumbnail-wrapper img.active {
+    transform: scale(1.1); /* Ampliar al hacer hover o seleccionar */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra sutil */
+}

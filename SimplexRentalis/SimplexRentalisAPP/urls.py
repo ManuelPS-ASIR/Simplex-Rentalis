@@ -3,6 +3,7 @@ from . import views
 from django.contrib.auth import views as auth_views  # Importar vistas de autenticación
 from django.conf import settings
 from django.conf.urls.static import static
+from .views import DetallePropiedadView
 
 urlpatterns = [
     # Rutas de autenticación
@@ -31,7 +32,7 @@ urlpatterns = [
     path('agregar/', views.agregar_propiedad, name='agregar_propiedad'),
     
     # Ruta para ver detalle de la propiedad
-    path('propiedad/<int:propiedad_id>/', views.propiedad_detallada, name='propiedad_detallada'),
+    path('propiedad/<int:pk>/', DetallePropiedadView.as_view(), name='propiedad_detallada'),
 ]
 
 if settings.DEBUG:

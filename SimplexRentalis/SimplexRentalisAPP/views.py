@@ -238,11 +238,20 @@ def agregar_imagenes(request, propiedad_id):
     return render(request, "SimplexRentalisAPP/agregar_imagenes.html", {'propiedad': propiedad})
 
 # Vista detallada de una propiedad
-def propiedad_detallada(request, propiedad_id):
-    propiedad = get_object_or_404(Propiedades, pk=propiedad_id)
-    return render(request, 'SimplexRentalisAPP/propiedad_detallada.html', {
-        'propiedad': propiedad
-    })
+from django.views.generic.detail import DetailView
+from .models import Propiedades, Galeria
+
+class DetallePropiedadView(DetailView):
+    model = Propiedades
+    template_name = 'SimplexRentalisAPP/propiedad_detallada.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        propiedad = self.get_object()
+        context['imagen_portada'] = Galeria.objects.filter(propiedad=propiedad, portada=True).first()
+        context['imagenes'] = Galeria.objects.filter(propiedad=propiedad)
+        return context
+
 # Vista para eliminar la cuenta
 @login_required
 def delete_account(request):

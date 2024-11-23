@@ -5,11 +5,8 @@ Propiedad en detalle
 {% endblock %}
 
 {% block content %}
-<!-- Enlace al archivo CSS -->
-<!--<link rel="stylesheet" type="text/css" href="{% static 'path/to/style.css' %}">-->
-
 <div id="main-content">
-    <h1 class="propiedad-title">{{ propiedad.titulo }}</h1>
+    <h1 class="propiedad-title">{{ propiedad.nombre }}</h1>
     
     <div class="detalle-container">
         <!-- Sección de la Imagen Principal -->
@@ -25,8 +22,8 @@ Propiedad en detalle
             <!-- Contenedor de las miniaturas -->
             <div class="thumbnails-container">
                 <div class="thumbnail-wrapper" id="thumbnails-wrapper">
-                    {% for imagen in propiedad.imagenes_set.all %}
-                        <img src="{{ imagen.imagen.url }}" alt="Vista previa de {{ propiedad.titulo }}" class="thumbnail-image" onclick="changeImage('{{ imagen.imagen.url }}', this)">
+                    {% for imagen in imagenes %}
+                        <img src="{{ imagen.imagen.url }}" alt="{{ imagen.descripcion }}" class="thumbnail-image" onclick="changeImage('{{ imagen.imagen.url }}', this)">
                     {% endfor %}
                 </div>
             </div>
@@ -34,10 +31,12 @@ Propiedad en detalle
         
         <!-- Sección de Información -->
         <div class="propiedad-details">
-            <p><strong>Dueño:</strong> {{ propiedad.usuario }}</p>
+            <p><strong>Dueño:</strong> {{ propiedad.propietario }}</p>
             <p><strong>Dirección:</strong> {{ propiedad.direccion }}</p>
-            <p><strong>Precio:</strong> {{ propiedad.precio }} €</p>
+            <p><strong>Precio por noche:</strong> {{ propiedad.precio_noche }} €</p>
             <p><strong>Calificación:</strong> {{ propiedad.calificacion }}</p>
+            <p><strong>Permite mascotas:</strong> {{ propiedad.permite_mascotas|yesno:"Sí,No" }}</p>
+            <p><strong>Capacidad máxima:</strong> {{ propiedad.capacidad_maxima }} personas</p>
         </div>
     </div>
 
@@ -77,5 +76,4 @@ Propiedad en detalle
         thumbnailElement.classList.add('active'); // Añade la clase activa a la miniatura seleccionada
     }
 </script>
-
 {% endblock %}
