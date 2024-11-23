@@ -293,14 +293,10 @@ from django.shortcuts import get_object_or_404, redirect
 from .models import Propiedades
 
 def eliminar_propiedad(request, pk):
-    # Obtener la propiedad a eliminar
     propiedad = get_object_or_404(Propiedades, pk=pk)
     
-    # Verificar si el usuario actual es el propietario de la propiedad
-    if propiedad.propietario == request.user:
-        propiedad.delete()
-        # Redirigir al listado de propiedades
-        return redirect('mis_propiedades')
-    else:
-        # Si el usuario no es el propietario, redirigir con un mensaje de error o simplemente denegar
-        return redirect('mis_propiedades')  # Puedes personalizar el mensaje de error o la redirección
+    if request.method == 'POST':
+        propiedad.delete()  # Eliminar la propiedad
+        return redirect('propiedades_usuario')  # Redirigir de nuevo a la lista de propiedades
+    
+    return render(request, 'confirmar_eliminacion.html', {'propiedad': propiedad})

@@ -24,7 +24,8 @@
                             <img src="{% static 'defaults/boton-editar.png' %}" alt="Editar" class="img-fluid">
                         </a>
                         
-                        <a href="{% url 'eliminar_propiedad' propiedad.pk %}" class="btn btn-delete" onclick="return confirm('¿Estás seguro de que quieres eliminar esta propiedad?');">
+                        <!-- Enlace para eliminar propiedad -->
+                        <a href="javascript:void(0);" class="btn btn-delete" data-bs-toggle="modal" data-bs-target="#deletePropertyModal" data-property-id="{{ propiedad.pk }}" data-url="{% url 'eliminar_propiedad' pk=propiedad.pk %}">
                             <img src="{% static 'defaults/boton-eliminar.png' %}" alt="Eliminar" class="img-fluid">
                         </a>
                     </div>
@@ -65,4 +66,45 @@
     </a>
 </div>
 
+<!-- Modal de confirmación de eliminación de propiedad -->
+<div class="modal fade" id="deletePropertyModal" tabindex="-1" aria-labelledby="deletePropertyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deletePropertyModalLabel">¿Estás seguro de querer eliminar esta propiedad?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Esta acción no se puede deshacer.</p>
+                <form id="deletePropertyForm" method="post" action="">
+                    {% csrf_token %}
+                    <input type="hidden" id="propertyId" name="propertyId">
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Eliminar Propiedad</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deletePropertyModal = document.getElementById('deletePropertyModal');
+        deletePropertyModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget; // El botón que abrió el modal
+            const propertyId = button.getAttribute('data-property-id'); // Obtener el id de la propiedad
+            const propertyUrl = button.getAttribute('data-url'); // Obtener la URL de eliminación
+
+            // Establecer el id de la propiedad en el campo oculto dentro del formulario
+            const propertyIdInput = document.getElementById('propertyId');
+            propertyIdInput.value = propertyId;
+
+            // Actualizar la URL en el formulario con la URL de eliminación
+            const form = document.getElementById('deletePropertyForm');
+            form.action = propertyUrl;  // Usar la URL directamente obtenida del atributo data-url
+        });
+    });
+</script>
 {% endblock %}
