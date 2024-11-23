@@ -203,8 +203,7 @@ class PropiedadForm(forms.ModelForm):
     class Meta:
         model = Propiedades
         fields = [
-            'nombre', 'descripcion', 'direccion', 'precio_noche', 'calificacion',
-            'porcentaje_reserva', 'permite_mascotas', 'en_mantenimiento', 'capacidad_maxima'
+            'nombre', 'descripcion', 'direccion', 'precio_noche', 'calificacion', 'permite_mascotas', 'en_mantenimiento', 'capacidad_maxima'
         ]
 # # Formulario para crear una propiedad
 # class PropiedadForm(forms.ModelForm):

@@ -88,7 +88,6 @@ class Propiedades(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(5)],
         decimal_places=1  # Decimal con 1 lugar
     )
-    porcentaje_reserva = models.DecimalField(max_digits=5, decimal_places=2, blank=False, null=False, default=5.0)
     permite_mascotas = models.BooleanField(default=False)
     en_mantenimiento = models.BooleanField(default=False)
     capacidad_maxima = models.IntegerField(default=10)  # Limita la cantidad de personas
@@ -105,10 +104,6 @@ class Propiedades(models.Model):
         return self.nombre
 
     def clean(self):
-        # Validación de porcentaje de reserva
-        if not (5 <= self.porcentaje_reserva <= 35):
-            raise ValidationError("El porcentaje de reserva debe estar entre 5% y 35%.")
-        
         # Validación de la calificación
         if self.calificacion < 1 or self.calificacion > 5:
             raise ValidationError("La calificación debe estar entre 1 y 5.")
