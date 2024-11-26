@@ -315,3 +315,26 @@ def eliminar_propiedad(request, pk):
         return redirect('propiedades_usuario')  # Redirigir de nuevo a la lista de propiedades
     
     return render(request, 'confirmar_eliminacion.html', {'propiedad': propiedad})
+
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.http import JsonResponse
+from .models import Propiedades  # Asegúrate de importar el modelo adecuado
+
+@login_required
+def cambiar_estado_propietario(request):
+    user = request.user
+    if request.method == 'POST':
+        if user.es_propietario:
+            # Eliminar todas las propiedades del usuario
+            Propiedades.objects.filter(propietario=user).delete()
+        
+        # Cambiar el estado de propietario
+        user.es_propietario = not user.es_propietario
+        user.save()
+        
+        estado = "activado" if user.es_propietario else "desactivado"
+        messages.success(request, f"Tu estado de propietario ha sido {estado}.")
+        return redirect('settings')  # Cambiar por la vista que prefieras redirigir
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)

@@ -15,6 +15,8 @@ urlpatterns = [
     path('settings/', views.account_settings, name='settings'),
     path('password_change/', views.password_change_view, name='password_change'),
     path('delete_account/', views.delete_account, name='delete_account'),
+    path('cambiar_estado_propietario/', views.cambiar_estado_propietario, name='cambiar_estado_propietario'),
+
 
     # Rutas para la aplicación
     path("", views.index, name="index"),

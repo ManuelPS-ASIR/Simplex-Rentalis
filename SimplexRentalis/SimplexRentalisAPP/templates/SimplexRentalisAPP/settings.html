@@ -28,10 +28,113 @@
             {% endif %}
         </div>
     </div>
+    <!-- Botón para cambiar estado de propietario -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3>Estado de propietario</h3>
+        </div>
+        <div class="card-body">
+            <p class="text-center">
+                Estado actual: 
+                {% if user.es_propietario %}
+                    <span class="badge bg-success">Propietario</span>
+                {% else %}
+                    <span class="badge bg-secondary">No propietario</span>
+                {% endif %}
+            </p>
+            <div class="d-flex justify-content-center my-4">
+                <button type="button" class="btn {% if user.es_propietario %}btn-danger{% else %}btn-success{% endif %}" 
+                        data-bs-toggle="modal" data-bs-target="#changeOwnerModal">
+                    {% if user.es_propietario %}
+                        Dejar de ser propietario
+                    {% else %}
+                        Convertirse en propietario
+                    {% endif %}
+                </button>
+            </div>
+        </div>        
+    </div>
+    <!-- Modal de Confirmación de Cambio de Estado -->
+    <div class="modal fade" id="changeOwnerModal" tabindex="-1" aria-labelledby="changeOwnerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header {% if user.es_propietario %}bg-danger{% else %}bg-success{% endif %} text-white">
+                    <h5 class="modal-title" id="changeOwnerModalLabel">
+                        {% if user.es_propietario %}
+                            ¿Estás seguro de querer dejar de ser propietario?
+                        {% else %}
+                            ¿Quieres convertirte en propietario?
+                        {% endif %}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        {% if user.es_propietario %}
+                            Al dejar de ser propietario, perderás los privilegios asociados.
+                        {% else %}
+                            Convertirte en propietario te otorgará acceso a funciones adicionales.
+                        {% endif %}
+                    </p>
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn {% if user.es_propietario %}btn-danger{% else %}btn-success{% endif %}" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#finalChangeOwnerModal" 
+                                data-bs-dismiss="modal">
+                            Confirmar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Final de Confirmación -->
+    <div class="modal fade" id="finalChangeOwnerModal" tabindex="-1" aria-labelledby="finalChangeOwnerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-white">
+                    <h5 class="modal-title" id="finalChangeOwnerModalLabel">
+                        {% if user.es_propietario %}
+                            Confirma que deseas dejar de ser propietario
+                        {% else %}
+                            Confirma que deseas convertirte en propietario
+                        {% endif %}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="changeOwnerForm" method="post" action="{% url 'cambiar_estado_propietario' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="usernameConfirm" class="form-label">Nombre de usuario</label>
+                            <input type="text" id="usernameConfirm" name="usernameConfirm" class="form-control" placeholder="Introduce tu nombre de usuario" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmationCode" class="form-label">Código de confirmación</label>
+                            <input type="text" id="confirmationCode" name="confirmationCode" class="form-control" placeholder="Escribe CONFIRMAR" required>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn {% if user.es_propietario %}btn-danger{% else %}btn-success{% endif %}" id="confirmChangeOwnerBtn" disabled>
+                                {% if user.es_propietario %}
+                                    Dejar de ser propietario
+                                {% else %}
+                                    Convertirse en propietario
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
     <!-- Actualizar Contraseña -->
     <div class="card shadow-sm mb-4">
-        <div class="card-header bg-warning text-dark">
+        <div class="card-header bg-primary text-white">
             <h3>Actualizar Contraseña</h3>
         </div>
         <div class="card-body">
@@ -165,6 +268,22 @@
 </div>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const usernameConfirm = document.getElementById('usernameConfirm');
+        const confirmationCode = document.getElementById('confirmationCode');
+        const confirmChangeOwnerBtn = document.getElementById('confirmChangeOwnerBtn');
+
+        function validateFinalForm() {
+            const isUsernameValid = usernameConfirm.value.trim() === "{{ user.username }}";
+            const isConfirmationCodeValid = confirmationCode.value.trim().toUpperCase() === "CONFIRMAR";
+            confirmChangeOwnerBtn.disabled = !(isUsernameValid && isConfirmationCodeValid);
+        }
+
+        usernameConfirm.addEventListener('input', validateFinalForm);
+        confirmationCode.addEventListener('input', validateFinalForm);
+    });
+
+
     document.addEventListener('DOMContentLoaded', function () {
         const confirmDeletionBtn = document.getElementById('confirmDeletionBtn');
         const finalConfirmationStep = document.getElementById('finalConfirmationStep');
@@ -319,4 +438,3 @@
 
 
 {% endblock %}
-<!-- SI RECARGO, EL TIEMPO DE ESPERA DA IGUAL -->
