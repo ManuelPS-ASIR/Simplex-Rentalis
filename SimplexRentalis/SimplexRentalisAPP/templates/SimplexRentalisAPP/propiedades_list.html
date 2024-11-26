@@ -2,37 +2,50 @@
 {% load static %}
 
 {% block title %}
-Lista de Propiedades
+    Mis Propiedades
 {% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Lista de Propiedades</h2>
+    <!-- Contenedor para Título -->
+    <div class="position-relative mb-4">
+        <!-- Título centrado -->
+        <h2 class="text-center m-0">Mis Propiedades</h2>
+    </div>
+
+    <!-- Contenedor de tarjetas de propiedades -->
     <div class="row justify-content-center">
-        {% for propiedad in propiedades %}
-            <div class="col-6 col-md-4 col-lg-3 mb-4 d-flex align-items-stretch">
-                <a href="{% url 'detalle_propiedad' propiedad.pk %}" class="propiedad-card text-center text-decoration-none">
-                    <div class="card shadow-sm">
-                        <div class="card-image">
-                            {% if propiedad.imagen %}
-                                <img src="{{ propiedad.imagen.url }}" class="img-fluid rounded" alt="Imagen de {{ propiedad.nombre }}">
-                            {% else %}
-                                <div class="no-imagen">
-                                    <p>No hay imagen de portada disponible.</p>
-                                </div>
-                            {% endif %}
+        {% if propiedades %}
+            {% for propiedad in propiedades %}
+            <div class="col-12 col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
+                <div class="propiedad-card-wrapper position-relative">
+                    <!-- Enlace a la página de detalles de la propiedad -->
+                    <a href="{% url 'propiedad_detallada' propiedad.pk %}" class="text-decoration-none">
+                        <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                            <!-- Imagen de la propiedad -->
+                            <div class="card-image">
+                                {% if propiedad.portada %}
+                                    <img src="{{ propiedad.portada.imagen.url }}" class="img-fluid rounded-top" alt="Imagen de {{ propiedad.nombre }}">
+                                {% else %}
+                                    <div class="no-imagen d-flex justify-content-center align-items-center bg-light" style="height: 200px;">
+                                        <p class="text-muted">No hay imagen disponible.</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-body p-4">
+                                <h5 class="card-title">{{ propiedad.nombre }} - <span class="text-primary">{{ propiedad.precio_noche }}€</span></h5>
+                                <p class="card-text text-muted">{{ propiedad.direccion }}</p>
+                                <p class="text-muted">Calificación: {{ propiedad.calificacion|default:"-" }}/5</p>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <h5 class="card-title">{{ propiedad.nombre }} > {{ propiedad.precio_noche }}€</h5>
-                            <p class="card-text">{{ propiedad.direccion }}</p>
-                            <p class="text-muted">Calificación: {{ propiedad.calificacion }}/5</p>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        {% empty %}
-            <p class="text-center">No hay propiedades disponibles.</p>
-        {% endfor %}
+                    </a>
+                </div>
+            </div>            
+            {% endfor %}
+        {% else %}
+            <!-- Mensaje cuando no hay propiedades registradas -->
+            <p class="text-center text-muted">No tienes propiedades registradas.</p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

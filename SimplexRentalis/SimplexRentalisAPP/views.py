@@ -28,7 +28,7 @@ def propiedades(request):
         # Si no hay imágenes, asignar una URL predeterminada
         propiedad.portada = portada.imagen.url if portada else "/static/images/default_property.jpg"
 
-    return render(request, 'propiedades.html', {'propiedades': propiedades})
+    return render(request, 'SimplexRentalisAPP/propiedades_list.html', {'propiedades': propiedades})
 
 # Mostrar propiedades del usuario autenticado
 @login_required
