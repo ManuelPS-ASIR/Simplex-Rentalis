@@ -19,7 +19,9 @@
   <div id="menu">
     <span class="hamburguesa">&#9776;</span> <!-- Ícono de hamburguesa -->
     <a href="#" class="menu-item">Mis reservas</a>
-    <a href="/mis_propiedades/" class="menu-item">Mis propiedades</a>
+    {% if user.es_propietario %}
+        <a href="/mis_propiedades/" class="menu-item">Mis propiedades</a>
+    {% endif %}
     <a href="#" class="menu-item">Inicio</a>
     <a href="#" class="menu-item">Servicios</a>
     <a href="#" class="menu-item">Acerca de</a>
