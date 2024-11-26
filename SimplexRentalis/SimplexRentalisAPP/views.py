@@ -335,6 +335,11 @@ def cambiar_estado_propietario(request):
         
         estado = "activado" if user.es_propietario else "desactivado"
         messages.success(request, f"Tu estado de propietario ha sido {estado}.")
-        return redirect('settings')  # Cambiar por la vista que prefieras redirigir
+        
+        # Redirigir según el nuevo estado
+        if user.es_propietario:
+            return redirect('agregar_propiedad')  # Redirige a la vista de agregar propiedad
+        else:
+            return redirect('settings')  # Redirige a la vista de configuración o preferida
     
     return JsonResponse({'error': 'Método no permitido'}, status=405)
