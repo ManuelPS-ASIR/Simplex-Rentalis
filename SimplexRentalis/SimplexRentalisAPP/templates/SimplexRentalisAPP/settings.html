@@ -42,12 +42,18 @@
                     <span class="badge bg-secondary">No propietario</span>
                 {% endif %}
             </p>
-            {% if user.es_propietario and not user.propiedades.exists %}
-                <p class="text-center text-warning mt-3">
-                    Aunque eres propietario, no has agregado ninguna propiedad aún. 
-                    <a href="{% url 'agregar_propiedad' %}" class="btn btn-warning btn-sm">Haz clic aquí para agregar una propiedad</a>
+            {% if user.es_propietario %}
+                <p class="text-center">
+                    Tienes {{ user.propiedades.count }} propiedades.
                 </p>
+                {% if user.propiedades.count == 0 %}
+                    <p class="text-center text-warning">
+                        Aunque eres propietario, no has agregado ninguna propiedad aún. 
+                        <a href="{% url 'agregar_propiedad' %}" class="btn btn-info btn-sm">Haz clic aquí para agregar una propiedad.</a>
+                    </p>
+                {% endif %}
             {% endif %}
+
             <div class="d-flex justify-content-center my-4">
                 <button type="button" class="btn {% if user.es_propietario %}btn-danger{% else %}btn-success{% endif %}" 
                         data-bs-toggle="modal" data-bs-target="#changeOwnerModal">
@@ -60,6 +66,7 @@
             </div>
         </div>        
     </div>
+
     <!-- Modal de Confirmación de Cambio de Estado -->
     <div class="modal fade" id="changeOwnerModal" tabindex="-1" aria-labelledby="changeOwnerModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">

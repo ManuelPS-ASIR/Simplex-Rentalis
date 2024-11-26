@@ -79,7 +79,7 @@ class Propiedades(models.Model):
     descripcion = models.TextField(max_length=3000, blank=True, null=True)
     direccion = models.CharField(max_length=300, blank=False, null=False)
     precio_noche = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)
-    propietario = models.ForeignKey('User', on_delete=models.CASCADE, blank=False, null=False)
+    propietario = models.ForeignKey('User', on_delete=models.CASCADE, related_name='propiedades', blank=False, null=False)
     calificacion = models.DecimalField(
         default=3.0, 
         blank=False, 
@@ -93,7 +93,7 @@ class Propiedades(models.Model):
     capacidad_maxima = models.IntegerField(default=10)  # Limita la cantidad de personas
 
     # Relación con el modelo Galeria para almacenar múltiples imágenes
-    galeria = models.ForeignKey('Galeria', on_delete=models.CASCADE, related_name='propiedades', blank=True, null=True)
+    galeria = models.ForeignKey('Galeria', on_delete=models.CASCADE, related_name='propiedades_galeria', blank=True, null=True)
 
     class Meta:
         constraints = [
@@ -125,7 +125,6 @@ class Propiedades(models.Model):
 ####################################
 ###### 1.1. Modelo de Galeria ######
 ####################################
-
 class Galeria(models.Model):
     id = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey('Propiedades', related_name='gallery_images', on_delete=models.CASCADE)
@@ -139,7 +138,7 @@ class Galeria(models.Model):
 
     def __str__(self):
         return f"Imagen de {self.propiedad.nombre} - {self.id}"
-
+    
 ###################################
 ##### 2. Modelo de Reservas #######
 ###################################
