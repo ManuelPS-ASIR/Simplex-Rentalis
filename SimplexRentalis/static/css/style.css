@@ -293,13 +293,22 @@ h3 {
     display: block; /* Mostrar el mensaje de error */
     color: #dc3545; /* Color del texto de error */
 }
+.toast {
+    position: fixed; /* Fija el toast en una posición específica */
+    bottom: 20px; /* Ajusta la distancia desde la parte inferior */
+    right: 20px; /* Ajusta la distancia desde el borde derecho */
+    width: 400px !important; /* Ajusta el ancho del toast */
+    z-index: 1050; /* Asegúrate de que el toast se muestre encima de otros elementos */
+}
+
 .toast-body {
     padding: 10px 20px !important; /* Ajusta el padding para hacer el toast más bajo */
     font-size: 1rem !important; /* Tamaño de la fuente */
     font-weight: bold !important; /* Fuente en negrita */
     line-height: 1.5 !important; /* Altura de la línea */
-    width: 400px !important; /* Ajusta el ancho del toast */
+    width: 100% !important; /* Asegura que el contenido ocupe todo el ancho del toast */
 }
+
 
 /* Contenedor de título y botón */
 .d-flex {
