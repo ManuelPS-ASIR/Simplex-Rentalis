@@ -47,7 +47,7 @@
                     Tienes {{ user.propiedades.count }} propiedades.
                 </p>
                 {% if user.propiedades.count == 0 %}
-                    <p class="text-center text-warning">
+                    <p class="text-center text-black">
                         Aunque eres propietario, no has agregado ninguna propiedad aún. 
                         <a href="{% url 'agregar_propiedad' %}" class="btn btn-info btn-sm">Haz clic aquí para agregar una propiedad.</a>
                     </p>
@@ -285,43 +285,10 @@
         const usernameConfirm = document.getElementById('usernameConfirm');
         const confirmationCode = document.getElementById('confirmationCode');
         const confirmChangeOwnerBtn = document.getElementById('confirmChangeOwnerBtn');
-
-        function validateFinalForm() {
-            const isUsernameValid = usernameConfirm.value.trim() === "{{ user.username }}";
-            const isConfirmationCodeValid = confirmationCode.value.trim().toUpperCase() === "CONFIRMAR";
-            confirmChangeOwnerBtn.disabled = !(isUsernameValid && isConfirmationCodeValid);
-        }
-
-        usernameConfirm.addEventListener('input', validateFinalForm);
-        confirmationCode.addEventListener('input', validateFinalForm);
-    });
-
-
-    document.addEventListener('DOMContentLoaded', function () {
         const confirmDeletionBtn = document.getElementById('confirmDeletionBtn');
         const finalConfirmationStep = document.getElementById('finalConfirmationStep');
         const confirmationStep = document.getElementById('confirmationStep');
         const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-        const usernameConfirm = document.getElementById('usernameConfirm');
-        const confirmationCode = document.getElementById('confirmationCode');
-
-        // Mostrar la segunda etapa al confirmar
-        confirmDeletionBtn.addEventListener('click', function () {
-            confirmationStep.classList.add('d-none');
-            finalConfirmationStep.classList.remove('d-none');
-        });
-
-        // Habilitar el botón de eliminación solo si los campos son válidos
-        function validateInputs() {
-            const isUsernameValid = usernameConfirm.value.trim() === "{{ user.username }}";
-            const isConfirmationCodeValid = confirmationCode.value.trim().toUpperCase() === "CONFIRMAR";
-            deleteAccountBtn.disabled = !(isUsernameValid && isConfirmationCodeValid);
-        }
-
-        usernameConfirm.addEventListener('input', validateInputs);
-        confirmationCode.addEventListener('input', validateInputs);
-    });
-    document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('settingsForm');
         const updateButton = document.getElementById('updateProfileBtn');
         const timerElement = document.getElementById('timer');
@@ -345,6 +312,12 @@
             disableButtonWithTimer(remainingTime);
         }
 
+        // Mostrar la segunda etapa al confirmar
+        confirmDeletionBtn.addEventListener('click', function () {
+            confirmationStep.classList.add('d-none');
+            finalConfirmationStep.classList.remove('d-none');
+        });
+
         // Función para verificar si los valores del formulario han cambiado
         function checkIfFormChanged() {
             const currentValues = {
@@ -363,7 +336,7 @@
                 }
             }
 
-            // Habilitar o deshabilitar el botón si no hay temporizador activo
+            // Habilitar o deshabilitar el botón de actualización
             if (remainingTime === 0 && isChanged) {
                 updateButton.disabled = false;
                 updateButton.classList.remove('btn-secondary');
@@ -380,7 +353,19 @@
             input.addEventListener('input', checkIfFormChanged);
         });
 
-        // Función para deshabilitar botón y mostrar temporizador
+        // Habilitar los botones de confirmación
+        function validateInputs() {
+            const isUsernameValid = usernameConfirm.value.trim() === "{{ user.username }}";
+            const isConfirmationCodeValid = confirmationCode.value.trim().toUpperCase() === "CONFIRMAR";
+            confirmChangeOwnerBtn.disabled = !(isUsernameValid && isConfirmationCodeValid);
+            deleteAccountBtn.disabled = !(isUsernameValid && isConfirmationCodeValid);
+        }
+
+        // Comprobar si los campos de confirmación son válidos
+        usernameConfirm.addEventListener('input', validateInputs);
+        confirmationCode.addEventListener('input', validateInputs);
+
+        // Función para deshabilitar el botón de actualización y mostrar temporizador
         function disableButtonWithTimer(duration) {
             const endTime = new Date().getTime() + duration;
 
@@ -448,6 +433,7 @@
         checkIfFormChanged();
     });
 </script>
+
 
 
 {% endblock %}
