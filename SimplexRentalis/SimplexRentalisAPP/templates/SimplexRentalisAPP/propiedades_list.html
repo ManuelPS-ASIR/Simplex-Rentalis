@@ -25,7 +25,7 @@
                             <!-- Imagen de la propiedad -->
                             <div class="card-image">
                                 {% if propiedad.portada %}
-                                    <img src="{{ propiedad.portada.imagen.url }}" class="img-fluid rounded-top" alt="Imagen de {{ propiedad.nombre }}">
+                                    <img src="{{ propiedad.portada }}" class="img-fluid rounded-top" alt="Imagen de {{ propiedad.nombre }}">
                                 {% else %}
                                     <div class="no-imagen d-flex justify-content-center align-items-center bg-light" style="height: 200px;">
                                         <p class="text-muted">No hay imagen disponible.</p>
