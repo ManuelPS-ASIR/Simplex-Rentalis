@@ -217,29 +217,13 @@
     </div>
 
     <!-- Eliminar Cuenta -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-danger text-white">
-            <h3>Eliminar Cuenta</h3>
-        </div>
-        <div class="card-body">
-            <p>¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.</p>
-            <form method="post" action="{% url 'delete_account' %}">
-                {% csrf_token %}
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">Eliminar Cuenta</button>
-            </form>            
-        </div>
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-danger text-white">
+        <h3>Eliminar Cuenta</h3>
     </div>
-</div>
-
-<!-- Toast para mostrar éxito -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-    <div id="successToast" class="toast align-items-center text-bg-success border-0 custom-toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body">
-                ¡Los cambios se realizaron con éxito!
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
+    <div class="card-body">
+        <p>¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.</p>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">Eliminar Cuenta</button>
     </div>
 </div>
 
@@ -277,6 +261,19 @@
                     </form>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Toast para mostrar éxito -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="successToast" class="toast align-items-center text-bg-success border-0 custom-toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                ¡Los cambios se realizaron con éxito!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
     </div>
 </div>
