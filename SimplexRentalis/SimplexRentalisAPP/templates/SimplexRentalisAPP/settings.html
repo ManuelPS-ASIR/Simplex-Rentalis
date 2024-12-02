@@ -120,12 +120,12 @@
                     <form id="changeOwnerForm" method="post" action="{% url 'cambiar_estado_propietario' %}">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label for="usernameConfirm" class="form-label">Nombre de usuario</label>
-                            <input type="text" id="usernameConfirm" name="usernameConfirm" class="form-control" placeholder="Introduce tu nombre de usuario" required>
+                            <label for="changeOwnerUsernameConfirm" class="form-label">Nombre de usuario</label>
+                            <input type="text" id="changeOwnerUsernameConfirm" name="changeOwnerUsernameConfirm" class="form-control" placeholder="Introduce tu nombre de usuario" required>
                         </div>
                         <div class="mb-3">
-                            <label for="confirmationCode" class="form-label">Código de confirmación</label>
-                            <input type="text" id="confirmationCode" name="confirmationCode" class="form-control" placeholder="Escribe CONFIRMAR" required>
+                            <label for="changeOwnerConfirmationCode" class="form-label">Código de confirmación</label>
+                            <input type="text" id="changeOwnerConfirmationCode" name="changeOwnerConfirmationCode" class="form-control" placeholder="Escribe CONFIRMAR" required>
                         </div>
                         <div class="d-flex justify-content-between">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -142,6 +142,7 @@
             </div>
         </div>
     </div>
+    
 
 
 
@@ -265,12 +266,12 @@
                     <form id="finalConfirmationForm" method="post" action="{% url 'delete_account' %}">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label for="usernameConfirm" class="form-label">Nombre de usuario</label>
-                            <input type="text" class="form-control" id="usernameConfirm" name="usernameConfirm" placeholder="{{ user.username }}" required>
+                            <label for="deleteAccountUsernameConfirm" class="form-label">Nombre de usuario</label>
+                            <input type="text" class="form-control" id="deleteAccountUsernameConfirm" name="deleteAccountUsernameConfirm" placeholder="{{ user.username }}" required>
                         </div>
                         <div class="mb-3">
-                            <label for="confirmationCode" class="form-label">Escribe "CONFIRMAR"</label>
-                            <input type="text" class="form-control" id="confirmationCode" name="confirmationCode" placeholder="CONFIRMAR" required>
+                            <label for="deleteAccountConfirmationCode" class="form-label">Escribe "CONFIRMAR"</label>
+                            <input type="text" class="form-control" id="deleteAccountConfirmationCode" name="deleteAccountConfirmationCode" placeholder="CONFIRMAR" required>
                         </div>
                         <button type="submit" class="btn btn-danger w-100" id="deleteAccountBtn" disabled>Eliminar Cuenta</button>
                     </form>
@@ -282,8 +283,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const usernameConfirm = document.getElementById('usernameConfirm');
-        const confirmationCode = document.getElementById('confirmationCode');
         const confirmChangeOwnerBtn = document.getElementById('confirmChangeOwnerBtn');
         const confirmDeletionBtn = document.getElementById('confirmDeletionBtn');
         const finalConfirmationStep = document.getElementById('finalConfirmationStep');
@@ -353,17 +352,31 @@
             input.addEventListener('input', checkIfFormChanged);
         });
 
-        // Habilitar los botones de confirmación
+        // Modificar las referencias a los campos de entrada de confirmación
+        const usernameConfirm = document.getElementById('deleteAccountUsernameConfirm');  // para eliminar cuenta
+        const confirmationCode = document.getElementById('deleteAccountConfirmationCode');  // para eliminar cuenta
+
+        // O en el caso de cambiar propietario
+        const changeOwnerUsernameConfirm = document.getElementById('changeOwnerUsernameConfirm');
+        const changeOwnerConfirmationCode = document.getElementById('changeOwnerConfirmationCode');
+
+        // Modificar las funciones de validación para los nuevos elementos
         function validateInputs() {
             const isUsernameValid = usernameConfirm.value.trim() === "{{ user.username }}";
             const isConfirmationCodeValid = confirmationCode.value.trim().toUpperCase() === "CONFIRMAR";
-            confirmChangeOwnerBtn.disabled = !(isUsernameValid && isConfirmationCodeValid);
-            deleteAccountBtn.disabled = !(isUsernameValid && isConfirmationCodeValid);
+            confirmDeletionBtn.disabled = !(isUsernameValid && isConfirmationCodeValid);
+
+            const isChangeOwnerUsernameValid = changeOwnerUsernameConfirm.value.trim() === "{{ user.username }}";
+            const isChangeOwnerCodeValid = changeOwnerConfirmationCode.value.trim().toUpperCase() === "CONFIRMAR";
+            confirmChangeOwnerBtn.disabled = !(isChangeOwnerUsernameValid && isChangeOwnerCodeValid);
         }
 
         // Comprobar si los campos de confirmación son válidos
         usernameConfirm.addEventListener('input', validateInputs);
         confirmationCode.addEventListener('input', validateInputs);
+        changeOwnerUsernameConfirm.addEventListener('input', validateInputs);
+        changeOwnerConfirmationCode.addEventListener('input', validateInputs);
+
 
         // Función para deshabilitar el botón de actualización y mostrar temporizador
         function disableButtonWithTimer(duration) {
@@ -432,8 +445,9 @@
         // Llamar a la función inicialmente para configurar el estado
         checkIfFormChanged();
     });
+
 </script>
 
-
-
+<!-- No se esta procesando bien el codigo por que hay identificiadores reptidos en los modales de confirmacion -->
+<!-- VER ERRORES CON EL F12, SON LOS MOSTRADOS EN LA CONSOLA -->
 {% endblock %}
