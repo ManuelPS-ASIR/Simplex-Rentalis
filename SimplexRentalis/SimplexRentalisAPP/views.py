@@ -343,3 +343,37 @@ def cambiar_estado_propietario(request):
             return redirect('settings')  # Redirige a la vista de configuración o preferida
     
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+from django.http import JsonResponse
+import requests
+
+def autocompletar_direcciones(request):
+    query = request.GET.get('query', '')  # Obtener la consulta parcial del usuario
+    if not query:
+        return JsonResponse({"error": "La consulta está vacía"}, status=400)
+
+    url = "https://photon.komoot.io/api/"
+    params = {
+        "q": query,
+        "limit": 5,
+        "lang": "es"  # Idioma para las sugerencias
+    }
+    response = requests.get(url, params=params)
+
+    if response.status_code == 200:
+        data = response.json()
+        sugerencias = [
+            {
+                "direccion": feature["properties"]["name"],
+                "detalle": feature["properties"].get("city", ""),
+                "provincia": feature["properties"].get("state", ""),
+                "pais": feature["properties"].get("country", ""),
+                "latitud": feature["geometry"]["coordinates"][1],
+                "longitud": feature["geometry"]["coordinates"][0],
+            }
+            for feature in data["features"]
+        ]
+        return JsonResponse(sugerencias, safe=False)
+    else:
+        return JsonResponse({"error": "Error al contactar con Photon"}, status=500)

@@ -26,11 +26,21 @@
                     <textarea name="descripcion" class="form-control form-control-lg" rows="4" required></textarea>
                 </div>
 
-                <!-- Dirección -->
+                <!-- Dirección con autocompletado -->
                 <div class="form-group">
                     <label for="id_direccion">Dirección</label>
-                    <input type="text" name="direccion" class="form-control form-control-lg" required>
+                    <input type="text" name="direccion" class="form-control form-control-lg" id="direccion-autocomplete" required placeholder="Escribe tu dirección">
+                    <ul id="autocomplete-results" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;">
+                        <!-- Las sugerencias de autocompletado aparecerán aquí -->
+                    </ul>
+                    <p class="mt-2 text-muted" style="font-size: 0.9em;">
+                        <strong>Nota:</strong> Elige una dirección de la lista para validar automáticamente.
+                    </p>
                 </div>
+
+                <!-- Campos ocultos para almacenar coordenadas -->
+                <input type="hidden" name="latitud" id="latitud" value="">
+                <input type="hidden" name="longitud" id="longitud" value="">
 
                 <!-- Precio por noche -->
                 <div class="form-group">
@@ -45,14 +55,11 @@
                     <div id="image-preview-container" class="mt-3">
                         <!-- Las miniaturas de las imágenes seleccionadas aparecerán aquí -->
                     </div>
-                    <!-- Mostrar la cantidad de archivos seleccionados debajo del campo de imágenes -->
                     <p id="selected-count" class="mt-2 text-muted" style="font-size: 0.9em;">
                         <strong>Cantidad de archivos seleccionados: </strong> 0
                     </p>
-                    <!-- Mensaje indicando que la primera imagen será portada si no se hace clic -->
                     <p class="mt-2 text-muted" style="font-size: 0.9em;">
-                        <strong>Instrucciones:</strong> Puedes hacer clic sobre cualquier imagen para seleccionarla como portada. Si no haces clic en ninguna, la primera imagen subida será la portada por defecto. <br>
-                        <strong>Recuerda:</strong> Debes subir al menos 5 imágenes y como máximo 15.
+                        <strong>Instrucciones:</strong> Debes subir entre 5 y 15 imágenes. Haz clic sobre una imagen para seleccionarla como portada.
                     </p>
                 </div>
 
@@ -70,7 +77,7 @@
                     <label for="id_en_mantenimiento">¿En mantenimiento?</label>
                     <input type="checkbox" name="en_mantenimiento" id="en_mantenimiento">
                     <p class="mt-2 text-muted" style="font-size: 0.9em;">
-                        <strong>Aviso:</strong> Esta opción se utiliza para indicar que la propiedad no está disponible. No es necesario eliminarla, solo marca esta opción. Podrás modificarla en cualquier momento desde las opciones de edición de la propiedad. Además, no aparecerá en los resultados de búsqueda para otros usuarios.
+                        <strong>Aviso:</strong> Marca esta opción si la propiedad no está disponible. No aparecerá en los resultados de búsqueda.
                     </p>
                 </div>
 
@@ -96,13 +103,12 @@
     let selectedImages = []; // Para almacenar todas las imágenes seleccionadas
     let portadaIndex = 0;    // Índice de la imagen marcada como portada
 
-    // Función para previsualizar imágenes seleccionadas
     function previewImages(event) {
         const files = event.target.files;
         const previewContainer = document.getElementById('image-preview-container');
         const selectedCount = document.getElementById('selected-count');
         previewContainer.innerHTML = ""; // Limpiar previsualizaciones previas
-        selectedImages = []; // Reiniciar las imágenes seleccionadas
+        selectedImages = []; 
 
         Array.from(files).forEach((file, index) => {
             if (selectedImages.length >= 15) {
@@ -118,48 +124,100 @@
                 img.style.width = '100px';
                 img.style.height = '100px';
                 img.style.objectFit = 'cover';
-                img.classList.add('mr-2', 'image-thumbnail'); // Añadir clase para identificación
-                img.dataset.index = index; // Asociar índice con la imagen
+                img.classList.add('mr-2', 'image-thumbnail');
+                img.dataset.index = index;
                 img.onclick = function() {
-                    setAsPortada(img); // Marcar esta imagen como portada al hacer clic
+                    setAsPortada(img);
                 };
                 previewContainer.appendChild(img);
 
                 selectedImages.push(file);
 
-                // Si es la primera imagen, se selecciona como portada por defecto
                 if (selectedImages.length === 1) {
                     setAsPortada(img);
                 }
             };
-            reader.readAsDataURL(file); // Leer el archivo seleccionado
+            reader.readAsDataURL(file);
         });
 
-        // Actualizar el contador de archivos seleccionados
         selectedCount.innerHTML = `<strong>Cantidad de archivos seleccionados: </strong> ${files.length}`;
     }
 
-    // Función para marcar una imagen como portada
     function setAsPortada(selectedImg) {
-        // Eliminar la clase 'selected' de todas las miniaturas
         const allImages = document.querySelectorAll('.image-thumbnail');
         allImages.forEach(img => img.classList.remove('selected'));
-
-        // Añadir la clase 'selected' a la imagen seleccionada
         selectedImg.classList.add('selected');
-
-        // Establecer el índice de la portada
         portadaIndex = selectedImg.dataset.index;
         document.getElementById('portada-id').value = portadaIndex;
     }
 
-    // Validar el formulario antes de enviarlo
+    // Autocompletado de direcciones
+    document.getElementById('direccion-autocomplete').addEventListener('input', function() {
+        const query = this.value.trim();
+        const resultsContainer = document.getElementById('autocomplete-results');
+
+        if (query.length < 3) {
+            resultsContainer.style.display = 'none';
+            return;
+        }
+
+        fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=default`)
+            .then(response => response.json())
+            .then(data => {
+                resultsContainer.innerHTML = '';
+                if (!data || !data.features || data.features.length === 0) {
+                    resultsContainer.style.display = 'none';
+                    return;
+                }
+
+                data.features.forEach((feature) => {
+                    const item = document.createElement('li');
+                    const direccion = feature.properties.name || '';
+                    const ciudad = feature.properties.city || '';
+                    const provincia = feature.properties.state || '';
+                    const pais = feature.properties.country || '';
+
+                    item.textContent = `${direccion}, ${ciudad}, ${provincia}, ${pais}`;
+                    item.classList.add('list-group-item', 'list-group-item-action');
+                    item.dataset.latitud = feature.geometry.coordinates[1];
+                    item.dataset.longitud = feature.geometry.coordinates[0];
+                    item.dataset.fullAddress = item.textContent;
+
+                    item.onclick = function() {
+                        document.getElementById('direccion-autocomplete').value = this.dataset.fullAddress;
+                        document.getElementById('latitud').value = this.dataset.latitud;
+                        document.getElementById('longitud').value = this.dataset.longitud;
+
+                        resultsContainer.style.display = 'none';
+                    };
+
+                    resultsContainer.appendChild(item);
+                });
+
+                resultsContainer.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error al obtener las sugerencias de Photon:', error);
+                resultsContainer.style.display = 'none';
+            });
+    });
+
+    // Cierra los resultados de autocompletado cuando se hace clic fuera de ellos
+    document.addEventListener('click', function(event) {
+        const resultsContainer = document.getElementById('autocomplete-results');
+        if (!resultsContainer.contains(event.target) && event.target.id !== 'direccion-autocomplete') {
+            resultsContainer.style.display = 'none';
+        }
+    });
+
+    // Validación al enviar el formulario
     document.getElementById('agregar-propiedad-form').onsubmit = function(event) {
-        if (selectedImages.length < 5) {
-            event.preventDefault(); // Evitar el envío si no hay suficientes imágenes
-            alert('Debes subir al menos 5 imágenes.');
+        if (!document.getElementById('latitud').value || !document.getElementById('longitud').value) {
+            event.preventDefault();
+            alert('Por favor selecciona una dirección válida de la lista.');
         }
     };
 </script>
+
 
 {% endblock %}

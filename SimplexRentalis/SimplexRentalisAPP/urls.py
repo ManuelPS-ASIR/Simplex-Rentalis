@@ -4,6 +4,8 @@ from django.contrib.auth import views as auth_views  # Importar vistas de autent
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import DetallePropiedadView
+from .views import autocompletar_direcciones
+
 
 urlpatterns = [
     # Rutas de autenticación
@@ -35,6 +37,8 @@ urlpatterns = [
     
     # Ruta para ver detalle de la propiedad
     path('propiedad/<int:pk>/', DetallePropiedadView.as_view(), name='propiedad_detallada'),
+    path('autocompletar-direcciones/', autocompletar_direcciones, name='autocompletar_direcciones'),
+
 ]
 
 if settings.DEBUG:

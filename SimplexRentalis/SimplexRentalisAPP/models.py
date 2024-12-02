@@ -266,9 +266,9 @@ class Identidades(models.Model):
         elif self.tipo_documento == 'carnet de conducir' and len(self.numero_documento) < 5:
             raise ValidationError("El número de carnet de conducir debe tener al menos 5 caracteres.")
 
-###################################
-##### 4. Modelo de Opiniones #######
-###################################
+##################################
+##### 4. Modelo de Opiniones #####
+##################################
 class Opiniones(models.Model):
     id = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey('Propiedades', on_delete=models.CASCADE)
@@ -290,3 +290,49 @@ class Opiniones(models.Model):
 
     def __str__(self):
         return f'Opinión de {self.usuario.username} para {self.propiedad.nombre}'
+    
+
+##################################
+#### 5. Modelo de Direcciones ####
+##################################
+
+
+from django.db import models
+from django.core.exceptions import ValidationError
+import requests
+
+class Direccion(models.Model):
+    calle = models.CharField(max_length=255)
+    ciudad = models.CharField(max_length=100)
+    provincia = models.CharField(max_length=100)
+    pais = models.CharField(max_length=100)
+    latitud = models.FloatField(null=True, blank=True)
+    longitud = models.FloatField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.calle}, {self.ciudad}, {self.provincia}, {self.pais}"
+
+    def validar_y_geocodificar(self):
+        """
+        Valida la dirección con Photon y almacena las coordenadas.
+        """
+        url = "https://photon.komoot.io/api/"
+        params = {
+            "q": f"{self.calle}, {self.ciudad}, {self.provincia}, {self.pais}",
+            "limit": 1,
+        }
+        response = requests.get(url, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            if data["features"]:
+                location = data["features"][0]["geometry"]["coordinates"]
+                self.latitud = location[1]
+                self.longitud = location[0]
+            else:
+                raise ValidationError("No se pudo validar la dirección.")
+        else:
+            raise ValidationError(f"Error al contactar con Photon API: {response.status_code}")
+
+    def save(self, *args, **kwargs):
+        self.validar_y_geocodificar()  # Validar y geocodificar antes de guardar
+        super().save(*args, **kwargs)
