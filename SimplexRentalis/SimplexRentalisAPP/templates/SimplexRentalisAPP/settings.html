@@ -357,11 +357,11 @@
         const changeOwnerUsernameConfirm = document.getElementById('changeOwnerUsernameConfirm');
         const changeOwnerConfirmationCode = document.getElementById('changeOwnerConfirmationCode');
 
-        // Modificar las funciones de validación para los nuevos elementos
+        // Función para verificar la validez de los campos de confirmación
         function validateInputs() {
             const isUsernameValid = usernameConfirm.value.trim() === "{{ user.username }}";
             const isConfirmationCodeValid = confirmationCode.value.trim().toUpperCase() === "CONFIRMAR";
-            confirmDeletionBtn.disabled = !(isUsernameValid && isConfirmationCodeValid);
+            deleteAccountBtn.disabled = !(isUsernameValid && isConfirmationCodeValid); // Asegúrate de usar deleteAccountBtn
 
             const isChangeOwnerUsernameValid = changeOwnerUsernameConfirm.value.trim() === "{{ user.username }}";
             const isChangeOwnerCodeValid = changeOwnerConfirmationCode.value.trim().toUpperCase() === "CONFIRMAR";
@@ -373,7 +373,6 @@
         confirmationCode.addEventListener('input', validateInputs);
         changeOwnerUsernameConfirm.addEventListener('input', validateInputs);
         changeOwnerConfirmationCode.addEventListener('input', validateInputs);
-
 
         // Función para deshabilitar el botón de actualización y mostrar temporizador
         function disableButtonWithTimer(duration) {
