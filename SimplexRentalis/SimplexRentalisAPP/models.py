@@ -304,26 +304,27 @@ import requests
 import requests
 from django.core.exceptions import ValidationError
 
-class Direccion(models.Model):
+class Direcciones(models.Model):
     calle = models.CharField(max_length=255)
     numero_casa = models.CharField(max_length=20, blank=False, null=False)
     numero_puerta = models.CharField(max_length=20, blank=True, null=True)  # Campo opcional para el número de puerta
     codigo_postal = models.CharField(max_length=20, blank=False, null=False)
     ciudad = models.CharField(max_length=100)
     co_autonoma = models.CharField(max_length=100)
+    provincia = models.CharField(max_length=100)  # Nuevo campo para la provincia
     pais = models.CharField(max_length=100)
     latitud = models.FloatField(null=True, blank=True)
     longitud = models.FloatField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.calle}, {self.numero_casa}, {self.numero_puerta}, {self.ciudad}, {self.co_autonoma}, {self.pais}, {self.codigo_postal}"
+        return f"{self.calle}, {self.numero_casa}, {self.numero_puerta}, {self.ciudad}, {self.provincia}, {self.co_autonoma}, {self.pais}, {self.codigo_postal}"
 
     def validar_y_geocodificar(self):
         """
         Valida la dirección con Photon y almacena las coordenadas.
         """
         # Concatenamos todos los elementos de la dirección para la consulta
-        query = f"{self.calle}, {self.numero_casa}, {self.numero_puerta}, {self.codigo_postal}, {self.ciudad}, {self.co_autonoma}, {self.pais}"
+        query = f"{self.calle}, {self.numero_casa}, {self.numero_puerta}, {self.codigo_postal}, {self.ciudad}, {self.provincia}, {self.co_autonoma}, {self.pais}"
 
         url = "https://photon.komoot.io/api/"
         params = {
