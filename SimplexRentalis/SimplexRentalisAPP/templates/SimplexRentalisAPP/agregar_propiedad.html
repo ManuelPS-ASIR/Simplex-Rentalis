@@ -147,6 +147,11 @@
 
             const reader = new FileReader();
             reader.onload = function(e) {
+                const imageWrapper = document.createElement('div');
+                imageWrapper.classList.add('image-wrapper');
+                imageWrapper.style.position = 'relative';
+                imageWrapper.style.display = 'inline-block';
+
                 const img = document.createElement('img');
                 img.src = e.target.result;
                 img.alt = file.name;
@@ -158,7 +163,31 @@
                 img.onclick = function() {
                     setAsPortada(img);
                 };
-                previewContainer.appendChild(img);
+
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'X';
+                removeButton.classList.add('btn', 'remove-image');
+                removeButton.style.position = 'absolute';
+                removeButton.style.top = '5px';
+                removeButton.style.right = '5px';
+                removeButton.style.backgroundColor = 'red';
+                removeButton.style.color = 'white';
+                removeButton.style.border = 'none';
+                removeButton.style.borderRadius = '50%';
+                removeButton.style.width = '25px';
+                removeButton.style.height = '25px';
+                removeButton.style.fontSize = '14px';
+                removeButton.style.display = 'flex';
+                removeButton.style.alignItems = 'center';
+                removeButton.style.justifyContent = 'center';
+                removeButton.style.padding = '0';
+                removeButton.onclick = function() {
+                    removeImage(index);
+                };
+
+                imageWrapper.appendChild(img);
+                imageWrapper.appendChild(removeButton);
+                previewContainer.appendChild(imageWrapper);
 
                 selectedImages.push(file);
 
@@ -178,6 +207,68 @@
         selectedImg.classList.add('selected');
         portadaIndex = selectedImg.dataset.index;
         document.getElementById('portada-id').value = portadaIndex;
+    }
+
+    function removeImage(index) {
+        selectedImages = selectedImages.filter((_, i) => i !== index);
+
+        const previewContainer = document.getElementById('image-preview-container');
+        const selectedCount = document.getElementById('selected-count');
+        previewContainer.innerHTML = "";
+
+        selectedImages.forEach((file, idx) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageWrapper = document.createElement('div');
+                imageWrapper.classList.add('image-wrapper');
+                imageWrapper.style.position = 'relative';
+                imageWrapper.style.display = 'inline-block';
+
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = file.name;
+                img.style.width = '100px';
+                img.style.height = '100px';
+                img.style.objectFit = 'cover';
+                img.classList.add('mr-2', 'image-thumbnail');
+                img.dataset.index = idx;
+                img.onclick = function() {
+                    setAsPortada(img);
+                };
+
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'X';
+                removeButton.classList.add('btn', 'remove-image');
+                removeButton.style.position = 'absolute';
+                removeButton.style.top = '5px';
+                removeButton.style.right = '5px';
+                removeButton.style.backgroundColor = 'red';
+                removeButton.style.color = 'white';
+                removeButton.style.border = 'none';
+                removeButton.style.borderRadius = '50%';
+                removeButton.style.width = '25px';
+                removeButton.style.height = '25px';
+                removeButton.style.fontSize = '14px';
+                removeButton.style.display = 'flex';
+                removeButton.style.alignItems = 'center';
+                removeButton.style.justifyContent = 'center';
+                removeButton.style.padding = '0';
+                removeButton.onclick = function() {
+                    removeImage(idx);
+                };
+
+                imageWrapper.appendChild(img);
+                imageWrapper.appendChild(removeButton);
+                previewContainer.appendChild(imageWrapper);
+
+                if (selectedImages.length === 1) {
+                    setAsPortada(img);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        selectedCount.innerHTML = `<strong>Cantidad de archivos seleccionados: </strong> ${selectedImages.length}`;
     }
 
     // Autocompletado de direcciones
