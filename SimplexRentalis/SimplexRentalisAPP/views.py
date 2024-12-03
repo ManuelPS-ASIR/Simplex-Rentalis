@@ -34,6 +34,7 @@ def propiedades(request):
 @login_required
 def propiedades_usuario(request):
     propiedades = Propiedades.objects.filter(propietario=request.user)
+    estrellas = range(1, 6)
     for propiedad in propiedades:
         portada = propiedad.gallery_images.filter(portada=True).first()
         if not portada:

@@ -46,6 +46,16 @@
                                 <h5 class="card-title">{{ propiedad.nombre }} - <span class="text-primary">{{ propiedad.precio_noche }}€</span></h5>
                                 <p class="card-text text-muted">{{ propiedad.direccion }}</p>
                                 <p class="text-muted">Calificación: {{ propiedad.calificacion|default:"-" }}/5</p>
+                                <!-- Estrellas de calificación -->
+                                <div class="rating-stars">
+                                    <span class="star {% if propiedad.calificacion >= 1 %}filled{% endif %}">★</span>
+                                    <span class="star {% if propiedad.calificacion >= 2 %}filled{% endif %}">★</span>
+                                    <span class="star {% if propiedad.calificacion >= 3 %}filled{% endif %}">★</span>
+                                    <span class="star {% if propiedad.calificacion >= 4 %}filled{% endif %}">★</span>
+                                    <span class="star {% if propiedad.calificacion >= 5 %}filled{% endif %}">★</span>
+                                </div>
+                                <!-- Verificar calificación -->
+                                <p>Calificación: {{ propiedad.calificacion }}</p>
                             </div>
                         </div>
                     </a>

@@ -649,3 +649,15 @@ textarea.form-control {
 .arrow img:hover {
     transform: scale(1.2); /* Efecto de aumento en el hover */
 }
+
+
+.rating-stars {
+    display: flex;
+}
+.star {
+    font-size: 1.5rem;
+    color: #ccc;  /* Color de las estrellas vacías */
+}
+.star.filled {
+    color: #f39c12;  /* Color de las estrellas llenas */
+}
