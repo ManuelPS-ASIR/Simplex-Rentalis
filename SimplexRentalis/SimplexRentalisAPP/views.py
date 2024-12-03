@@ -135,7 +135,6 @@ def account_settings(request):
 
     return render(request, 'SimplexRentalisAPP/settings.html', {'form': form})
 
-# Agregar propiedad
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -153,16 +152,22 @@ def agregar_propiedad(request):
         en_mantenimiento = 'en_mantenimiento' in request.POST
         portada = request.POST.get('portada', '0')  # Índice de la imagen de portada
 
+        print(f"Datos recibidos: nombre={nombre}, descripcion={descripcion}, direccion={direccion}, "
+              f"precio_noche={precio_noche}, capacidad_maxima={capacidad_maxima}, permite_mascotas={permite_mascotas}, "
+              f"en_mantenimiento={en_mantenimiento}, portada={portada}")  # Mensaje de depuración
+
         try:
             precio_noche = float(precio_noche)
             capacidad_maxima = int(capacidad_maxima)
         except ValueError:
             messages.error(request, "Valores inválidos.")
+            print("Error: Valores inválidos para precio_noche o capacidad_maxima.")  # Mensaje de depuración
             return redirect('agregar_propiedad')
 
         # Verificar si ya existe una propiedad con la misma dirección para el usuario
         if Propiedades.objects.filter(direccion=direccion, propietario=request.user).exists():
             messages.error(request, "Ya existe una propiedad con esta dirección.")
+            print(f"Error: Ya existe una propiedad con la dirección {direccion} para el usuario {request.user}.")  # Mensaje de depuración
             return redirect('agregar_propiedad')
 
         # Crear la nueva propiedad
@@ -177,21 +182,26 @@ def agregar_propiedad(request):
             propietario=request.user
         )
 
+        print(f"Propiedad creada: {propiedad}")  # Mensaje de depuración
+
         # Manejo de imágenes
         if 'imagenes' in request.FILES:
             images = request.FILES.getlist('imagenes')
             if not (5 <= len(images) <= 15):
                 messages.error(request, "Debes subir entre 5 y 15 imágenes.")
                 propiedad.delete()  # Eliminar propiedad creada si hay un error
+                print("Error: Número de imágenes no válido.")  # Mensaje de depuración
                 return redirect('agregar_propiedad')
 
             # Guardar las imágenes y manejar la portada
             for index, image in enumerate(images):
                 nueva_imagen = Galeria.objects.create(propiedad=propiedad, imagen=image)
+                print(f"Imagen guardada: {nueva_imagen}")  # Mensaje de depuración
                 # Establecer la portada según el índice enviado
                 if str(index) == portada:
                     nueva_imagen.portada = True
                     nueva_imagen.save()
+                    print(f"Portada establecida: {nueva_imagen}")  # Mensaje de depuración
 
             # Si ninguna imagen fue marcada como portada, establecer la primera como predeterminada
             if not any(img.portada for img in Galeria.objects.filter(propiedad=propiedad)):
@@ -199,17 +209,19 @@ def agregar_propiedad(request):
                 if primera_imagen:
                     primera_imagen.portada = True
                     primera_imagen.save()
+                    print(f"Portada predeterminada: {primera_imagen}")  # Mensaje de depuración
         else:
             messages.error(request, "Debes subir imágenes.")
             propiedad.delete()  # Eliminar la propiedad si no hay imágenes
+            print("Error: No se subieron imágenes.")  # Mensaje de depuración
             return redirect('agregar_propiedad')
 
         # Redirigir a "Mis Propiedades" después de agregar la propiedad
         messages.success(request, "Propiedad agregada exitosamente.")
+        print("Propiedad agregada exitosamente.")  # Mensaje de depuración
         return redirect('propiedades_usuario')  # Cambiar 'mis_propiedades' por el nombre correcto de tu vista de "Mis Propiedades"
 
     return render(request, 'SimplexRentalisAPP/agregar_propiedad.html')
-
 
 from django.db.models import Min
 

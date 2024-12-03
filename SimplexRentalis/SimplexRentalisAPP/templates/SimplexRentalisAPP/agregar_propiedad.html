@@ -63,7 +63,7 @@
                 <!-- Precio por noche -->
                 <div class="form-group">
                     <label for="id_precio_noche">Precio por noche (EUR)</label>
-                    <input type="text" name="precio_noche_0" class="form-control form-control-lg" required placeholder="0.00">
+                    <input type="text" name="precio_noche" class="form-control form-control-lg" required placeholder="0.00">
                 </div>
 
                 <!-- Cantidad de baños -->
@@ -98,6 +98,7 @@
                         <strong>Instrucciones:</strong> Debes subir entre 5 y 15 imágenes. Haz clic sobre una imagen para seleccionarla como portada.
                     </p>
                 </div>
+
                 <!-- Permite mascotas -->
                 <div class="form-group">
                     <label for="id_permite_mascotas">¿Permite mascotas?</label>
@@ -177,10 +178,6 @@
                 removeButton.style.width = '25px';
                 removeButton.style.height = '25px';
                 removeButton.style.fontSize = '14px';
-                removeButton.style.display = 'flex';
-                removeButton.style.alignItems = 'center';
-                removeButton.style.justifyContent = 'center';
-                removeButton.style.padding = '0';
                 removeButton.onclick = function() {
                     removeImage(index);
                 };
@@ -343,7 +340,7 @@
     };
 
     // Validación y sanitización del campo precio_noche
-    document.querySelector('[name="precio_noche_0"]').addEventListener('input', function(event) {
+    document.querySelector('[name="precio_noche"]').addEventListener('input', function(event) {
         const input = event.target;
         let value = input.value;
         const cursorPos = input.selectionStart;
@@ -369,7 +366,7 @@
     });
 
     document.getElementById('agregar-propiedad-form').onsubmit = function(event) {
-        const precioNoche = document.querySelector('[name="precio_noche_0"]').value;
+        const precioNoche = document.querySelector('[name="precio_noche"]').value;
 
         if (!/^\d+(\.\d{1,2})?$/.test(precioNoche) || parseFloat(precioNoche) <= 0) {
             event.preventDefault();
