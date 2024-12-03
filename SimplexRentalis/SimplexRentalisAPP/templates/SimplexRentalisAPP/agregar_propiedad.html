@@ -98,7 +98,6 @@
                         <strong>Instrucciones:</strong> Debes subir entre 5 y 15 imágenes. Haz clic sobre una imagen para seleccionarla como portada.
                     </p>
                 </div>
-
                 <!-- Permite mascotas -->
                 <div class="form-group">
                     <label for="id_permite_mascotas">¿Permite mascotas?</label>
@@ -130,6 +129,49 @@
 </div>
 
 <script>
+    let selectedImages = []; // Para almacenar todas las imágenes seleccionadas
+    let portadaIndex = 0;    // Índice de la imagen marcada como portada
+
+    function previewImages(event) {
+        const files = event.target.files;
+        const previewContainer = document.getElementById('image-preview-container');
+        const selectedCount = document.getElementById('selected-count');
+        previewContainer.innerHTML = ""; // Limpiar previsualizaciones previas
+        selectedImages = []; 
+
+        Array.from(files).forEach((file, index) => {
+            if (selectedImages.length >= 15) {
+                alert('Ya has seleccionado el máximo de 15 imágenes.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = file.name;
+                img.style.width = '100px';
+                img.style.height = '100px';
+                img.style.objectFit = 'cover';
+                img.classList.add('mr-2', 'image-thumbnail');
+                img.dataset.index = index;
+                img.onclick = function() {
+                    setAsPortada(img);
+                };
+                previewContainer.appendChild(img);
+
+                selectedImages.push(file);
+
+                if (selectedImages.length === 1) {
+                    setAsPortada(img);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        selectedCount.innerHTML = `<strong>Cantidad de archivos seleccionados: </strong> ${files.length}`;
+    }
+
     function setAsPortada(selectedImg) {
         const allImages = document.querySelectorAll('.image-thumbnail');
         allImages.forEach(img => img.classList.remove('selected'));
@@ -152,7 +194,7 @@
             .then(response => response.json())
             .then(data => {
                 resultsContainer.innerHTML = '';
-                if (!data || no hay datos o las funciones de datos.length === 0) {
+                if (!data || !data.features || data.features.length === 0) {
                     resultsContainer.style.display = 'none';
                     return;
                 }
@@ -191,6 +233,7 @@
                 console.error('Error al obtener las sugerencias de Photon:', error);
                 resultsContainer.style.display = 'none';
             });
+    });
 
     // Cierra los resultados de autocompletado cuando se hace clic fuera de ellos
     document.addEventListener('click', function(event) {
@@ -243,11 +286,11 @@
             return;
         }
 
-        if (!document.getElementById('latitud').value || no hay documento.getElementById('longitud').value) {
+        if (!document.getElementById('latitud').value || !document.getElementById('longitud').value) {
             event.preventDefault();
             alert('Por favor selecciona una dirección válida de la lista.');
         }
     };
 </script>
-{% endblock %}
 
+{% endblock %}
