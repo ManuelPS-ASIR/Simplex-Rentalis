@@ -118,49 +118,6 @@
 </div>
 
 <script>
-    let selectedImages = []; // Para almacenar todas las imágenes seleccionadas
-    let portadaIndex = 0;    // Índice de la imagen marcada como portada
-
-    function previewImages(event) {
-        const files = event.target.files;
-        const previewContainer = document.getElementById('image-preview-container');
-        const selectedCount = document.getElementById('selected-count');
-        previewContainer.innerHTML = ""; // Limpiar previsualizaciones previas
-        selectedImages = []; 
-
-        Array.from(files).forEach((file, index) => {
-            if (selectedImages.length >= 15) {
-                alert('Ya has seleccionado el máximo de 15 imágenes.');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.alt = file.name;
-                img.style.width = '100px';
-                img.style.height = '100px';
-                img.style.objectFit = 'cover';
-                img.classList.add('mr-2', 'image-thumbnail');
-                img.dataset.index = index;
-                img.onclick = function() {
-                    setAsPortada(img);
-                };
-                previewContainer.appendChild(img);
-
-                selectedImages.push(file);
-
-                if (selectedImages.length === 1) {
-                    setAsPortada(img);
-                }
-            };
-            reader.readAsDataURL(file);
-        });
-
-        selectedCount.innerHTML = `<strong>Cantidad de archivos seleccionados: </strong> ${files.length}`;
-    }
-
     function setAsPortada(selectedImg) {
         const allImages = document.querySelectorAll('.image-thumbnail');
         allImages.forEach(img => img.classList.remove('selected'));
@@ -192,19 +149,23 @@
                     const item = document.createElement('li');
                     const direccion = feature.properties.name || '';
                     const ciudad = feature.properties.city || '';
-                    const provincia = feature.properties.state || '';
+                    const provincia = feature.properties.county || '';
+                    const co_autonoma = feature.properties.region || '';
                     const pais = feature.properties.country || '';
+                    const codigo_postal = feature.properties.postcode || '';
 
-                    item.textContent = `${direccion}, ${ciudad}, ${provincia}, ${pais}`;
+                    item.textContent = `${direccion}, ${ciudad}, ${provincia}, ${co_autonoma}, ${pais}`;
                     item.classList.add('list-group-item', 'list-group-item-action');
                     item.dataset.latitud = feature.geometry.coordinates[1];
                     item.dataset.longitud = feature.geometry.coordinates[0];
                     item.dataset.fullAddress = item.textContent;
+                    item.dataset.codigoPostal = codigo_postal;
 
                     item.onclick = function() {
                         document.getElementById('direccion-autocomplete').value = this.dataset.fullAddress;
                         document.getElementById('latitud').value = this.dataset.latitud;
                         document.getElementById('longitud').value = this.dataset.longitud;
+                        document.getElementById('codigo-postal').value = this.dataset.codigoPostal;
 
                         resultsContainer.style.display = 'none';
                     };
@@ -236,6 +197,5 @@
         }
     };
 </script>
-
 
 {% endblock %}
