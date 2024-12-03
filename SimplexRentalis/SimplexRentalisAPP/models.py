@@ -301,30 +301,41 @@ from django.db import models
 from django.core.exceptions import ValidationError
 import requests
 
+import requests
+from django.core.exceptions import ValidationError
+
 class Direccion(models.Model):
     calle = models.CharField(max_length=255)
+    numero_casa = models.CharField(max_length=20, blank=False, null=False)
+    numero_puerta = models.CharField(max_length=20, blank=True, null=True)  # Campo opcional para el número de puerta
+    codigo_postal = models.CharField(max_length=20, blank=False, null=False)
     ciudad = models.CharField(max_length=100)
-    provincia = models.CharField(max_length=100)
+    co_autonoma = models.CharField(max_length=100)
     pais = models.CharField(max_length=100)
     latitud = models.FloatField(null=True, blank=True)
     longitud = models.FloatField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.calle}, {self.ciudad}, {self.provincia}, {self.pais}"
+        return f"{self.calle}, {self.numero_casa}, {self.numero_puerta}, {self.ciudad}, {self.co_autonoma}, {self.pais}, {self.codigo_postal}"
 
     def validar_y_geocodificar(self):
         """
         Valida la dirección con Photon y almacena las coordenadas.
         """
+        # Concatenamos todos los elementos de la dirección para la consulta
+        query = f"{self.calle}, {self.numero_casa}, {self.numero_puerta}, {self.codigo_postal}, {self.ciudad}, {self.co_autonoma}, {self.pais}"
+
         url = "https://photon.komoot.io/api/"
         params = {
-            "q": f"{self.calle}, {self.ciudad}, {self.provincia}, {self.pais}",
-            "limit": 1,
+            "q": query,  # Consultamos la dirección completa
+            "limit": 1,  # Limitamos la búsqueda a un solo resultado
         }
         response = requests.get(url, params=params)
+        
         if response.status_code == 200:
             data = response.json()
             if data["features"]:
+                # Si encontramos resultados, extraemos las coordenadas
                 location = data["features"][0]["geometry"]["coordinates"]
                 self.latitud = location[1]
                 self.longitud = location[0]
