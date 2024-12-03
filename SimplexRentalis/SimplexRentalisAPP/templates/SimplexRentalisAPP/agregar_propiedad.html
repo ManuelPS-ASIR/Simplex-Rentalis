@@ -65,6 +65,25 @@
                     <label for="id_precio_noche">Precio por noche (EUR)</label>
                     <input type="text" name="precio_noche_0" class="form-control form-control-lg" required placeholder="0.00">
                 </div>
+
+                <!-- Cantidad de baños -->
+                <div class="form-group">
+                    <label for="id_cantidad_banos">Cantidad de baños</label>
+                    <input type="number" name="cantidad_banos" class="form-control form-control-lg" required min="1" max="15" value="1">
+                </div>
+
+                <!-- Cantidad de dormitorios -->
+                <div class="form-group">
+                    <label for="id_cantidad_dormitorios">Cantidad de dormitorios</label>
+                    <input type="number" name="cantidad_dormitorios" class="form-control form-control-lg" required min="1" max="15" value="1">
+                </div>
+
+                <!-- Capacidad máxima -->
+                <div class="form-group">
+                    <label for="id_capacidad_maxima">Capacidad máxima</label>
+                    <input type="number" name="capacidad_maxima" class="form-control form-control-lg" required min="1" max="15" inputmode="numeric" value="1">
+                </div>
+
                 <!-- Imágenes -->
                 <div class="form-group">
                     <label for="id_imagenes">Imágenes</label>
@@ -98,12 +117,6 @@
                     </p>
                 </div>
 
-                <!-- Capacidad máxima -->
-                <div class="form-group">
-                    <label for="id_capacidad_maxima">Capacidad máxima</label>
-                    <input type="number" name="capacidad_maxima" class="form-control form-control-lg" required min="1" inputmode="numeric">
-                </div>
-
                 <!-- Campo oculto para la portada -->
                 <input type="hidden" name="portada" id="portada-id" value="0">
 
@@ -115,6 +128,7 @@
         </div>
     </div>
 </div>
+
 <script>
     function setAsPortada(selectedImg) {
         const allImages = document.querySelectorAll('.image-thumbnail');
@@ -138,7 +152,7 @@
             .then(response => response.json())
             .then(data => {
                 resultsContainer.innerHTML = '';
-                if (!data || !data.features || data.features.length === 0) {
+                if (!data || no hay datos o las funciones de datos.length === 0) {
                     resultsContainer.style.display = 'none';
                     return;
                 }
@@ -230,11 +244,11 @@
             return;
         }
 
-        if (!document.getElementById('latitud').value || !document.getElementById('longitud').value) {
+        if (!document.getElementById('latitud').value || no hay documento.getElementById('longitud').value) {
             event.preventDefault();
             alert('Por favor selecciona una dirección válida de la lista.');
         }
     };
 </script>
-
 {% endblock %}
+

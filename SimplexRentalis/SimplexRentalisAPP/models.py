@@ -94,7 +94,7 @@ class Propiedades(models.Model):
     )
     permite_mascotas = models.BooleanField(default=False)
     en_mantenimiento = models.BooleanField(default=False)
-    capacidad_maxima = models.IntegerField(default=10)
+    capacidad_maxima = models.IntegerField(default=1, blank=False, null=False)
     cantidad_banos = models.IntegerField(default=1, blank=False, null=False)
     cantidad_dormitorios = models.IntegerField(default=1, blank=False, null=False)
 
