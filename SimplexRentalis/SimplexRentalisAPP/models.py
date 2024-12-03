@@ -73,26 +73,31 @@ def actualizar_ultimo_acceso(sender, request, user, **kwargs):
 ####################################
 ##### 1. Modelo de Propiedades #####
 ####################################
+from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+from djmoney.models.fields import MoneyField
+
 class Propiedades(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100, blank=False, null=False)
     descripcion = models.TextField(max_length=3000, blank=True, null=True)
     direccion = models.CharField(max_length=300, blank=False, null=False)
-    precio_noche = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)
+    precio_noche = MoneyField(max_digits=10, decimal_places=2, blank=False, null=False, default_currency='EUR')
     propietario = models.ForeignKey('User', on_delete=models.CASCADE, related_name='propiedades', blank=False, null=False)
     calificacion = models.DecimalField(
-        default=3.0, 
-        blank=False, 
-        null=False, 
+        default=3.0,
+        blank=False,
+        null=False,
         max_digits=3,
         validators=[MinValueValidator(1), MaxValueValidator(5)],
-        decimal_places=1  # Decimal con 1 lugar
+        decimal_places=1
     )
     permite_mascotas = models.BooleanField(default=False)
     en_mantenimiento = models.BooleanField(default=False)
-    capacidad_maxima = models.IntegerField(default=10)  # Limita la cantidad de personas
+    capacidad_maxima = models.IntegerField(default=10)
+    cantidad_banos = models.IntegerField(default=1, blank=False, null=False)
+    cantidad_dormitorios = models.IntegerField(default=1, blank=False, null=False)
 
-    # Relación con el modelo Galeria para almacenar múltiples imágenes
     galeria = models.ForeignKey('Galeria', on_delete=models.CASCADE, related_name='propiedades_galeria', blank=True, null=True)
 
     class Meta:
@@ -104,7 +109,6 @@ class Propiedades(models.Model):
         return self.nombre
 
     def clean(self):
-        # Validación de la calificación
         if self.calificacion < 1 or self.calificacion > 5:
             raise ValidationError("La calificación debe estar entre 1 y 5.")
 
@@ -113,10 +117,9 @@ class Propiedades(models.Model):
             raise ValidationError("La fecha de inicio debe ser anterior a la de fin.")
         if self.en_mantenimiento:
             return False
-        # Usamos `exists()` para optimizar la consulta
         if Reservas.objects.filter(
-            propiedad=self, 
-            fecha_inicio__lt=fecha_fin, 
+            propiedad=self,
+            fecha_inicio__lt=fecha_fin,
             fecha_fin__gt=fecha_inicio
         ).exists():
             return False

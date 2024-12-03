@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'django.contrib.humanize',
+    'django_prices',
+    'djmoney',
 ]
 # Define la cookie de sesión
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Usa la base de datos para almacenar la sesión

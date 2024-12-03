@@ -41,7 +41,7 @@
                 <!-- Campos ocultos para almacenar coordenadas -->
                 <input type="hidden" name="latitud" id="latitud" value="">
                 <input type="hidden" name="longitud" id="longitud" value="">
-                
+
                 <!-- Número de casa -->
                 <div class="form-group">
                     <label for="id_numero_casa">Número de casa</label>
@@ -62,10 +62,9 @@
 
                 <!-- Precio por noche -->
                 <div class="form-group">
-                    <label for="id_precio_noche">Precio por noche</label>
-                    <input type="number" name="precio_noche" class="form-control form-control-lg" required min="0" step="0.01" inputmode="numeric">
+                    <label for="id_precio_noche">Precio por noche (EUR)</label>
+                    <input type="text" name="precio_noche_0" class="form-control form-control-lg" required placeholder="0.00">
                 </div>
-
                 <!-- Imágenes -->
                 <div class="form-group">
                     <label for="id_imagenes">Imágenes</label>
@@ -116,7 +115,6 @@
         </div>
     </div>
 </div>
-
 <script>
     function setAsPortada(selectedImg) {
         const allImages = document.querySelectorAll('.image-thumbnail');
@@ -191,6 +189,47 @@
 
     // Validación al enviar el formulario
     document.getElementById('agregar-propiedad-form').onsubmit = function(event) {
+        if (!document.getElementById('latitud').value || !document.getElementById('longitud').value) {
+            event.preventDefault();
+            alert('Por favor selecciona una dirección válida de la lista.');
+        }
+    };
+
+    // Validación y sanitización del campo precio_noche
+    document.querySelector('[name="precio_noche_0"]').addEventListener('input', function(event) {
+        const input = event.target;
+        let value = input.value;
+        const cursorPos = input.selectionStart;
+
+        // Reemplaza las comas por puntos sin mover el cursor
+        value = value.replace(/,/g, '.');
+
+        // Elimina cualquier cosa que no sea un dígito o un punto decimal
+        value = value.replace(/[^\d.]/g, '');
+
+        // Limita el número de decimales a 2
+        const regex = /^\d+(\.\d{0,2})?$/;
+
+        if (regex.test(value)) {
+            input.value = value;
+        } else {
+            // Si el valor no es válido, restaura el valor anterior
+            input.value = input.value.slice(0, -1);
+        }
+
+        // Ajusta la posición del cursor
+        input.setSelectionRange(cursorPos, cursorPos);
+    });
+
+    document.getElementById('agregar-propiedad-form').onsubmit = function(event) {
+        const precioNoche = document.querySelector('[name="precio_noche_0"]').value;
+
+        if (!/^\d+(\.\d{1,2})?$/.test(precioNoche) || parseFloat(precioNoche) <= 0) {
+            event.preventDefault();
+            alert('Por favor introduce un valor numérico válido y positivo para el precio por noche.');
+            return;
+        }
+
         if (!document.getElementById('latitud').value || !document.getElementById('longitud').value) {
             event.preventDefault();
             alert('Por favor selecciona una dirección válida de la lista.');
