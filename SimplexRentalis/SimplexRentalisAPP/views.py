@@ -398,24 +398,33 @@ from django.core.exceptions import ValidationError
 from .models import Propiedades, Reservas, Identidades
 from .forms import ReservaForm
 
-def alquilar_propiedad_view(request, propiedad_id):
-    propiedad = get_object_or_404(Propiedades, pk=propiedad_id)
-    if request.method == 'POST':
-        form = ReservaForm(request.POST)
-        if form.is_valid():
-            reserva = form.save(commit=False)
-            reserva.propiedad = propiedad
-            reserva.usuario = request.user
-            try:
-                reserva.full_clean()
-                reserva.save()
-                form.save_m2m()  # Guardar las relaciones Many-to-Many
-                return redirect('reserva_exitosa')
-            except ValidationError as e:
-                form.add_error(None, e)
-    else:
-        form = ReservaForm()
-    return render(request, 'SimplexRentalisAPP/alquilar_propiedad.html', {'form': form, 'propiedad': propiedad})
+from django.shortcuts import render
+from .models import Propiedades, Reservas
+from datetime import timedelta
+
+def alquilar_propiedad(request, propiedad_id):
+    propiedad = Propiedades.objects.get(id=propiedad_id)
+    
+    # Obtener todas las reservas existentes para esta propiedad
+    reservas = Reservas.objects.filter(propiedad=propiedad)
+    
+    # Crear una lista con las fechas no disponibles (fechas de inicio y fin de cada reserva)
+    fechas_no_disponibles = []
+    for reserva in reservas:
+        fecha_inicio = reserva.fecha_inicio
+        fecha_fin = reserva.fecha_fin
+        # Añadir cada fecha al array, aquí podrías incluir todas las fechas intermedias entre la fecha_inicio y fecha_fin
+        # Si quieres agregar fechas individuales:
+        current_date = fecha_inicio
+        while current_date <= fecha_fin:
+            fechas_no_disponibles.append(current_date.strftime('%Y-%m-%d'))
+            current_date += timedelta(days=1)
+
+    return render(request, 'SimplexRentalisAPP/alquilar_propiedad.html', {
+        'propiedad': propiedad,
+        'fechas_no_disponibles': fechas_no_disponibles,
+    })
+
 
 def reserva_exitosa_view(request):
     return render(request, 'SimplexRentalisAPP/reserva_exitosa.html')

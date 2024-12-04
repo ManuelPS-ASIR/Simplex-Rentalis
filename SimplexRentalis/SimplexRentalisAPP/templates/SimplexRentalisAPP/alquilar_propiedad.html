@@ -5,13 +5,99 @@ Alquilar Propiedad
 {% endblock %}
 
 {% block content %}
-<div id="main-content" style="max-width: 600px; margin: auto; font-family: Arial, sans-serif; padding: 20px;">
-    <h1 class="propiedad-title" style="text-align: center; margin-bottom: 20px; font-size: 2.5em; color: #333;">Alquilar {{ propiedad.nombre }}</h1>
-    
-    <form method="post">
+<div id="main-content" style="max-width: 800px; margin: auto; font-family: 'Helvetica Neue', Arial, sans-serif; padding: 20px; background-color: #f9f9f9; box-shadow: 0px 4px 12px rgba(0,0,0,0.15); border-radius: 10px;">
+
+    <!-- Cuadro informativo con imagen y mensaje -->
+    <div style="text-align: center; margin-bottom: 30px; padding: 20px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
+        {% if propiedad.galeria %}
+        <img src="{{ propiedad.galeria.imagen.url }}" alt="Imagen de portada de {{ propiedad.nombre }}" style="width: 100%; height: auto; object-fit: cover; border-radius: 10px;">
+        {% endif %}
+        <h2 style="margin-top: 15px; font-size: 2em; color: #333; font-weight: bold; text-transform: uppercase;">Reserva en: <strong>{{ propiedad.nombre }}</strong></h2>
+        <p style="font-size: 1.2em; color: #555; margin-top: 10px;">Haz tu reserva para disfrutar de una experiencia única.</p>
+    </div>
+
+    <!-- Formulario de reserva -->
+    <form method="post" style="padding: 30px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1);">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Reservar</button>
+        
+        <h2 style="margin-bottom: 20px; font-size: 1.8em; color: #333;">Detalles de la Reserva</h2>
+        
+        <!-- Sección de fechas con icono -->
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <div style="flex: 1; margin-right: 10px;">
+                <label for="fecha_inicio" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">Fecha de Inicio</label>
+                <input type="date" name="fecha_inicio" id="fecha_inicio" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1em; transition: all 0.3s ease;">
+            </div>
+            <div style="flex: 1; margin-left: 10px;">
+                <label for="fecha_fin" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">Fecha de Fin</label>
+                <input type="date" name="fecha_fin" id="fecha_fin" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1em; transition: all 0.3s ease;">
+            </div>
+        </div>
+
+        <!-- Sección de personas -->
+        <div style="margin-bottom: 20px;">
+            <label for="personas" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">Número de Personas</label>
+            <input type="number" name="personas" id="personas" min="1" max="{{ propiedad.capacidad_maxima }}" value="1" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1em; transition: all 0.3s ease;">
+            <small style="color: #777;">Capacidad máxima: {{ propiedad.capacidad_maxima }} personas</small>
+        </div>
+
+        <!-- Sección de mascotas -->
+        <div style="margin-bottom: 20px; display: flex; align-items: center;">
+            <input type="checkbox" name="mascotas" id="mascotas" style="margin-right: 10px; transform: scale(1.3);">
+            <label for="mascotas" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">¿Traerás mascotas?</label>
+        </div>
+
+        <!-- Botón de reserva -->
+        <div style="text-align: center;">
+            <button type="submit" class="btn btn-primary" style="padding: 15px 30px; font-size: 1.5em; background-color: #007bff; border: none; border-radius: 5px; color: white; cursor: pointer; transition: background-color 0.3s ease;">
+                Confirmar Reserva
+            </button>
+        </div>
     </form>
+
 </div>
+
+<script>
+    // Obtener la fecha actual
+    const today = new Date().toISOString().split('T')[0];
+
+    // Establecer las fechas mínimas en los campos
+    document.getElementById('fecha_inicio').setAttribute('min', today);
+    document.getElementById('fecha_fin').setAttribute('min', today);
+
+    // Suponiendo que se obtiene una lista de fechas no disponibles
+    const fechasNoDisponibles = [
+        '2024-12-10', '2024-12-12', '2024-12-15', // Estas fechas serían las reservadas
+        '2024-12-20', '2024-12-22'
+    ];
+
+    // Función para deshabilitar fechas no disponibles mientras el usuario las escribe
+    function validarFechas() {
+        const fechaInicio = document.getElementById('fecha_inicio');
+        const fechaFin = document.getElementById('fecha_fin');
+
+        // Deshabilitar fechas no disponibles para ambos campos de fecha
+        const fechasDeshabilitadas = fechasNoDisponibles.join('","');
+        fechaInicio.setAttribute('list', 'fechas_deshabilitadas');
+        fechaFin.setAttribute('list', 'fechas_deshabilitadas');
+
+        const opcionesFechas = fechaInicio.querySelectorAll('option[value="'+fechasDeshabilitadas+'"]');
+        opcionesFechas.forEach((opcion) => {
+            opcion.disabled = true;
+        });
+
+        // No permite seleccionar fechas previas a la fecha de inicio
+        fechaInicio.addEventListener("input", function() {
+            const fechaSeleccionada = fechaInicio.value;
+            fechaFin.min = fechaSeleccionada;
+            if (fechaFin.value && new Date(fechaFin.value) < new Date(fechaSeleccionada)) {
+                alert("La fecha de fin no puede ser anterior a la fecha de inicio.");
+            }
+        });
+    }
+
+    // Ejecutar la función de deshabilitar fechas no disponibles
+    validarFechas();
+</script>
+
 {% endblock %}
