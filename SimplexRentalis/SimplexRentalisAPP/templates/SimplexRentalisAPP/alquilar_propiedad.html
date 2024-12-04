@@ -8,7 +8,7 @@ Alquilar Propiedad
 <div id="main-content" style="max-width: 800px; margin: auto; font-family: 'Helvetica Neue', Arial, sans-serif; padding: 20px; background-color: #f9f9f9; box-shadow: 0px 4px 12px rgba(0,0,0,0.15); border-radius: 10px;">
 
     <!-- Cuadro informativo con imagen y mensaje -->
-    <div style="text-align: center; margin-bottom: 30px; padding: 20px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
+    <div style="text-align: center; margin-bottom: 30px; padding: 20px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1);">
         {% if propiedad.galeria %}
         <img src="{{ propiedad.galeria.imagen.url }}" alt="Imagen de portada de {{ propiedad.nombre }}" style="width: 100%; height: auto; object-fit: cover; border-radius: 10px;">
         {% endif %}
@@ -65,39 +65,34 @@ Alquilar Propiedad
     document.getElementById('fecha_inicio').setAttribute('min', today);
     document.getElementById('fecha_fin').setAttribute('min', today);
 
-    // Suponiendo que se obtiene una lista de fechas no disponibles
-    const fechasNoDisponibles = [
-        '2024-12-10', '2024-12-12', '2024-12-15', // Estas fechas serían las reservadas
-        '2024-12-20', '2024-12-22'
-    ];
-
-    // Función para deshabilitar fechas no disponibles mientras el usuario las escribe
-    function validarFechas() {
+    // Obtener las fechas no disponibles pasadas desde el backend
+    const fechasNoDisponibles = {{ fechas_no_disponibles|safe }};  // Esta lista viene del backend
+    
+    // Función para deshabilitar fechas no disponibles
+    function deshabilitarFechas() {
         const fechaInicio = document.getElementById('fecha_inicio');
         const fechaFin = document.getElementById('fecha_fin');
-
-        // Deshabilitar fechas no disponibles para ambos campos de fecha
-        const fechasDeshabilitadas = fechasNoDisponibles.join('","');
-        fechaInicio.setAttribute('list', 'fechas_deshabilitadas');
-        fechaFin.setAttribute('list', 'fechas_deshabilitadas');
-
-        const opcionesFechas = fechaInicio.querySelectorAll('option[value="'+fechasDeshabilitadas+'"]');
-        opcionesFechas.forEach((opcion) => {
-            opcion.disabled = true;
-        });
-
-        // No permite seleccionar fechas previas a la fecha de inicio
-        fechaInicio.addEventListener("input", function() {
-            const fechaSeleccionada = fechaInicio.value;
-            fechaFin.min = fechaSeleccionada;
-            if (fechaFin.value && new Date(fechaFin.value) < new Date(fechaSeleccionada)) {
-                alert("La fecha de fin no puede ser anterior a la fecha de inicio.");
-            }
+        
+        // Para cada fecha no disponible, deshabilitarla en ambos campos
+        fechasNoDisponibles.forEach(function(fecha) {
+            // Deshabilitar la fecha en el campo de "Fecha de Inicio"
+            const optionInicio = document.createElement('option');
+            optionInicio.value = fecha;
+            optionInicio.disabled = true;
+            optionInicio.style.color = 'red';  // Colorear las fechas no disponibles en rojo
+            fechaInicio.appendChild(optionInicio);
+            
+            // Deshabilitar la fecha en el campo de "Fecha de Fin"
+            const optionFin = document.createElement('option');
+            optionFin.value = fecha;
+            optionFin.disabled = true;
+            optionFin.style.color = 'red';  // Colorear las fechas no disponibles en rojo
+            fechaFin.appendChild(optionFin);
         });
     }
 
     // Ejecutar la función de deshabilitar fechas no disponibles
-    validarFechas();
+    deshabilitarFechas();
 </script>
 
 {% endblock %}
