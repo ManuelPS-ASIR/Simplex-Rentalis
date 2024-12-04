@@ -154,12 +154,16 @@ class ReservaPersona(models.Model):
             models.UniqueConstraint(fields=['reserva', 'identidad'], name='unique_reserva_identidad'),
         ]
 
+from django.core.exceptions import ValidationError
+from django.db import models
+from django.utils import timezone
+
 class Reservas(models.Model):
     id = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey(
         'Propiedades',
         on_delete=models.CASCADE,
-        related_name='reservas',  # Nombre personalizado para el acceso inverso
+        related_name='reservas',
         null=False,
         blank=False
     )
@@ -180,6 +184,9 @@ class Reservas(models.Model):
         null=True
     )
     personas = models.ManyToManyField('Identidades', through='ReservaPersona', related_name="reservas", blank=False)
+    
+    # Nuevo campo para almacenar el costo total
+    costo_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=False, blank=False)
 
     class Meta:
         indexes = [
@@ -225,6 +232,14 @@ class Reservas(models.Model):
 
     def save(self, *args, **kwargs):
         self.full_clean()  # Realizar la validación completa antes de guardar
+
+        # Calcular el costo total antes de guardar
+        if self.fecha_inicio and self.fecha_fin and self.propiedad.precio_por_noche:
+            # Calcular el número de días de la reserva
+            num_dias = (self.fecha_fin - self.fecha_inicio).days
+            # Calcular el costo total
+            self.costo_total = num_dias * self.propiedad.precio_por_noche
+
         super().save(*args, **kwargs)
 
 ###################################
