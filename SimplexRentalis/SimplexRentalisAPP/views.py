@@ -395,9 +395,11 @@ def autocompletar_direcciones(request):
 
 from django.shortcuts import render, get_object_or_404
 from django.core.serializers.json import DjangoJSONEncoder
-import json
 from datetime import timedelta
+import json
+from .models import Propiedades
 
+# Vista para alquilar una propiedad
 def alquilar_propiedad(request, propiedad_id):
     propiedad = get_object_or_404(Propiedades, id=propiedad_id)
 
@@ -415,6 +417,6 @@ def alquilar_propiedad(request, propiedad_id):
         'fechas_no_disponibles_json': fechas_no_disponibles_json,
     })
 
-
+# Vista para mostrar el mensaje de reserva exitosa
 def reserva_exitosa_view(request):
     return render(request, 'SimplexRentalisAPP/reserva_exitosa.html')
