@@ -40,7 +40,7 @@ urlpatterns = [
     path('autocompletar-direcciones/', autocompletar_direcciones, name='autocompletar_direcciones'),
 
     #alquilar propiedad
-    path('propiedad/<int:propiedad_id>/alquilar/', views.alquilar_propiedad_view, name='alquilar_propiedad'),
+    path('propiedad/<int:propiedad_id>/alquilar/', views.alquilar_propiedad, name='alquilar_propiedad'),
     path('reserva_exitosa/', views.reserva_exitosa_view, name='reserva_exitosa'), # Página de éxito (opcional)
 ]
 

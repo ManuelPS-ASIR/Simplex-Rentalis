@@ -156,7 +156,13 @@ class ReservaPersona(models.Model):
 
 class Reservas(models.Model):
     id = models.AutoField(primary_key=True)
-    propiedad = models.ForeignKey('Propiedades', on_delete=models.CASCADE, null=False, blank=False)
+    propiedad = models.ForeignKey(
+        'Propiedades',
+        on_delete=models.CASCADE,
+        related_name='reservas',  # Nombre personalizado para el acceso inverso
+        null=False,
+        blank=False
+    )
     usuario = models.ForeignKey('User', on_delete=models.CASCADE, null=False, blank=False)
     fecha_inicio = models.DateField(null=False, blank=False)
     fecha_fin = models.DateField(null=False, blank=False)

@@ -393,36 +393,26 @@ def autocompletar_direcciones(request):
 
 
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.core.exceptions import ValidationError
-from .models import Propiedades, Reservas, Identidades
-from .forms import ReservaForm
-
-from django.shortcuts import render
-from .models import Propiedades, Reservas
+from django.shortcuts import render, get_object_or_404
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 from datetime import timedelta
 
 def alquilar_propiedad(request, propiedad_id):
-    propiedad = Propiedades.objects.get(id=propiedad_id)
-    
-    # Obtener todas las reservas existentes para esta propiedad
-    reservas = Reservas.objects.filter(propiedad=propiedad)
-    
-    # Crear una lista con las fechas no disponibles (fechas de inicio y fin de cada reserva)
+    propiedad = get_object_or_404(Propiedades, id=propiedad_id)
+
+    # Obtener todas las fechas no disponibles basadas en las reservas
+    reservas = propiedad.reservas.all()
     fechas_no_disponibles = []
     for reserva in reservas:
-        fecha_inicio = reserva.fecha_inicio
-        fecha_fin = reserva.fecha_fin
-        # Añadir cada fecha al array, aquí podrías incluir todas las fechas intermedias entre la fecha_inicio y fecha_fin
-        # Si quieres agregar fechas individuales:
-        current_date = fecha_inicio
-        while current_date <= fecha_fin:
-            fechas_no_disponibles.append(current_date.strftime('%Y-%m-%d'))
-            current_date += timedelta(days=1)
+        rango = [reserva.fecha_inicio + timedelta(days=i) for i in range((reserva.fecha_fin - reserva.fecha_inicio).days + 1)]
+        fechas_no_disponibles.extend(rango)
+
+    fechas_no_disponibles_json = json.dumps([fecha.strftime('%Y-%m-%d') for fecha in fechas_no_disponibles], cls=DjangoJSONEncoder)
 
     return render(request, 'SimplexRentalisAPP/alquilar_propiedad.html', {
         'propiedad': propiedad,
-        'fechas_no_disponibles': fechas_no_disponibles,
+        'fechas_no_disponibles_json': fechas_no_disponibles_json,
     })
 
 

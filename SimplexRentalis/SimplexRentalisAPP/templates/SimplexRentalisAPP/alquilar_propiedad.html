@@ -22,7 +22,7 @@ Alquilar Propiedad
         
         <h2 style="margin-bottom: 20px; font-size: 1.8em; color: #333;">Detalles de la Reserva</h2>
         
-        <!-- Sección de fechas con icono -->
+        <!-- Sección de fechas -->
         <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
             <div style="flex: 1; margin-right: 10px;">
                 <label for="fecha_inicio" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">Fecha de Inicio</label>
@@ -60,39 +60,36 @@ Alquilar Propiedad
 <script>
     // Obtener la fecha actual
     const today = new Date().toISOString().split('T')[0];
-
-    // Establecer las fechas mínimas en los campos
     document.getElementById('fecha_inicio').setAttribute('min', today);
     document.getElementById('fecha_fin').setAttribute('min', today);
 
-    // Obtener las fechas no disponibles pasadas desde el backend
-    const fechasNoDisponibles = {{ fechas_no_disponibles|safe }};  // Esta lista viene del backend
-    
-    // Función para deshabilitar fechas no disponibles
-    function deshabilitarFechas() {
-        const fechaInicio = document.getElementById('fecha_inicio');
+    // Obtener las fechas no disponibles del backend
+    const fechasNoDisponibles = JSON.parse('{{ fechas_no_disponibles_json|escapejs }}');
+
+    document.getElementById('fecha_inicio').addEventListener('input', function () {
         const fechaFin = document.getElementById('fecha_fin');
-        
-        // Para cada fecha no disponible, deshabilitarla en ambos campos
-        fechasNoDisponibles.forEach(function(fecha) {
-            // Deshabilitar la fecha en el campo de "Fecha de Inicio"
-            const optionInicio = document.createElement('option');
-            optionInicio.value = fecha;
-            optionInicio.disabled = true;
-            optionInicio.style.color = 'red';  // Colorear las fechas no disponibles en rojo
-            fechaInicio.appendChild(optionInicio);
-            
-            // Deshabilitar la fecha en el campo de "Fecha de Fin"
-            const optionFin = document.createElement('option');
-            optionFin.value = fecha;
-            optionFin.disabled = true;
-            optionFin.style.color = 'red';  // Colorear las fechas no disponibles en rojo
-            fechaFin.appendChild(optionFin);
+        fechaFin.setAttribute('min', this.value);
+        verificarFechas(this, fechaFin);
+    });
+
+    document.getElementById('fecha_fin').addEventListener('input', function () {
+        verificarFechas(document.getElementById('fecha_inicio'), this);
+    });
+
+    function verificarFechas(fechaInicio, fechaFin) {
+        const fechaSeleccionadaInicio = new Date(fechaInicio.value);
+        const fechaSeleccionadaFin = new Date(fechaFin.value);
+
+        fechasNoDisponibles.forEach(fecha => {
+            const fechaNoDisponible = new Date(fecha);
+            if (
+                (fechaNoDisponible >= fechaSeleccionadaInicio && fechaNoDisponible <= fechaSeleccionadaFin)
+            ) {
+                alert(`La fecha ${fecha} no está disponible.`);
+                fechaFin.value = '';
+            }
         });
     }
-
-    // Ejecutar la función de deshabilitar fechas no disponibles
-    deshabilitarFechas();
 </script>
 
 {% endblock %}

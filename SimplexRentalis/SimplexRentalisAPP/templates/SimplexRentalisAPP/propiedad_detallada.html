@@ -57,7 +57,6 @@ Propiedad en detalle
             <p><strong>Baños:</strong> {{ propiedades.cantidad_banos }}</p>
             <p><strong>Dormitorios:</strong> {{ propiedades.cantidad_dormitorios }}</p>
             <p><strong>Permite mascotas:</strong> {{ propiedades.permite_mascotas|yesno:"Sí,No" }}</p>
-            <p><strong>Estado:</strong> {{ propiedades.en_mantenimiento|yesno:"En mantenimiento,Disponible" }}</p>
             <form action="{% url 'alquilar_propiedad' propiedades.id %}" method="get" style="display: inline;">
                 <button type="submit" class="btn btn-primary alquilar-btn" 
                         style="background-color: #007bff; color: white; border: none; padding: 10px 20px; font-size: 1.2em; cursor: pointer; border-radius: 5px;">
