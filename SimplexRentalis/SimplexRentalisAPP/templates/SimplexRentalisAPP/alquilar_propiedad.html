@@ -27,10 +27,12 @@ Alquilar Propiedad
             <div style="flex: 1; margin-right: 10px;">
                 <label for="fecha_inicio" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">Fecha de Inicio</label>
                 <input type="date" name="fecha_inicio" id="fecha_inicio" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1em; transition: all 0.3s ease;">
+                <div id="fecha_inicio_error" style="color: red; font-size: 0.9em; display: none;">La fecha de inicio debe ser posterior a la fecha actual.</div>
             </div>
             <div style="flex: 1; margin-left: 10px;">
                 <label for="fecha_fin" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">Fecha de Fin</label>
                 <input type="date" name="fecha_fin" id="fecha_fin" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1em; transition: all 0.3s ease;">
+                <div id="fecha_fin_error" style="color: red; font-size: 0.9em; display: none;">La fecha de fin debe ser posterior a la fecha de inicio y a la fecha actual.</div>
             </div>
         </div>
 
@@ -67,30 +69,31 @@ Alquilar Propiedad
     fechaInicioInput.setAttribute('min', today);
     fechaFinInput.setAttribute('min', today);
 
-    // Función para verificar si la fecha es válida y aplicar los estilos de error
-    function verificarFechaValida(fechaInput) {
+    // Función para verificar si la fecha es válida y mostrar el mensaje de error
+    function verificarFechaValida(fechaInput, errorMessageId) {
         const fechaSeleccionada = new Date(fechaInput.value);
+        const errorMessageElement = document.getElementById(errorMessageId);
 
-        // Si la fecha seleccionada es anterior a la fecha actual, se marca en rojo y se muestra el mensaje
+        // Si la fecha seleccionada es anterior a la fecha actual, se muestra el error
         if (fechaSeleccionada < new Date()) {
             fechaInput.style.borderColor = 'red'; // Cambia el borde a rojo
-            fechaInput.setCustomValidity('La fecha debe ser posterior a la actual.');
+            errorMessageElement.style.display = 'block'; // Muestra el mensaje de error
         } else {
             fechaInput.style.borderColor = ''; // Resetea el borde
-            fechaInput.setCustomValidity(''); // Elimina el mensaje de error
+            errorMessageElement.style.display = 'none'; // Oculta el mensaje de error
         }
     }
 
     // Verificar fechas al escribir
     fechaInicioInput.addEventListener('input', function () {
-        verificarFechaValida(fechaInicioInput);
+        verificarFechaValida(fechaInicioInput, 'fecha_inicio_error');
         const fechaFin = fechaFinInput;
         fechaFin.setAttribute('min', this.value);
         verificarFechas(this, fechaFin);
     });
 
     fechaFinInput.addEventListener('input', function () {
-        verificarFechaValida(fechaFinInput);
+        verificarFechaValida(fechaFinInput, 'fecha_fin_error');
         verificarFechas(fechaInicioInput, this);
     });
 
@@ -113,6 +116,5 @@ Alquilar Propiedad
         });
     }
 </script>
-
 
 {% endblock %}
