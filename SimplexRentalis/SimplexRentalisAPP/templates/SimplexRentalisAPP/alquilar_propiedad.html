@@ -60,21 +60,42 @@ Alquilar Propiedad
 <script>
     // Obtener la fecha actual
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('fecha_inicio').setAttribute('min', today);
-    document.getElementById('fecha_fin').setAttribute('min', today);
+    const fechaInicioInput = document.getElementById('fecha_inicio');
+    const fechaFinInput = document.getElementById('fecha_fin');
 
-    // Obtener las fechas no disponibles del backend
-    const fechasNoDisponibles = JSON.parse('{{ fechas_no_disponibles_json|escapejs }}');
+    // Establecer la fecha mínima para que no se pueda seleccionar una fecha anterior a la actual
+    fechaInicioInput.setAttribute('min', today);
+    fechaFinInput.setAttribute('min', today);
 
-    document.getElementById('fecha_inicio').addEventListener('input', function () {
-        const fechaFin = document.getElementById('fecha_fin');
+    // Función para verificar si la fecha es válida y aplicar los estilos de error
+    function verificarFechaValida(fechaInput) {
+        const fechaSeleccionada = new Date(fechaInput.value);
+
+        // Si la fecha seleccionada es anterior a la fecha actual, se marca en rojo y se muestra el mensaje
+        if (fechaSeleccionada < new Date()) {
+            fechaInput.style.borderColor = 'red'; // Cambia el borde a rojo
+            fechaInput.setCustomValidity('La fecha debe ser posterior a la actual.');
+        } else {
+            fechaInput.style.borderColor = ''; // Resetea el borde
+            fechaInput.setCustomValidity(''); // Elimina el mensaje de error
+        }
+    }
+
+    // Verificar fechas al escribir
+    fechaInicioInput.addEventListener('input', function () {
+        verificarFechaValida(fechaInicioInput);
+        const fechaFin = fechaFinInput;
         fechaFin.setAttribute('min', this.value);
         verificarFechas(this, fechaFin);
     });
 
-    document.getElementById('fecha_fin').addEventListener('input', function () {
-        verificarFechas(document.getElementById('fecha_inicio'), this);
+    fechaFinInput.addEventListener('input', function () {
+        verificarFechaValida(fechaFinInput);
+        verificarFechas(fechaInicioInput, this);
     });
+
+    // Verificar si las fechas son válidas en cuanto a disponibilidad
+    const fechasNoDisponibles = JSON.parse('{{ fechas_no_disponibles_json|escapejs }}');
 
     function verificarFechas(fechaInicio, fechaFin) {
         const fechaSeleccionadaInicio = new Date(fechaInicio.value);
@@ -86,10 +107,12 @@ Alquilar Propiedad
                 (fechaNoDisponible >= fechaSeleccionadaInicio && fechaNoDisponible <= fechaSeleccionadaFin)
             ) {
                 alert(`La fecha ${fecha} no está disponible.`);
-                fechaFin.value = '';
+                fechaFin.value = ''; // Borra la fecha de fin si es no disponible
+                fechaFin.style.borderColor = ''; // Resetea el borde del campo de fecha de fin
             }
         });
     }
 </script>
+
 
 {% endblock %}

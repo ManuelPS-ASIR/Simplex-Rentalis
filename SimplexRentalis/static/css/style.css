@@ -661,3 +661,12 @@ textarea.form-control {
 .star.filled {
     color: #f39c12;  /* Color de las estrellas llenas */
 }
+
+
+input[type="date"]:invalid {
+    border-color: red; /* Cambia el borde a rojo */
+}
+
+input[type="date"]:valid {
+    border-color: green; /* Opcional, cambia el borde a verde si es válido */
+}
