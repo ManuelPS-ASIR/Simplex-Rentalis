@@ -3,7 +3,6 @@
 {% block title %}
 Alquilar Propiedad
 {% endblock %}
-
 {% block content %}
 <div id="main-content" style="max-width: 800px; margin: auto; font-family: 'Helvetica Neue', Arial, sans-serif; padding: 20px; background-color: #f9f9f9; box-shadow: 0px 4px 12px rgba(0,0,0,0.15); border-radius: 10px;">
 
@@ -15,7 +14,6 @@ Alquilar Propiedad
         <h2 style="margin-top: 15px; font-size: 2em; color: #333; font-weight: bold; text-transform: uppercase;">Reserva en: <strong>{{ propiedad.nombre }}</strong></h2>
         <p style="font-size: 1.2em; color: #555; margin-top: 10px;">Haz tu reserva para disfrutar de una experiencia única.</p>
     </div>
-
     <!-- Formulario de reserva -->
     <form method="post" style="padding: 30px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1);">
         {% csrf_token %}
@@ -30,7 +28,7 @@ Alquilar Propiedad
 
         <!-- Mostrar el costo total -->
         <div id="costo_total" style="margin-bottom: 20px; font-size: 1.5em; color: #007bff; text-align: center; font-weight: bold;">
-            Total: $0
+            Total: €0.00
         </div>
 
         <!-- Sección de personas -->
@@ -55,7 +53,6 @@ Alquilar Propiedad
     </form>
 
 </div>
-
 <!-- Incluir Flatpickr -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -66,7 +63,7 @@ Alquilar Propiedad
         const fechasNoDisponibles = JSON.parse('{{ fechas_no_disponibles_json|escapejs }}');
         console.log('Fechas no disponibles:', fechasNoDisponibles);
 
-        const precioPorNoche = parseFloat('{{ propiedad.precio_por_noche|default:0 }}'); // Precio por noche
+        const precioPorNoche = parseFloat('{{ propiedad.precio_por_noche|default:"100" }}'); // Precio por noche con valor predeterminado
         console.log('Precio por noche:', precioPorNoche);
 
         // Configurar Flatpickr
@@ -94,10 +91,10 @@ Alquilar Propiedad
                     console.log('Total calculado:', total);
 
                     // Actualizar el costo total en el DOM
-                    document.getElementById('costo_total').innerText = `Total: $${total.toFixed(2)}`;
+                    document.getElementById('costo_total').innerText = `Total: €${total.toFixed(2)}`;
                 } else {
-                    // Si no hay rango válido, mostrar $0
-                    document.getElementById('costo_total').innerText = "Total: $0.00";
+                    // Si no hay rango válido, mostrar €0.00
+                    document.getElementById('costo_total').innerText = "Total: €0.00";
                 }
             }
         });
