@@ -393,15 +393,36 @@ def autocompletar_direcciones(request):
 
 
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.core.serializers.json import DjangoJSONEncoder
 from datetime import timedelta
 import json
-from .models import Propiedades
+from .models import Propiedades, Reservas, Identidades
+from .forms import ReservaForm, IdentidadForm
 
 # Vista para alquilar una propiedad
 def alquilar_propiedad(request, propiedad_id):
     propiedad = get_object_or_404(Propiedades, id=propiedad_id)
+    form_reserva = ReservaForm()
+    form_identidad = IdentidadForm()
+
+    if request.method == 'POST':
+        form_reserva = ReservaForm(request.POST)
+        form_identidad = IdentidadForm(request.POST)
+
+        if form_reserva.is_valid() and form_identidad.is_valid():
+            reserva = form_reserva.save(commit=False)
+            reserva.propiedad = propiedad
+            reserva.usuario = request.user
+            reserva.save()
+
+            identidad = form_identidad.save(commit=False)
+            identidad.reserva = reserva
+            identidad.save()
+
+            form_reserva.save_m2m()  # Guardar relaciones many-to-many
+
+            return redirect('reserva_exitosa')
 
     # Obtener todas las fechas no disponibles basadas en las reservas
     reservas = propiedad.reservas.all()
@@ -414,6 +435,8 @@ def alquilar_propiedad(request, propiedad_id):
 
     return render(request, 'SimplexRentalisAPP/alquilar_propiedad.html', {
         'propiedad': propiedad,
+        'form_reserva': form_reserva,
+        'form_identidad': form_identidad,
         'fechas_no_disponibles_json': fechas_no_disponibles_json,
     })
 

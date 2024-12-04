@@ -223,3 +223,14 @@ class ReservaForm(forms.ModelForm):
             'tipo_mascota': forms.Select(),
             'personas': forms.SelectMultiple(),
         }
+
+from django import forms
+from .models import Identidades
+
+class IdentidadForm(forms.ModelForm):
+    class Meta:
+        model = Identidades
+        fields = ['tipo_documento', 'numero_documento', 'fecha_expedicion', 'primer_apellido', 'segundo_apellido', 'nombre', 'sexo']
+        widgets = {
+            'fecha_expedicion': forms.DateInput(attrs={'type': 'date'}),
+        }

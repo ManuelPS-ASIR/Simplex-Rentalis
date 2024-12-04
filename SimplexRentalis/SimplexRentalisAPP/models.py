@@ -203,6 +203,10 @@ class Reservas(models.Model):
 
     def clean(self):
         hoy = timezone.localdate()
+
+        if self.fecha_inicio is None or self.fecha_fin is None:
+            raise ValidationError("Las fechas de inicio y fin de la reserva no pueden estar vacías.")
+        
         if self.fecha_inicio <= hoy:
             raise ValidationError("La fecha de inicio debe ser posterior a la fecha actual.")
         

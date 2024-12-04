@@ -15,40 +15,60 @@ Alquilar Propiedad
         <p style="font-size: 1.2em; color: #555; margin-top: 10px;">Haz tu reserva para disfrutar de una experiencia única.</p>
     </div>
     <!-- Formulario de reserva -->
-    <form method="post" style="padding: 30px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1);">
+    <form id="reserva-form" method="post" style="padding: 30px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1);">
         {% csrf_token %}
         
-        <h2 style="margin-bottom: 20px; font-size: 1.8em; color: #333;">Detalles de la Reserva</h2>
-        
-        <!-- Calendario de fechas -->
-        <div style="margin-bottom: 20px;">
-            <label for="fecha_reserva" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">Selecciona el rango de fechas</label>
-            <input type="text" id="fecha_reserva" name="fecha_reserva" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1em; transition: all 0.3s ease;" placeholder="Selecciona fechas">
+        <div id="step1">
+            <h2 style="margin-bottom: 20px; font-size: 1.8em; color: #333;">Detalles de la Reserva</h2>
+            
+            <!-- Calendario de fechas -->
+            <div style="margin-bottom: 20px;">
+                <label for="fecha_reserva" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">Selecciona el rango de fechas</label>
+                <input type="text" id="fecha_reserva" name="fecha_reserva" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1em; transition: all 0.3s ease;" placeholder="Selecciona fechas">
+            </div>
+
+            <!-- Mostrar el costo total -->
+            <div id="costo_total" style="margin-bottom: 20px; font-size: 1.5em; color: #007bff; text-align: center; font-weight: bold;">
+                Total: €0.00
+            </div>
+
+            <!-- Sección de personas -->
+            <div style="margin-bottom: 20px;">
+                <label for="personas" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">Número de Personas</label>
+                <input type="number" name="personas" id="personas" min="1" max="{{ propiedad.capacidad_maxima }}" value="1" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1em; transition: all 0.3s ease;">
+                <small style="color: #777;">Capacidad máxima: {{ propiedad.capacidad_maxima }} personas</small>
+            </div>
+
+            <!-- Sección de mascotas -->
+            <div style="margin-bottom: 20px; display: flex; align-items: center;">
+                <input type="checkbox" name="mascotas" id="mascotas" style="margin-right: 10px; transform: scale(1.3);">
+                <label for="mascotas" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">¿Traerás mascotas?</label>
+            </div>
+
+            <!-- Botón de siguiente -->
+            <div style="text-align: center;">
+                <button type="button" id="next-button" class="btn btn-primary" disabled style="padding: 15px 30px; font-size: 1.5em; background-color: #007bff; border: none; border-radius: 5px; color: white; cursor: pointer; transition: background-color 0.3s ease;">
+                    Siguiente
+                </button>
+            </div>
         </div>
 
-        <!-- Mostrar el costo total -->
-        <div id="costo_total" style="margin-bottom: 20px; font-size: 1.5em; color: #007bff; text-align: center; font-weight: bold;">
-            Total: €0.00
-        </div>
+        <div id="step2" style="display: none;">
+            <h2 style="margin-bottom: 20px; font-size: 1.8em; color: #333;">Datos de las Personas</h2>
 
-        <!-- Sección de personas -->
-        <div style="margin-bottom: 20px;">
-            <label for="personas" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">Número de Personas</label>
-            <input type="number" name="personas" id="personas" min="1" max="{{ propiedad.capacidad_maxima }}" value="1" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1em; transition: all 0.3s ease;">
-            <small style="color: #777;">Capacidad máxima: {{ propiedad.capacidad_maxima }} personas</small>
-        </div>
+            {% for form in identidad_forms %}
+                <fieldset style="margin-bottom: 20px;">
+                    <legend>Persona {{ forloop.counter }}</legend>
+                    {{ form.as_p }}
+                </fieldset>
+            {% endfor %}
 
-        <!-- Sección de mascotas -->
-        <div style="margin-bottom: 20px; display: flex; align-items: center;">
-            <input type="checkbox" name="mascotas" id="mascotas" style="margin-right: 10px; transform: scale(1.3);">
-            <label for="mascotas" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">¿Traerás mascotas?</label>
-        </div>
-
-        <!-- Botón de reserva -->
-        <div style="text-align: center;">
-            <button type="submit" class="btn btn-primary" style="padding: 15px 30px; font-size: 1.5em; background-color: #007bff; border: none; border-radius: 5px; color: white; cursor: pointer; transition: background-color 0.3s ease;">
-                Confirmar Reserva
-            </button>
+            <!-- Botón de confirmar -->
+            <div style="text-align: center;">
+                <button type="submit" class="btn btn-primary" style="padding: 15px 30px; font-size: 1.5em; background-color: #007bff; border: none; border-radius: 5px; color: white; cursor: pointer; transition: background-color 0.3s ease;">
+                    Confirmar Reserva
+                </button>
+            </div>
         </div>
     </form>
 
@@ -92,11 +112,23 @@ Alquilar Propiedad
 
                     // Actualizar el costo total en el DOM
                     document.getElementById('costo_total').innerText = `Total: €${total.toFixed(2)}`;
+
+                    // Habilitar el botón de siguiente
+                    document.getElementById('next-button').disabled = false;
                 } else {
                     // Si no hay rango válido, mostrar €0.00
                     document.getElementById('costo_total').innerText = "Total: €0.00";
+
+                    // Deshabilitar el botón de siguiente
+                    document.getElementById('next-button').disabled = true;
                 }
             }
+        });
+
+        // Manejar el botón "Siguiente"
+        document.getElementById('next-button').addEventListener('click', function () {
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
         });
     });
 </script>
