@@ -57,12 +57,22 @@ Propiedad en detalle
             <p><strong>Baños:</strong> {{ propiedades.cantidad_banos }}</p>
             <p><strong>Dormitorios:</strong> {{ propiedades.cantidad_dormitorios }}</p>
             <p><strong>Permite mascotas:</strong> {{ propiedades.permite_mascotas|yesno:"Sí,No" }}</p>
-            <form action="{% url 'alquilar_propiedad' propiedades.id %}" method="get" style="display: inline;">
-                <button type="submit" class="btn btn-primary alquilar-btn" 
-                        style="background-color: #007bff; color: white; border: none; padding: 10px 20px; font-size: 1.2em; cursor: pointer; border-radius: 5px;">
-                    ALQUILAR
-                </button>
-            </form>            
+
+            {% if request.user == propiedades.propietario %}
+                <!-- Si el usuario es el propietario, no mostrar el botón -->
+                <p style="color: #6c757d;">Eres el propietario de esta propiedad.</p>
+            {% else %}
+                <!-- Si no estás logueado, muestra un mensaje invitando a iniciar sesión -->
+                {% if not request.user.is_authenticated %}
+                    <p style="color: #dc3545;">Para alquilar esta propiedad, por favor inicia sesión.</p>
+                {% endif %}
+                <form action="{% url 'alquilar_propiedad' propiedades.id %}" method="get" style="display: inline;">
+                    <button type="submit" class="btn btn-primary alquilar-btn" 
+                            style="background-color: #007bff; color: white; border: none; padding: 10px 20px; font-size: 1.2em; cursor: pointer; border-radius: 5px;">
+                        ALQUILAR
+                    </button>
+                </form>
+            {% endif %}
         </div>
     </div>
 
@@ -83,7 +93,7 @@ Propiedad en detalle
     <div class="contacto-container" style="background-color: #f1f1f1; padding: 20px; border-radius: 10px; margin-bottom: 40px;">
         <h3>Contacto</h3>
         <div style="display: flex; align-items: center;">
-            <img src="{{ propiedades.propietario.avatar.url }}" alt="Avatar" style="width: 60px; height: 60px; border-radius: 50%; margin-right: 20px;">
+            <img src="{% if propiedades.propietario.avatar %}{{ propiedades.propietario.avatar.url }}{% else %}/media/defaults/default_avatar.png{% endif %}" alt="Avatar" style="width: 60px; height: 60px; border-radius: 50%; margin-right: 20px;">
             <div>
                 <p><strong>Dueño:</strong> {{ propiedades.propietario.username }}</p>
                 <p><strong>Teléfono:</strong> {{ propiedades.propietario.telefono }}</p>
