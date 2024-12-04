@@ -22,18 +22,10 @@ Alquilar Propiedad
         
         <h2 style="margin-bottom: 20px; font-size: 1.8em; color: #333;">Detalles de la Reserva</h2>
         
-        <!-- Sección de fechas -->
-        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-            <div style="flex: 1; margin-right: 10px;">
-                <label for="fecha_inicio" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">Fecha de Inicio</label>
-                <input type="date" name="fecha_inicio" id="fecha_inicio" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1em; transition: all 0.3s ease;">
-                <div id="fecha_inicio_error" style="color: red; font-size: 0.9em; display: none;">La fecha de inicio debe ser posterior a la fecha actual.</div>
-            </div>
-            <div style="flex: 1; margin-left: 10px;">
-                <label for="fecha_fin" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">Fecha de Fin</label>
-                <input type="date" name="fecha_fin" id="fecha_fin" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1em; transition: all 0.3s ease;">
-                <div id="fecha_fin_error" style="color: red; font-size: 0.9em; display: none;">La fecha de fin debe ser posterior a la fecha de inicio y a la fecha actual.</div>
-            </div>
+        <!-- Calendario de fechas -->
+        <div style="margin-bottom: 20px;">
+            <label for="fecha_reserva" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">Selecciona el rango de fechas</label>
+            <input type="text" id="fecha_reserva" name="fecha_reserva" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1em; transition: all 0.3s ease;" placeholder="Selecciona fechas">
         </div>
 
         <!-- Sección de personas -->
@@ -59,62 +51,29 @@ Alquilar Propiedad
 
 </div>
 
+<!-- Incluir Flatpickr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    // Obtener la fecha actual
-    const today = new Date().toISOString().split('T')[0];
-    const fechaInicioInput = document.getElementById('fecha_inicio');
-    const fechaFinInput = document.getElementById('fecha_fin');
+    document.addEventListener('DOMContentLoaded', function () {
+        // Fechas no disponibles en formato JSON
+        const fechasNoDisponibles = JSON.parse('{{ fechas_no_disponibles_json|escapejs }}');
 
-    // Establecer la fecha mínima para que no se pueda seleccionar una fecha anterior a la actual
-    fechaInicioInput.setAttribute('min', today);
-    fechaFinInput.setAttribute('min', today);
-
-    // Función para verificar si la fecha es válida y mostrar el mensaje de error
-    function verificarFechaValida(fechaInput, errorMessageId) {
-        const fechaSeleccionada = new Date(fechaInput.value);
-        const errorMessageElement = document.getElementById(errorMessageId);
-
-        // Si la fecha seleccionada es anterior a la fecha actual, se muestra el error
-        if (fechaSeleccionada < new Date()) {
-            fechaInput.style.borderColor = 'red'; // Cambia el borde a rojo
-            errorMessageElement.style.display = 'block'; // Muestra el mensaje de error
-        } else {
-            fechaInput.style.borderColor = ''; // Resetea el borde
-            errorMessageElement.style.display = 'none'; // Oculta el mensaje de error
-        }
-    }
-
-    // Verificar fechas al escribir
-    fechaInicioInput.addEventListener('input', function () {
-        verificarFechaValida(fechaInicioInput, 'fecha_inicio_error');
-        const fechaFin = fechaFinInput;
-        fechaFin.setAttribute('min', this.value);
-        verificarFechas(this, fechaFin);
-    });
-
-    fechaFinInput.addEventListener('input', function () {
-        verificarFechaValida(fechaFinInput, 'fecha_fin_error');
-        verificarFechas(fechaInicioInput, this);
-    });
-
-    // Verificar si las fechas son válidas en cuanto a disponibilidad
-    const fechasNoDisponibles = JSON.parse('{{ fechas_no_disponibles_json|escapejs }}');
-
-    function verificarFechas(fechaInicio, fechaFin) {
-        const fechaSeleccionadaInicio = new Date(fechaInicio.value);
-        const fechaSeleccionadaFin = new Date(fechaFin.value);
-
-        fechasNoDisponibles.forEach(fecha => {
-            const fechaNoDisponible = new Date(fecha);
-            if (
-                (fechaNoDisponible >= fechaSeleccionadaInicio && fechaNoDisponible <= fechaSeleccionadaFin)
-            ) {
-                alert(`La fecha ${fecha} no está disponible.`);
-                fechaFin.value = ''; // Borra la fecha de fin si es no disponible
-                fechaFin.style.borderColor = ''; // Resetea el borde del campo de fecha de fin
+        // Configurar Flatpickr
+        flatpickr("#fecha_reserva", {
+            mode: "range",
+            minDate: "today",
+            disable: fechasNoDisponibles.map(fecha => new Date(fecha)),
+            dateFormat: "Y-m-d",
+            locale: "es", // Configurar idioma español
+            onChange: function(selectedDates) {
+                if (selectedDates.length > 1) {
+                    const [start, end] = selectedDates;
+                    // Lógica adicional si se necesita
+                }
             }
         });
-    }
+    });
 </script>
 
 {% endblock %}
