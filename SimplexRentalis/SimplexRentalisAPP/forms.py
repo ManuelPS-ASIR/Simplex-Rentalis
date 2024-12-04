@@ -205,3 +205,21 @@ class PropiedadForm(forms.ModelForm):
         fields = [
             'nombre', 'descripcion', 'direccion', 'precio_noche', 'calificacion', 'permite_mascotas', 'en_mantenimiento', 'capacidad_maxima'
         ]
+
+
+
+
+
+from django import forms
+from .models import Reservas
+
+class ReservaForm(forms.ModelForm):
+    class Meta:
+        model = Reservas
+        fields = ['fecha_inicio', 'fecha_fin', 'mascotas', 'tipo_mascota', 'personas']
+        widgets = {
+            'fecha_inicio': forms.DateInput(attrs={'type': 'date'}),
+            'fecha_fin': forms.DateInput(attrs={'type': 'date'}),
+            'tipo_mascota': forms.Select(),
+            'personas': forms.SelectMultiple(),
+        }

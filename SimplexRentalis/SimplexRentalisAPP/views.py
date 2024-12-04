@@ -390,3 +390,32 @@ def autocompletar_direcciones(request):
         return JsonResponse(sugerencias, safe=False)
     else:
         return JsonResponse({"error": "Error al contactar con Photon"}, status=500)
+
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.core.exceptions import ValidationError
+from .models import Propiedades, Reservas, Identidades
+from .forms import ReservaForm
+
+def alquilar_propiedad_view(request, propiedad_id):
+    propiedad = get_object_or_404(Propiedades, pk=propiedad_id)
+    if request.method == 'POST':
+        form = ReservaForm(request.POST)
+        if form.is_valid():
+            reserva = form.save(commit=False)
+            reserva.propiedad = propiedad
+            reserva.usuario = request.user
+            try:
+                reserva.full_clean()
+                reserva.save()
+                form.save_m2m()  # Guardar las relaciones Many-to-Many
+                return redirect('reserva_exitosa')
+            except ValidationError as e:
+                form.add_error(None, e)
+    else:
+        form = ReservaForm()
+    return render(request, 'SimplexRentalisAPP/alquilar_propiedad.html', {'form': form, 'propiedad': propiedad})
+
+def reserva_exitosa_view(request):
+    return render(request, 'SimplexRentalisAPP/reserva_exitosa.html')
