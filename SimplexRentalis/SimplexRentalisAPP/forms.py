@@ -211,26 +211,35 @@ class PropiedadForm(forms.ModelForm):
 
 
 from django import forms
-from .models import Reservas
+from .models import Reservas, Identidades
+from django.forms import modelformset_factory
 
 class ReservaForm(forms.ModelForm):
     class Meta:
         model = Reservas
-        fields = ['fecha_inicio', 'fecha_fin', 'mascotas', 'tipo_mascota', 'personas']
-        widgets = {
-            'fecha_inicio': forms.DateInput(attrs={'type': 'date'}),
-            'fecha_fin': forms.DateInput(attrs={'type': 'date'}),
-            'tipo_mascota': forms.Select(),
-            'personas': forms.SelectMultiple(),
-        }
+        fields = ['propiedad', 'fecha_inicio', 'fecha_fin', 'mascotas', 'tipo_mascota']
 
-from django import forms
-from .models import Identidades
+    def clean(self):
+        cleaned_data = super().clean()
+        fecha_inicio = cleaned_data.get("fecha_inicio")
+        fecha_fin = cleaned_data.get("fecha_fin")
+
+        if fecha_inicio and fecha_fin:
+            if fecha_inicio >= fecha_fin:
+                raise forms.ValidationError("La fecha de inicio debe ser anterior a la fecha de fin.")
+        return cleaned_data
 
 class IdentidadForm(forms.ModelForm):
     class Meta:
         model = Identidades
-        fields = ['tipo_documento', 'numero_documento', 'fecha_expedicion', 'primer_apellido', 'segundo_apellido', 'nombre', 'sexo']
-        widgets = {
-            'fecha_expedicion': forms.DateInput(attrs={'type': 'date'}),
-        }
+        fields = ['tipo_documento', 'numero_documento', 'fecha_expedicion', 'primer_apellido', 
+                  'segundo_apellido', 'nombre', 'sexo']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        numero_documento = cleaned_data.get("numero_documento")
+
+        # Validaciones para número de documento
+        if not numero_documento.isdigit():
+            raise forms.ValidationError("El número de documento debe contener solo dígitos.")
+        return cleaned_data

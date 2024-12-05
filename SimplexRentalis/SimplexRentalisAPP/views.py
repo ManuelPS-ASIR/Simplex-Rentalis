@@ -461,10 +461,6 @@ def alquilar_propiedad(request, propiedad_id):
         'fechas_no_disponibles_json': fechas_no_disponibles_json,
     })
 
-
-
-
-
 # Vista para mostrar el mensaje de reserva exitosa
 def reserva_exitosa_view(request):
     return render(request, 'SimplexRentalisAPP/reserva_exitosa.html')

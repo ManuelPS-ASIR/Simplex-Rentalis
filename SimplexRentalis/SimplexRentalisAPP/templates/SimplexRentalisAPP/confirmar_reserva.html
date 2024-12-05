@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h2>Reserva Confirmada</h2>
+    <p>La reserva para {{ reserva.propiedad.nombre }} ha sido confirmada.</p>
+    <p>Fechas: {{ reserva.fecha_inicio }} - {{ reserva.fecha_fin }}</p>
+    <p>Total a pagar: €{{ reserva.costo_total }}</p>
+</div>
+{% endblock %}

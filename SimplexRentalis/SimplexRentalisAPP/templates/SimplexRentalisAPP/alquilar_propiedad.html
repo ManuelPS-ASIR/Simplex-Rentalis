@@ -81,6 +81,7 @@ Alquilar Propiedad
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script> <!-- Cargar localización en español -->
+<!-- Manejar el botón "Siguiente" -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Fechas no disponibles en formato JSON
@@ -148,10 +149,27 @@ Alquilar Propiedad
                     const legend = document.createElement('legend');
                     legend.textContent = `Persona ${i}`;
                     fieldset.appendChild(legend);
-                    const input = document.createElement('input');
-                    input.name = `persona_${i}`;
-                    input.placeholder = `Nombre de la persona ${i}`;
-                    fieldset.appendChild(input);
+
+                    // Añadir los campos del modelo Identidades
+                    const fields = [
+                        { name: 'tipo_documento', placeholder: 'Tipo de Documento (DNI, Carnet de Conducir, Pasaporte)', type: 'text' },
+                        { name: 'numero_documento', placeholder: 'Número de Documento', type: 'text' },
+                        { name: 'fecha_expedicion', placeholder: 'Fecha de Expedición', type: 'date' },
+                        { name: 'primer_apellido', placeholder: 'Primer Apellido', type: 'text' },
+                        { name: 'segundo_apellido', placeholder: 'Segundo Apellido (Opcional)', type: 'text' },
+                        { name: 'nombre', placeholder: 'Nombre', type: 'text' },
+                        { name: 'sexo', placeholder: 'Sexo (Masculino, Femenino, Otro)', type: 'text' },
+                    ];
+
+                    fields.forEach(field => {
+                        const input = document.createElement('input');
+                        input.name = `${field.name}_${i}`;
+                        input.placeholder = field.placeholder;
+                        input.type = field.type;
+                        input.required = true;
+                        fieldset.appendChild(input);
+                    });
+
                     formContainer.appendChild(fieldset);
                 }
 
@@ -164,4 +182,5 @@ Alquilar Propiedad
         });
     });
 </script>
+
 {% endblock %}
