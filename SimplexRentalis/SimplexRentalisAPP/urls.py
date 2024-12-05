@@ -5,9 +5,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from .views import DetallePropiedadView
 from .views import autocompletar_direcciones
+from django.contrib import admin
 
 
 urlpatterns = [
+    path('admin/', admin.site.urls),  # Esta línea debe estar presente
     # Rutas de autenticación
     path('login/', views.login_view, name='login'),  # Usamos la vista personalizada de login
     path('logout/', views.logout_view, name='logout'),  # Usamos nuestra vista personalizada de logout
