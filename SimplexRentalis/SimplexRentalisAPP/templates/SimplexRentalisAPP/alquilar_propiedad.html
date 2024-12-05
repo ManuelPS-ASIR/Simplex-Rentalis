@@ -73,6 +73,7 @@ Alquilar Propiedad
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script> <!-- Cargar localización en español -->
 <!-- Manejar el botón "Siguiente" -->
+<!-- Manejar el botón "Siguiente" -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Fechas no disponibles en formato JSON
@@ -205,10 +206,16 @@ Alquilar Propiedad
                                 const numeroDocumentoInput = document.querySelector(`input[name="numero_documento_${i}"]`);
                                 if (input.value === 'dni') {
                                     numeroDocumentoInput.maxLength = 9;
+                                    numeroDocumentoInput.pattern = '\\d{8}[A-Za-z]';
+                                    numeroDocumentoInput.setAttribute('title', 'El DNI debe tener 8 dígitos seguidos de una letra.');
                                 } else if (input.value === 'pasaporte') {
                                     numeroDocumentoInput.maxLength = 9;
+                                    numeroDocumentoInput.pattern = '[A-Za-z0-9]{6,9}';
+                                    numeroDocumentoInput.setAttribute('title', 'El número de pasaporte debe tener entre 6 y 9 caracteres alfanuméricos.');
                                 } else if (input.value === 'carnet_de_conducir') {
                                     numeroDocumentoInput.maxLength = 12;
+                                    numeroDocumentoInput.pattern = '\\d{5,12}';
+                                    numeroDocumentoInput.setAttribute('title', 'El número de carnet de conducir debe tener entre 5 y 12 caracteres.');
                                 }
                             });
                         } else {
@@ -229,19 +236,34 @@ Alquilar Propiedad
                                 input.max = new Date().toISOString().split("T")[0];
                             }
 
-                            // Validación de caracteres en número de documento
-                            if (field.name === 'numero_documento') {
+                                                        // Validación de caracteres en número de documento
+                                                        if (field.name === 'numero_documento') {
                                 input.addEventListener('input', function () {
                                     const tipoDocumento = document.querySelector(`select[name="tipo_documento_${i}"]`).value;
-                                    if (tipoDocumento === 'dni' && !/^\d{0,8}[A-Za-z]?$/.test(input.value)) {
-                                        input.setCustomValidity("El DNI debe tener 8 dígitos seguidos de una letra.");
-                                    } else if (tipoDocumento === 'pasaporte' && !/^[A-Za-z0-9]{0,9}$/.test(input.value)) {
-                                        input.setCustomValidity("El número de pasaporte debe tener entre 6 y 9 caracteres alfanuméricos.");
-                                    } else if (tipoDocumento === 'carnet_de_conducir' && !/^[A-Za-z0-9]{5,12}$/.test(input.value)) {
-                                        input.setCustomValidity("El número de carnet de conducir debe tener entre 5 y 12 caracteres.");
-                                    } else {
-                                        input.setCustomValidity("");
+                                    let validationMessage = "";
+                                    
+                                    if (tipoDocumento === 'dni') {
+                                        if (!/^\d{8}[A-Za-z]?$/.test(input.value)) {
+                                            validationMessage = "El DNI debe tener 8 dígitos seguidos de una letra.";
+                                        } else {
+                                            validationMessage = "";
+                                        }
+                                    } else if (tipoDocumento === 'pasaporte') {
+                                        if (!/^[A-Za-z0-9]{6,9}$/.test(input.value)) {
+                                            validationMessage = "El número de pasaporte debe tener entre 6 y 9 caracteres alfanuméricos.";
+                                        } else {
+                                            validationMessage = "";
+                                        }
+                                    } else if (tipoDocumento === 'carnet_de_conducir') {
+                                        if (!/^[A-Za-z0-9]{5,12}$/.test(input.value)) {
+                                            validationMessage = "El número de carnet de conducir debe tener entre 5 y 12 caracteres.";
+                                        } else {
+                                            validationMessage = "";
+                                        }
                                     }
+
+                                    input.setCustomValidity(validationMessage);
+                                    input.reportValidity();
                                 });
                             }
                         }
