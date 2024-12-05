@@ -14,7 +14,6 @@ Alquilar Propiedad
         <h2 style="margin-top: 15px; font-size: 2em; color: #333; font-weight: bold; text-transform: uppercase;">Reserva en: <strong>{{ propiedad.nombre }}</strong></h2>
         <p style="font-size: 1.2em; color: #555; margin-top: 10px;">Haz tu reserva para disfrutar de una experiencia única.</p>
     </div>
-    
     <!-- Formulario de reserva -->
     <form id="reserva-form" method="post" style="padding: 30px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1);">
         {% csrf_token %}
@@ -39,7 +38,6 @@ Alquilar Propiedad
                 <input type="number" name="personas" id="personas" min="1" max="{{ propiedad.capacidad_maxima }}" value="1" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1em; transition: all 0.3s ease;">
                 <small style="color: #777;">Capacidad máxima: {{ propiedad.capacidad_maxima }} personas</small>
             </div>
-
             <!-- Sección de mascotas -->
             <div style="margin-bottom: 20px; display: flex; align-items: center;">
                 <input type="checkbox" name="mascotas" id="mascotas" style="margin-right: 10px; transform: scale(1.3);">
@@ -53,30 +51,23 @@ Alquilar Propiedad
                 </button>
             </div>
         </div>
-
         <div id="step2" style="display: none;">
             <h2 style="margin-bottom: 20px; font-size: 1.8em; color: #333;">Datos de las Personas</h2>
 
-            {% for form in identidad_forms %}
-                <fieldset style="margin-bottom: 20px;">
-                    <legend>Persona {{ forloop.counter }}</legend>
-                    {{ form.as_p }}
-                </fieldset>
-            {% empty %}
-                <p>No hay formularios de identidad disponibles.</p>
-            {% endfor %}
+            <!-- Formularios de identidades -->
+            <div id="identidades-container" style="padding: 20px; background-color: #f4f4f4; border-radius: 10px; box-shadow: 0px 4px 12px rgba(0,0,0,0.1);">
+                <!-- Se generarán dinámicamente los formularios de identidad aquí -->
+            </div>
 
             <!-- Botón de confirmar -->
-            <div style="text-align: center;">
+            <div style="text-align: center; margin-top: 20px;">
                 <button type="submit" class="btn btn-primary" style="padding: 15px 30px; font-size: 1.5em; background-color: #007bff; border: none; border-radius: 5px; color: white; cursor: pointer; transition: background-color 0.3s ease;">
                     Confirmar Reserva
                 </button>
             </div>
         </div>
     </form>
-
 </div>
-
 <!-- Incluir Flatpickr -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -140,34 +131,83 @@ Alquilar Propiedad
             console.log('Número de personas:', numPersonas); // Depuración
             if (numPersonas > 0) {
                 // Actualizar el formulario de personas basado en el número de personas seleccionadas
-                const formContainer = document.getElementById('step2');
+                const formContainer = document.getElementById('identidades-container');
                 formContainer.innerHTML = ''; // Limpiar el contenedor
 
                 // Crear los formularios de identidad según el número de personas
                 for (let i = 1; i <= numPersonas; i++) {
                     const fieldset = document.createElement('fieldset');
+                    fieldset.style.padding = '15px';
+                    fieldset.style.marginBottom = '15px';
+                    fieldset.style.border = '1px solid #ddd';
+                    fieldset.style.borderRadius = '5px';
+                    fieldset.style.backgroundColor = '#ffffff';
+                    fieldset.style.boxShadow = '0px 4px 8px rgba(0, 0, 0, 0.1)';
+
                     const legend = document.createElement('legend');
                     legend.textContent = `Persona ${i}`;
+                    legend.style.fontSize = '1.2em';
+                    legend.style.color = '#007bff';
+                    legend.style.fontWeight = 'bold';
+                    legend.style.marginBottom = '10px';
                     fieldset.appendChild(legend);
 
                     // Añadir los campos del modelo Identidades
                     const fields = [
-                        { name: 'tipo_documento', placeholder: 'Tipo de Documento (DNI, Carnet de Conducir, Pasaporte)', type: 'text' },
+                        { name: 'tipo_documento', placeholder: 'Tipo de Documento', type: 'select', options: ['DNI', 'Carnet de Conducir', 'Pasaporte'] },
                         { name: 'numero_documento', placeholder: 'Número de Documento', type: 'text' },
                         { name: 'fecha_expedicion', placeholder: 'Fecha de Expedición', type: 'date' },
                         { name: 'primer_apellido', placeholder: 'Primer Apellido', type: 'text' },
                         { name: 'segundo_apellido', placeholder: 'Segundo Apellido (Opcional)', type: 'text' },
                         { name: 'nombre', placeholder: 'Nombre', type: 'text' },
-                        { name: 'sexo', placeholder: 'Sexo (Masculino, Femenino, Otro)', type: 'text' },
+                        { name: 'sexo', placeholder: 'Sexo', type: 'select', options: ['Masculino', 'Femenino', 'Otro'] },
                     ];
 
                     fields.forEach(field => {
-                        const input = document.createElement('input');
-                        input.name = `${field.name}_${i}`;
-                        input.placeholder = field.placeholder;
-                        input.type = field.type;
-                        input.required = true;
-                        fieldset.appendChild(input);
+                        const inputWrapper = document.createElement('div');
+                        inputWrapper.style.marginBottom = '15px';
+
+                        const label = document.createElement('label');
+                        label.textContent = field.placeholder;
+                        label.style.display = 'block';
+                        label.style.fontSize = '1em';
+                        label.style.color = '#333';
+                        label.style.marginBottom = '5px';
+                        inputWrapper.appendChild(label);
+
+                        let input;
+                        if (field.type === 'select') {
+                            input = document.createElement('select');
+                            input.name = `${field.name}_${i}`;
+                            input.style.width = '100%';
+                            input.style.padding = '10px';
+                            input.style.border = '2px solid #ddd';
+                            input.style.borderRadius = '5px';
+                            input.style.fontSize = '1em';
+                            input.style.transition = 'all 0.3s ease';
+
+                            field.options.forEach(option => {
+                                const opt = document.createElement('option');
+                                opt.value = option.toLowerCase().replace(' ', '_');
+                                opt.textContent = option;
+                                input.appendChild(opt);
+                            });
+                        } else {
+                            input = document.createElement('input');
+                            input.name = `${field.name}_${i}`;
+                            input.placeholder = field.placeholder;
+                            input.type = field.type;
+                            input.style.width = '100%';
+                            input.style.padding = '10px';
+                            input.style.border = '2px solid #ddd';
+                            input.style.borderRadius = '5px';
+                            input.style.fontSize = '1em';
+                            input.style.transition = 'all 0.3s ease';
+                            input.required = true;
+                        }
+                        inputWrapper.appendChild(input);
+
+                        fieldset.appendChild(inputWrapper);
                     });
 
                     formContainer.appendChild(fieldset);
