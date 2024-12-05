@@ -73,6 +73,7 @@ Alquilar Propiedad
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script> <!-- Cargar localización en español -->
 <!-- Manejar el botón "Siguiente" -->
+<!-- Manejar el botón "Siguiente" -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Fechas no disponibles en formato JSON
@@ -186,11 +187,30 @@ Alquilar Propiedad
                             input.style.fontSize = '1em';
                             input.style.transition = 'all 0.3s ease';
 
+                            // Opción por defecto
+                            const defaultOption = document.createElement('option');
+                            defaultOption.value = '';
+                            defaultOption.textContent = 'Seleccionar';
+                            defaultOption.disabled = true;
+                            defaultOption.selected = true;
+                            input.appendChild(defaultOption);
+
                             field.options.forEach(option => {
                                 const opt = document.createElement('option');
                                 opt.value = option.toLowerCase().replace(' ', '_');
                                 opt.textContent = option;
                                 input.appendChild(opt);
+                            });
+
+                            input.addEventListener('change', function () {
+                                const numeroDocumentoInput = document.querySelector(`input[name="numero_documento_${i}"]`);
+                                if (input.value === 'dni') {
+                                    numeroDocumentoInput.maxLength = 9;
+                                } else if (input.value === 'pasaporte') {
+                                    numeroDocumentoInput.maxLength = 9;
+                                } else if (input.value === 'carnet_de_conducir') {
+                                    numeroDocumentoInput.maxLength = 12;
+                                }
                             });
                         } else {
                             input = document.createElement('input');
@@ -204,9 +224,29 @@ Alquilar Propiedad
                             input.style.fontSize = '1em';
                             input.style.transition = 'all 0.3s ease';
                             input.required = true;
+
+                            // Validación de la fecha de expedición
+                            if (field.name === 'fecha_expedicion') {
+                                input.max = new Date().toISOString().split("T")[0];
+                            }
+
+                            // Validación de caracteres en número de documento
+                            if (field.name === 'numero_documento') {
+                                input.addEventListener('input', function () {
+                                    const tipoDocumento = document.querySelector(`select[name="tipo_documento_${i}"]`).value;
+                                    if (tipoDocumento === 'dni' && !/^\d{0,8}[A-Za-z]?$/.test(input.value)) {
+                                        input.setCustomValidity("El DNI debe tener 8 dígitos seguidos de una letra.");
+                                    } else if (tipoDocumento === 'pasaporte' && !/^[A-Za-z0-9]{0,9}$/.test(input.value)) {
+                                        input.setCustomValidity("El número de pasaporte debe tener entre 6 y 9 caracteres alfanuméricos.");
+                                    } else if (tipoDocumento === 'carnet_de_conducir' && input.value.length > 12) {
+                                        input.setCustomValidity("El número de carnet de conducir debe tener al menos 5 caracteres.");
+                                    } else {
+                                        input.setCustomValidity("");
+                                    }
+                                });
+                            }
                         }
                         inputWrapper.appendChild(input);
-
                         fieldset.appendChild(inputWrapper);
                     });
 
