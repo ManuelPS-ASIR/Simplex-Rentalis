@@ -391,8 +391,6 @@ def autocompletar_direcciones(request):
     else:
         return JsonResponse({"error": "Error al contactar con Photon"}, status=500)
 
-
-
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.serializers.json import DjangoJSONEncoder
 from datetime import timedelta
@@ -400,31 +398,53 @@ import json
 from .models import Propiedades, Reservas, Identidades
 from .forms import ReservaForm, IdentidadForm
 
-# Vista para alquilar una propiedad
 def alquilar_propiedad(request, propiedad_id):
     propiedad = get_object_or_404(Propiedades, id=propiedad_id)
     form_reserva = ReservaForm()
-    form_identidad = IdentidadForm()
+    identidad_forms = []
+    reserva_data = request.session.get('reserva_data')  # Recuperar datos del paso 1 si existen
 
     if request.method == 'POST':
-        form_reserva = ReservaForm(request.POST)
-        form_identidad = IdentidadForm(request.POST)
+        # Paso 1: Validar datos de reserva
+        if 'fecha_reserva' in request.POST:
+            form_reserva = ReservaForm(request.POST)
+            if form_reserva.is_valid():
+                # Almacenar los datos en la sesión
+                reserva_data = form_reserva.cleaned_data
+                request.session['reserva_data'] = reserva_data
+                num_personas = reserva_data.get('personas', 1)
+                
+                # Generar formularios de identidad según el número de personas
+                identidad_forms = [IdentidadForm(prefix=str(i)) for i in range(num_personas)]
+            else:
+                identidad_forms = []
+        # Paso 2: Procesar formularios de identidad
+        else:
+            num_personas = reserva_data.get('personas', 1) if reserva_data else 0
+            identidad_forms = [IdentidadForm(request.POST, prefix=str(i)) for i in range(num_personas)]
+            
+            # Verificar que todos los formularios de identidad sean válidos
+            if all(form.is_valid() for form in identidad_forms):
+                # Crear reserva
+                reserva = Reservas(**reserva_data)
+                reserva.propiedad = propiedad
+                reserva.usuario = request.user
+                reserva.save()
+                
+                # Guardar identidades
+                for form in identidad_forms:
+                    identidad = form.save(commit=False)
+                    identidad.reserva = reserva
+                    identidad.save()
+                
+                # Limpiar datos de la sesión
+                del request.session['reserva_data']
+                return redirect('reserva_exitosa')
+            else:
+                # Si hay errores, renderizar los formularios con mensajes
+                form_reserva = ReservaForm(initial=reserva_data)
 
-        if form_reserva.is_valid() and form_identidad.is_valid():
-            reserva = form_reserva.save(commit=False)
-            reserva.propiedad = propiedad
-            reserva.usuario = request.user
-            reserva.save()
-
-            identidad = form_identidad.save(commit=False)
-            identidad.reserva = reserva
-            identidad.save()
-
-            form_reserva.save_m2m()  # Guardar relaciones many-to-many
-
-            return redirect('reserva_exitosa')
-
-    # Obtener todas las fechas no disponibles basadas en las reservas
+    # Fechas no disponibles
     reservas = propiedad.reservas.all()
     fechas_no_disponibles = []
     for reserva in reservas:
@@ -433,12 +453,17 @@ def alquilar_propiedad(request, propiedad_id):
 
     fechas_no_disponibles_json = json.dumps([fecha.strftime('%Y-%m-%d') for fecha in fechas_no_disponibles], cls=DjangoJSONEncoder)
 
+    # Renderizar la página
     return render(request, 'SimplexRentalisAPP/alquilar_propiedad.html', {
         'propiedad': propiedad,
         'form_reserva': form_reserva,
-        'form_identidad': form_identidad,
+        'identidad_forms': identidad_forms,
         'fechas_no_disponibles_json': fechas_no_disponibles_json,
     })
+
+
+
+
 
 # Vista para mostrar el mensaje de reserva exitosa
 def reserva_exitosa_view(request):

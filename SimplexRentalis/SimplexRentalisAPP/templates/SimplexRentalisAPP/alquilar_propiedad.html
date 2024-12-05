@@ -14,6 +14,7 @@ Alquilar Propiedad
         <h2 style="margin-top: 15px; font-size: 2em; color: #333; font-weight: bold; text-transform: uppercase;">Reserva en: <strong>{{ propiedad.nombre }}</strong></h2>
         <p style="font-size: 1.2em; color: #555; margin-top: 10px;">Haz tu reserva para disfrutar de una experiencia única.</p>
     </div>
+    
     <!-- Formulario de reserva -->
     <form id="reserva-form" method="post" style="padding: 30px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1);">
         {% csrf_token %}
@@ -61,6 +62,8 @@ Alquilar Propiedad
                     <legend>Persona {{ forloop.counter }}</legend>
                     {{ form.as_p }}
                 </fieldset>
+            {% empty %}
+                <p>No hay formularios de identidad disponibles.</p>
             {% endfor %}
 
             <!-- Botón de confirmar -->
@@ -73,6 +76,7 @@ Alquilar Propiedad
     </form>
 
 </div>
+
 <!-- Incluir Flatpickr -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -87,13 +91,15 @@ Alquilar Propiedad
         console.log('Precio por noche:', precioPorNoche);
 
         // Configurar Flatpickr
-        flatpickr("#fecha_reserva", {
+        const flatpickrInstance = flatpickr("#fecha_reserva", {
             mode: "range",
             minDate: "today",
             disable: fechasNoDisponibles.map(fecha => new Date(fecha)), // Convertir fechas a objetos Date
             dateFormat: "Y-m-d",
             locale: "es", // Configurar idioma español
             onChange: function(selectedDates) {
+                const nextButton = document.getElementById('next-button');
+
                 if (selectedDates.length > 1) {
                     const start = selectedDates[0]; // Fecha de inicio
                     const end = selectedDates[1];   // Fecha de fin
@@ -113,24 +119,49 @@ Alquilar Propiedad
                     // Actualizar el costo total en el DOM
                     document.getElementById('costo_total').innerText = `Total: €${total.toFixed(2)}`;
 
-                    // Habilitar el botón de siguiente
-                    document.getElementById('next-button').disabled = false;
+                    // Habilitar el botón de siguiente si el rango es válido
+                    nextButton.disabled = (diffDays <= 0); // Asegurarse de que el rango sea válido
+                    console.log('Botón siguiente habilitado:', !nextButton.disabled);
                 } else {
                     // Si no hay rango válido, mostrar €0.00
                     document.getElementById('costo_total').innerText = "Total: €0.00";
 
                     // Deshabilitar el botón de siguiente
-                    document.getElementById('next-button').disabled = true;
+                    nextButton.disabled = true;
+                    console.log('Botón siguiente deshabilitado');
                 }
             }
         });
 
         // Manejar el botón "Siguiente"
         document.getElementById('next-button').addEventListener('click', function () {
-            document.getElementById('step1').style.display = 'none';
-            document.getElementById('step2').style.display = 'block';
+            const numPersonas = parseInt(document.getElementById('personas').value, 10);
+            console.log('Número de personas:', numPersonas); // Depuración
+            if (numPersonas > 0) {
+                // Actualizar el formulario de personas basado en el número de personas seleccionadas
+                const formContainer = document.getElementById('step2');
+                formContainer.innerHTML = ''; // Limpiar el contenedor
+
+                // Crear los formularios de identidad según el número de personas
+                for (let i = 1; i <= numPersonas; i++) {
+                    const fieldset = document.createElement('fieldset');
+                    const legend = document.createElement('legend');
+                    legend.textContent = `Persona ${i}`;
+                    fieldset.appendChild(legend);
+                    const input = document.createElement('input');
+                    input.name = `persona_${i}`;
+                    input.placeholder = `Nombre de la persona ${i}`;
+                    fieldset.appendChild(input);
+                    formContainer.appendChild(fieldset);
+                }
+
+                // Mostrar el segundo paso
+                document.getElementById('step1').style.display = 'none';
+                document.getElementById('step2').style.display = 'block';
+            } else {
+                alert("El número de personas debe ser mayor a 0.");
+            }
         });
     });
 </script>
-
 {% endblock %}
