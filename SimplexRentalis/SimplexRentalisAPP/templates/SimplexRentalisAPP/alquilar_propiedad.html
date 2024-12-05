@@ -14,7 +14,7 @@ Alquilar Propiedad
         <p style="font-size: 1.2em; color: #555; margin-top: 10px;">Haz tu reserva para disfrutar de una experiencia única.</p>
     </div>
     <!-- Formulario de reserva -->
-    <form id="reserva-form" method="post" style="padding: 30px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1);">
+    <form id="reserva-form" method="post" action="{% url 'alquilar_propiedad' propiedad.id %}" style="padding: 30px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1);">
         {% csrf_token %}
         <div id="step1">
             <h2 style="margin-bottom: 20px; font-size: 1.8em; color: #333;">Detalles de la Reserva</h2>
@@ -36,6 +36,7 @@ Alquilar Propiedad
                 <input type="number" name="personas" id="personas" min="1" max="{{ propiedad.capacidad_maxima }}" value="1" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1em; transition: all 0.3s ease;">
                 <small style="color: #777;">Capacidad máxima: {{ propiedad.capacidad_maxima }} personas</small>
             </div>
+
             <!-- Sección de mascotas -->
             <div style="margin-bottom: 20px; display: flex; align-items: center;">
                 <input type="checkbox" name="mascotas" id="mascotas" style="margin-right: 10px; transform: scale(1.3);">
@@ -59,13 +60,14 @@ Alquilar Propiedad
 
             <!-- Botón de confirmar -->
             <div style="text-align: center; margin-top: 20px;">
-                <button type="submit" class="btn btn-primary" style="padding: 15px 30px; font-size: 1.5em; background-color: #007bff; border: none; border-radius: 5px; color: white; cursor: pointer; transition: background-color 0.3s ease;">
+                <button type="submit" id="submit-button" class="btn btn-primary" style="padding: 15px 30px; font-size: 1.5em; background-color: #007bff; border: none; border-radius: 5px; color: white; cursor: pointer; transition: background-color 0.3s ease;">
                     Confirmar Reserva
                 </button>
             </div>
         </div>
     </form>
 </div>
+
 <!-- Incluir Flatpickr -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -74,10 +76,7 @@ Alquilar Propiedad
     document.addEventListener('DOMContentLoaded', function () {
         // Fechas no disponibles en formato JSON
         const fechasNoDisponibles = JSON.parse('{{ fechas_no_disponibles_json|escapejs }}');
-        console.log('Fechas no disponibles:', fechasNoDisponibles);
-
         const precioPorNoche = parseFloat('{{ propiedad.precio_por_noche|default:"100" }}'); // Precio por noche con valor predeterminado
-        console.log('Precio por noche:', precioPorNoche);
 
         // Configurar Flatpickr
         const flatpickrInstance = flatpickr("#fecha_reserva", {
@@ -99,25 +98,17 @@ Alquilar Propiedad
                     // Calcular el total
                     const total = diffDays * precioPorNoche;
 
-                    // Depuración
-                    console.log('Inicio:', start);
-                    console.log('Fin:', end);
-                    console.log('Días de diferencia:', diffDays);
-                    console.log('Total calculado:', total);
-
                     // Actualizar el costo total en el DOM
                     document.getElementById('costo_total').innerText = `Total: €${total.toFixed(2)}`;
 
                     // Habilitar el botón de siguiente si el rango es válido
                     nextButton.disabled = (diffDays <= 0); // Asegurarse de que el rango sea válido
-                    console.log('Botón siguiente habilitado:', !nextButton.disabled);
                 } else {
                     // Si no hay rango válido, mostrar €0.00
                     document.getElementById('costo_total').innerText = "Total: €0.00";
 
                     // Deshabilitar el botón de siguiente
                     nextButton.disabled = true;
-                    console.log('Botón siguiente deshabilitado');
                 }
             }
         });
@@ -125,10 +116,9 @@ Alquilar Propiedad
         // Manejar el botón "Siguiente"
         document.getElementById('next-button').addEventListener('click', function () {
             const numPersonas = parseInt(document.getElementById('personas').value, 10);
-            console.log('Número de personas:', numPersonas); // Depuración
             if (numPersonas > 0) {
-                // Actualizar el formulario de personas basado en el número de personas seleccionadas
-                const formContainer = document.getElementById('identidades-container');
+                                // Actualizar el formulario de personas basado en el número de personas seleccionadas
+                                const formContainer = document.getElementById('identidades-container');
                 formContainer.innerHTML = ''; // Limpiar el contenedor
 
                 // Crear los formularios de identidad según el número de personas
@@ -245,8 +235,8 @@ Alquilar Propiedad
                                             validationMessage = "";
                                         }
                                     } else if (tipoDocumento === 'pasaporte') {
-                                        if (!/^[A-Za-z0-9]{5,12}$/.test(input.value)) {
-                                            validationMessage = "El número de carnet de conducir debe tener entre 5 y 12 caracteres.";
+                                        if (!/^[A-Za-z0-9]{6,9}$/.test(input.value)) {
+                                            validationMessage = "El número de pasaporte debe tener entre 6 y 9 caracteres alfanuméricos.";
                                         } else {
                                             validationMessage = "";
                                         }
@@ -274,6 +264,60 @@ Alquilar Propiedad
 
         // Manejar la confirmación de la reserva
         document.getElementById('reserva-form').addEventListener('submit', function (event) {
+            event.preventDefault(); // Evitar el envío del formulario real
+
+            // Mostrar el mensaje de confirmación
+            const confirmationMessage = document.createElement('div');
+            confirmationMessage.id = 'confirmation-message';
+            confirmationMessage.style.position = 'fixed';
+            confirmationMessage.style.top = '0';
+            confirmationMessage.style.left = '0';
+            confirmationMessage.style.width = '100%';
+            confirmationMessage.style.height = '100%';
+            confirmationMessage.style.backgroundColor = 'rgba(0,0,0,0.8)';
+            confirmationMessage.style.display = 'flex';
+            confirmationMessage.style.justifyContent = 'center';
+            confirmationMessage.style.alignItems = 'center';
+            confirmationMessage.style.zIndex = '9999';
+
+            // Crear el contenido del mensaje
+            const messageContent = document.createElement('div');
+            messageContent.style.backgroundColor = '#fff';
+            messageContent.style.padding = '20px';
+            messageContent.style.borderRadius = '10px';
+            messageContent.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+            messageContent.style.textAlign = 'center';
+            messageContent.style.fontFamily = "'Helvetica Neue', Arial, sans-serif";
+
+            // Añadir el texto del mensaje
+            const messageText = document.createElement('p');
+            messageText.innerText = 'Reserva confirmada. Puedes ver los detalles de tu reserva desde el panel de Mis Reservas.';
+            messageText.style.marginBottom = '20px';
+            messageContent.appendChild(messageText);
+
+            // Crear el botón de redirección
+            const redirectButton = document.createElement('button');
+            redirectButton.innerText = 'OK';
+            redirectButton.style.padding = '10px 20px';
+            redirectButton.style.fontSize = '1.2em';
+            redirectButton.style.backgroundColor = '#007bff';
+            redirectButton.style.color = '#fff';
+            redirectButton.style.border = 'none';
+            redirectButton.style.borderRadius = '5px';
+            redirectButton.style.cursor = 'pointer';
+            redirectButton.addEventListener('click', function () {
+                // Enviar el formulario al hacer clic en OK
+                document.getElementById('reserva-form').removeEventListener('submit', handleFormSubmit);
+                document.getElementById('reserva-form').submit();
+            });
+
+            messageContent.appendChild(redirectButton);
+            confirmationMessage.appendChild(messageContent);
+            document.body.appendChild(confirmationMessage);
+        });
+
+                // Función para manejar el envío del formulario
+                function handleFormSubmit(event) {
             event.preventDefault(); // Evitar el envío del formulario real
 
             // Crear el contenedor del mensaje de confirmación
@@ -316,14 +360,17 @@ Alquilar Propiedad
             redirectButton.style.borderRadius = '5px';
             redirectButton.style.cursor = 'pointer';
             redirectButton.addEventListener('click', function () {
-                window.location.href = '/'; // Redirigir a la página de inicio
+                // Enviar el formulario al hacer clic en OK
+                document.getElementById('reserva-form').removeEventListener('submit', handleFormSubmit);
+                document.getElementById('reserva-form').submit();
             });
 
             messageContent.appendChild(redirectButton);
             confirmationMessage.appendChild(messageContent);
             document.body.appendChild(confirmationMessage);
-        });
+        }
+
+        document.getElementById('reserva-form').addEventListener('submit', handleFormSubmit);
     });
 </script>
-
 {% endblock %}

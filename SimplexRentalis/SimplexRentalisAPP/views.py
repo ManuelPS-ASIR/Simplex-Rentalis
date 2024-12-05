@@ -398,6 +398,13 @@ import json
 from .models import Propiedades, Reservas, Identidades
 from .forms import ReservaForm, IdentidadForm
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.core.serializers.json import DjangoJSONEncoder
+from datetime import timedelta
+import json
+from .models import Propiedades, Reservas, Identidades
+from .forms import ReservaForm, IdentidadForm
+
 def alquilar_propiedad(request, propiedad_id):
     propiedad = get_object_or_404(Propiedades, id=propiedad_id)
     form_reserva = ReservaForm()
