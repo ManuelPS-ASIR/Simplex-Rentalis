@@ -73,7 +73,6 @@ Alquilar Propiedad
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script> <!-- Cargar localización en español -->
 <!-- Manejar el botón "Siguiente" -->
-<!-- Manejar el botón "Siguiente" -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Fechas no disponibles en formato JSON
@@ -223,7 +222,7 @@ Alquilar Propiedad
                             input.style.borderRadius = '5px';
                             input.style.fontSize = '1em';
                             input.style.transition = 'all 0.3s ease';
-                            input.required = true;
+                            input.required = (field.name !== 'segundo_apellido'); // Segundo apellido opcional
 
                             // Validación de la fecha de expedición
                             if (field.name === 'fecha_expedicion') {
@@ -238,8 +237,8 @@ Alquilar Propiedad
                                         input.setCustomValidity("El DNI debe tener 8 dígitos seguidos de una letra.");
                                     } else if (tipoDocumento === 'pasaporte' && !/^[A-Za-z0-9]{0,9}$/.test(input.value)) {
                                         input.setCustomValidity("El número de pasaporte debe tener entre 6 y 9 caracteres alfanuméricos.");
-                                    } else if (tipoDocumento === 'carnet_de_conducir' && input.value.length > 12) {
-                                        input.setCustomValidity("El número de carnet de conducir debe tener al menos 5 caracteres.");
+                                    } else if (tipoDocumento === 'carnet_de_conducir' && !/^[A-Za-z0-9]{5,12}$/.test(input.value)) {
+                                        input.setCustomValidity("El número de carnet de conducir debe tener entre 5 y 12 caracteres.");
                                     } else {
                                         input.setCustomValidity("");
                                     }
