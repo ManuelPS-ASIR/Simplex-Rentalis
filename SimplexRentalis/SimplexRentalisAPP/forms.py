@@ -243,3 +243,4 @@ class IdentidadForm(forms.ModelForm):
         if not numero_documento.isdigit():
             raise forms.ValidationError("El número de documento debe contener solo dígitos.")
         return cleaned_data
+

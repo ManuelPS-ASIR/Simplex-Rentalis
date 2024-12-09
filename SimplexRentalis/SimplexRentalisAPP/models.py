@@ -20,6 +20,13 @@ class User(AbstractUser):
         blank=True,
         null=True
     )
+    identidad = models.OneToOneField(
+        'Identidades',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='usuario_asociado'  # Nombre único para el acceso inverso
+    )
     avatar = models.ImageField(
         upload_to='avatars/', 
         null=True, 
@@ -124,6 +131,11 @@ class Propiedades(models.Model):
         ).exists():
             return False
         return True
+    def clean(self):
+        # Verificar si el usuario tiene una identidad asociada
+        if not self.usuario.identidad:
+            raise ValidationError("El usuario debe tener una identidad asociada antes de realizar una reserva.")
+
 
 ####################################
 ###### 1.1. Modelo de Galeria ######
@@ -250,6 +262,7 @@ class Reservas(models.Model):
 ##### 3. Modelo de Identidades ####
 ###################################
 class Identidades(models.Model):
+    id = models.AutoField(primary_key=True)  # Identificador único para cada identidad
     reserva = models.ForeignKey('Reservas', on_delete=models.CASCADE)
     tipo_documento = models.CharField(
         max_length=30, 
@@ -260,6 +273,20 @@ class Identidades(models.Model):
         ], 
         null=False, blank=False
     )
+    usuario = models.OneToOneField(
+        'User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='identidad_asociada'  # Nombre único para el acceso inverso
+    )
+    reserva = models.ForeignKey(
+        'Reservas',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='identidades_reserva'
+    )  # Relación opcional con una reserva
     numero_documento = models.CharField(max_length=50, unique=True)
     fecha_expedicion = models.DateField()
     primer_apellido = models.CharField(max_length=255)

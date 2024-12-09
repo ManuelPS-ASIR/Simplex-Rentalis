@@ -398,18 +398,14 @@ import json
 from .models import Propiedades, Reservas, Identidades
 from .forms import ReservaForm, IdentidadForm
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.core.serializers.json import DjangoJSONEncoder
-from datetime import timedelta
-import json
-from .models import Propiedades, Reservas, Identidades
-from .forms import ReservaForm, IdentidadForm
-
 def alquilar_propiedad(request, propiedad_id):
     propiedad = get_object_or_404(Propiedades, id=propiedad_id)
     form_reserva = ReservaForm()
     identidad_forms = []
     reserva_data = request.session.get('reserva_data')  # Recuperar datos del paso 1 si existen
+    if not request.user.identidad:
+        messages.warning(request, "Debes completar tu identidad antes de realizar una reserva.")
+        return redirect('completar_identidad')  # Redirige al formulario de identidad
 
     if request.method == 'POST':
         # Paso 1: Validar datos de reserva
@@ -437,13 +433,19 @@ def alquilar_propiedad(request, propiedad_id):
                 reserva.propiedad = propiedad
                 reserva.usuario = request.user
                 reserva.save()
-                
+
+                # Depuración
+                print(f"Reserva creada: {reserva}")
+
                 # Guardar identidades
                 for form in identidad_forms:
                     identidad = form.save(commit=False)
                     identidad.reserva = reserva
                     identidad.save()
-                
+
+                    # Depuración
+                    print(f"Identidad guardada: {identidad}")
+
                 # Limpiar datos de la sesión
                 del request.session['reserva_data']
                 return redirect('reserva_exitosa')
@@ -471,3 +473,30 @@ def alquilar_propiedad(request, propiedad_id):
 # Vista para mostrar el mensaje de reserva exitosa
 def reserva_exitosa_view(request):
     return render(request, 'SimplexRentalisAPP/reserva_exitosa.html')
+
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import IdentidadForm
+from .models import Identidades
+
+def completar_identidad(request):
+    # Verifica si el usuario ya tiene una identidad asociada
+    if request.user.identidad:
+        messages.info(request, "Ya tienes una identidad asociada.")
+        return redirect('perfil')  # O donde quieras redirigir
+
+    # Si no tiene identidad, mostramos el formulario
+    if request.method == 'POST':
+        form = IdentidadForm(request.POST)
+        if form.is_valid():
+            identidad = form.save(commit=False)
+            identidad.usuario = request.user  # Asocia la identidad al usuario logueado
+            identidad.save()
+            messages.success(request, "Tu identidad ha sido guardada correctamente.")
+            return redirect('perfil')  # O redirigir a la página correspondiente
+    else:
+        form = IdentidadForm()
+
+    return render(request, 'SimplexRentalisAPP/completar_identidad.html', {'form': form})

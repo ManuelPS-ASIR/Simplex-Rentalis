@@ -44,6 +44,8 @@ urlpatterns = [
     #alquilar propiedad
     path('propiedad/<int:propiedad_id>/alquilar/', views.alquilar_propiedad, name='alquilar_propiedad'),
     path('reserva_exitosa/', views.reserva_exitosa_view, name='reserva_exitosa'), # Página de éxito (opcional)
+    path('completar-identidad/', views.completar_identidad, name='completar_identidad'),
+
 ]
 
 if settings.DEBUG:

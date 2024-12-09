@@ -117,12 +117,12 @@ Alquilar Propiedad
         document.getElementById('next-button').addEventListener('click', function () {
             const numPersonas = parseInt(document.getElementById('personas').value, 10);
             if (numPersonas > 0) {
-                                // Actualizar el formulario de personas basado en el número de personas seleccionadas
-                                const formContainer = document.getElementById('identidades-container');
+                // Actualizar el formulario de personas basado en el número de personas seleccionadas
+                const formContainer = document.getElementById('identidades-container');
                 formContainer.innerHTML = ''; // Limpiar el contenedor
 
-                // Crear los formularios de identidad según el número de personas
-                for (let i = 1; i <= numPersonas; i++) {
+                                // Crear los formularios de identidad según el número de personas
+                                for (let i = 1; i <= numPersonas; i++) {
                     const fieldset = document.createElement('fieldset');
                     fieldset.style.padding = '15px';
                     fieldset.style.marginBottom = '15px';
@@ -266,60 +266,6 @@ Alquilar Propiedad
         document.getElementById('reserva-form').addEventListener('submit', function (event) {
             event.preventDefault(); // Evitar el envío del formulario real
 
-            // Mostrar el mensaje de confirmación
-            const confirmationMessage = document.createElement('div');
-            confirmationMessage.id = 'confirmation-message';
-            confirmationMessage.style.position = 'fixed';
-            confirmationMessage.style.top = '0';
-            confirmationMessage.style.left = '0';
-            confirmationMessage.style.width = '100%';
-            confirmationMessage.style.height = '100%';
-            confirmationMessage.style.backgroundColor = 'rgba(0,0,0,0.8)';
-            confirmationMessage.style.display = 'flex';
-            confirmationMessage.style.justifyContent = 'center';
-            confirmationMessage.style.alignItems = 'center';
-            confirmationMessage.style.zIndex = '9999';
-
-            // Crear el contenido del mensaje
-            const messageContent = document.createElement('div');
-            messageContent.style.backgroundColor = '#fff';
-            messageContent.style.padding = '20px';
-            messageContent.style.borderRadius = '10px';
-            messageContent.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-            messageContent.style.textAlign = 'center';
-            messageContent.style.fontFamily = "'Helvetica Neue', Arial, sans-serif";
-
-            // Añadir el texto del mensaje
-            const messageText = document.createElement('p');
-            messageText.innerText = 'Reserva confirmada. Puedes ver los detalles de tu reserva desde el panel de Mis Reservas.';
-            messageText.style.marginBottom = '20px';
-            messageContent.appendChild(messageText);
-
-            // Crear el botón de redirección
-            const redirectButton = document.createElement('button');
-            redirectButton.innerText = 'OK';
-            redirectButton.style.padding = '10px 20px';
-            redirectButton.style.fontSize = '1.2em';
-            redirectButton.style.backgroundColor = '#007bff';
-            redirectButton.style.color = '#fff';
-            redirectButton.style.border = 'none';
-            redirectButton.style.borderRadius = '5px';
-            redirectButton.style.cursor = 'pointer';
-            redirectButton.addEventListener('click', function () {
-                // Enviar el formulario al hacer clic en OK
-                document.getElementById('reserva-form').removeEventListener('submit', handleFormSubmit);
-                document.getElementById('reserva-form').submit();
-            });
-
-            messageContent.appendChild(redirectButton);
-            confirmationMessage.appendChild(messageContent);
-            document.body.appendChild(confirmationMessage);
-        });
-
-                // Función para manejar el envío del formulario
-                function handleFormSubmit(event) {
-            event.preventDefault(); // Evitar el envío del formulario real
-
             // Crear el contenedor del mensaje de confirmación
             const confirmationMessage = document.createElement('div');
             confirmationMessage.id = 'confirmation-message';
@@ -360,17 +306,16 @@ Alquilar Propiedad
             redirectButton.style.borderRadius = '5px';
             redirectButton.style.cursor = 'pointer';
             redirectButton.addEventListener('click', function () {
-                // Enviar el formulario al hacer clic en OK
-                document.getElementById('reserva-form').removeEventListener('submit', handleFormSubmit);
-                document.getElementById('reserva-form').submit();
+                window.location.href = '/'; // Redirigir a la página de inicio
             });
 
             messageContent.appendChild(redirectButton);
             confirmationMessage.appendChild(messageContent);
             document.body.appendChild(confirmationMessage);
-        }
 
-        document.getElementById('reserva-form').addEventListener('submit', handleFormSubmit);
+            // Enviar el formulario
+            document.getElementById('reserva-form').submit();
+        });
     });
 </script>
 {% endblock %}
