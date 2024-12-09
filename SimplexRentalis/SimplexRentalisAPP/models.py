@@ -306,13 +306,7 @@ class Identidades(models.Model):
     def __str__(self):
         return f'{self.nombre} {self.primer_apellido}'
 
-    def clean(self):
-        # Validación del número de documento
-        if not self.numero_documento.isdigit():
-            raise ValidationError("El número de documento debe contener solo dígitos.")
-        if len(self.numero_documento) < 5:
-            raise ValidationError("El número de documento debe tener al menos 5 caracteres.")
-        
+    def clean(self):        
         # Validación para el tipo de documento
         if self.tipo_documento == 'DNI' and not re.match(r'^\d{8}[A-Za-z]$', self.numero_documento):
             raise ValidationError("El DNI debe tener 8 dígitos seguidos de una letra.")

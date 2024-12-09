@@ -229,18 +229,20 @@ class ReservaForm(forms.ModelForm):
                 raise forms.ValidationError("La fecha de inicio debe ser anterior a la fecha de fin.")
         return cleaned_data
 
+import re
+from django import forms
+
 class IdentidadForm(forms.ModelForm):
     class Meta:
         model = Identidades
         fields = ['tipo_documento', 'numero_documento', 'fecha_expedicion', 'primer_apellido', 
                   'segundo_apellido', 'nombre', 'sexo']
 
-    def clean(self):
-        cleaned_data = super().clean()
-        numero_documento = cleaned_data.get("numero_documento")
-
-        # Validaciones para número de documento
-        if not numero_documento.isdigit():
-            raise forms.ValidationError("El número de documento debe contener solo dígitos.")
-        return cleaned_data
-
+    def clean_numero_documento(self):
+        numero_documento = self.cleaned_data.get("numero_documento")
+        
+        # Expresión regular para validar el formato de un DNI español: 8 dígitos + letra
+        if not re.match(r'^\d{8}[A-Za-z]$', numero_documento):
+            raise forms.ValidationError("El número de documento debe tener el formato de un DNI español: 8 dígitos seguidos de una letra.")
+        
+        return numero_documento
