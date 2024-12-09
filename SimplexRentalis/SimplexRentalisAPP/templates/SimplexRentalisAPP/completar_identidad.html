@@ -1,15 +1,90 @@
-<h2>Completa tu identidad</h2>
-
-{% if messages %}
-    <ul class="messages">
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+Completa tu Identidad
+{% endblock %}
+{% block content %}
+<div id="main-content" style="max-width: 800px; margin: auto; font-family: 'Helvetica Neue', Arial, sans-serif; padding: 20px; background-color: #f9f9f9; box-shadow: 0px 4px 12px rgba(0,0,0,0.15); border-radius: 10px;">
+    <!-- Cuadro informativo -->
+    <div style="text-align: center; margin-bottom: 30px; padding: 20px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1);">
+        <h2 style="margin-top: 15px; font-size: 2em; color: #333; font-weight: bold;">Completa tu Identidad</h2>
+        <p style="font-size: 1.2em; color: #555; margin-top: 10px;">Por favor, completa tus datos para proceder con la reserva.</p>
+    </div>
+    
+    <!-- Mostrar mensajes de error si existen -->
+    {% if messages %}
+    <ul class="messages" style="color: red; margin-bottom: 20px;">
         {% for message in messages %}
-            <li class="alert {{ message.tags }}">{{ message }}</li>
+            <li class="alert {{ message.tags }}" style="color: red; font-size: 1em;">{{ message }}</li>
         {% endfor %}
     </ul>
-{% endif %}
+    {% endif %}
+    
+    <!-- Formulario para completar la identidad -->
+    <form method="POST" style="padding: 30px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1);">
+        {% csrf_token %}
+        
+        <div id="identidades-container">
+            <!-- Se generarán dinámicamente los formularios de identidad aquí -->
+            {% for form in form %}
+                <div style="margin-bottom: 20px;">
+                    <label for="{{ form.id_for_label }}" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">{{ form.label }}</label>
+                    {{ form }}
+                    {% if form.errors %}
+                    <div style="color: red; font-size: 0.9em; margin-top: 5px;">
+                        {% for error in form.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
 
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Guardar</button>
-</form>
+        <!-- Botón de guardar -->
+        <div style="text-align: center; margin-top: 20px;">
+            <button type="submit" style="padding: 15px 30px; font-size: 1.5em; background-color: #007bff; border: none; border-radius: 5px; color: white; cursor: pointer; transition: background-color 0.3s ease;">
+                Guardar
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const formElements = document.querySelectorAll('form input, form select');
+
+        formElements.forEach(element => {
+            element.addEventListener('input', function () {
+                // Reset error messages
+                element.setCustomValidity("");
+                if (element.name.includes('numero_documento')) {
+                    validateDocumentNumber(element);
+                }
+            });
+        });
+
+        function validateDocumentNumber(input) {
+            const tipoDocumento = document.querySelector(`select[name="${input.name.replace('numero_documento', 'tipo_documento')}"]`).value;
+            let validationMessage = "";
+
+            if (tipoDocumento === 'dni') {
+                if (!/^\d{8}[A-Za-z]?$/.test(input.value)) {
+                    validationMessage = "El DNI debe tener 8 dígitos seguidos de una letra.";
+                }
+            } else if (tipoDocumento === 'pasaporte') {
+                if (!/^[A-Za-z0-9]{6,9}$/.test(input.value)) {
+                    validationMessage = "El número de pasaporte debe tener entre 6 y 9 caracteres alfanuméricos.";
+                }
+            } else if (tipoDocumento === 'carnet_de_conducir') {
+                if (!/^\d{5,12}$/.test(input.value)) {
+                    validationMessage = "El número de carnet de conducir debe tener entre 5 y 12 caracteres.";
+                }
+            }
+
+            input.setCustomValidity(validationMessage);
+            input.reportValidity();
+        }
+    });
+</script>

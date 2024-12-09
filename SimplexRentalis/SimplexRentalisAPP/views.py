@@ -482,20 +482,22 @@ from .forms import IdentidadForm
 from .models import Identidades
 
 def completar_identidad(request):
-    # Verifica si el usuario ya tiene una identidad asociada
-    if request.user.identidad:
-        messages.info(request, "Ya tienes una identidad asociada.")
-        return redirect('perfil')  # O donde quieras redirigir
-
-    # Si no tiene identidad, mostramos el formulario
     if request.method == 'POST':
         form = IdentidadForm(request.POST)
         if form.is_valid():
             identidad = form.save(commit=False)
-            identidad.usuario = request.user  # Asocia la identidad al usuario logueado
+            identidad.usuario = request.user  # Asociar la identidad al usuario autenticado
             identidad.save()
+
+            # Actualizar el campo identidad en el modelo User
+            request.user.identidad = identidad
+            request.user.save()
+
             messages.success(request, "Tu identidad ha sido guardada correctamente.")
-            return redirect('perfil')  # O redirigir a la página correspondiente
+            return redirect('perfil')  # Redirigir a la página correspondiente
+        else:
+            messages.error(request, "Por favor, corrige los errores en el formulario.")
+            print(form.errors)  # Mensaje de depuración para ver los errores del formulario
     else:
         form = IdentidadForm()
 
