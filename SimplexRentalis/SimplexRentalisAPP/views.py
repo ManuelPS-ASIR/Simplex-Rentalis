@@ -404,6 +404,7 @@ def alquilar_propiedad(request, propiedad_id):
     identidad_forms = []
     reserva_data = request.session.get('reserva_data')  # Recuperar datos del paso 1 si existen
     if not request.user.identidad:
+        request.session['next_url'] = request.path
         messages.warning(request, "Debes completar tu identidad antes de realizar una reserva.")
         return redirect('completar_identidad')  # Redirige al formulario de identidad
 
@@ -494,7 +495,10 @@ def completar_identidad(request):
             request.user.save()
 
             messages.success(request, "Tu identidad ha sido guardada correctamente.")
-            return redirect('perfil')  # Redirigir a la página correspondiente
+
+            # Redirigir a la URL almacenada en la sesión o al perfil por defecto
+            next_url = request.session.pop('next_url', 'perfil')
+            return redirect(next_url)
         else:
             messages.error(request, "Por favor, corrige los errores en el formulario.")
             print(form.errors)  # Mensaje de depuración para ver los errores del formulario
