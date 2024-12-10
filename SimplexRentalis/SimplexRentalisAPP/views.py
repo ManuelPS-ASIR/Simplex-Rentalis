@@ -412,6 +412,9 @@ def alquilar_propiedad(request, propiedad_id):
         messages.warning(request, "Debes completar tu identidad antes de realizar una reserva.")
         return redirect('completar_identidad')  # Redirige al formulario de identidad
 
+    # Obtener la capacidad máxima de la propiedad
+    capacidad_maxima = propiedad.capacidad_maxima
+
     if request.method == 'POST':
         # Paso 1: Validar datos de reserva
         if 'fecha_reserva' in request.POST:
@@ -422,12 +425,17 @@ def alquilar_propiedad(request, propiedad_id):
                 request.session['reserva_data'] = reserva_data
                 num_personas = reserva_data.get('personas', 1)
 
-                # Generar formularios de identidad según el número de personas
-                identidad_forms = [IdentidadForm(prefix=str(i)) for i in range(num_personas)]
+                # Asegurarse de que el número de personas no supere la capacidad máxima de la propiedad
+                if num_personas > capacidad_maxima:
+                    messages.error(request, f"La cantidad de personas no puede ser mayor a {capacidad_maxima}.")
+                    identidad_forms = []
+                else:
+                    # Generar formularios de identidad según el número de personas
+                    identidad_forms = [IdentidadForm(prefix=str(i)) for i in range(num_personas)]
 
-                # Rellenar el primer formulario con datos del usuario
-                if identidad_usuario:
-                    identidad_forms[0] = IdentidadForm(instance=identidad_usuario, prefix="0")
+                    # Rellenar el primer formulario con datos del usuario
+                    if identidad_usuario:
+                        identidad_forms[0] = IdentidadForm(instance=identidad_usuario, prefix="0")
             else:
                 identidad_forms = []
         # Paso 2: Procesar formularios de identidad
@@ -474,7 +482,6 @@ def alquilar_propiedad(request, propiedad_id):
         'identidad_usuario': identidad_usuario,  # Pasar la identidad del usuario al contexto
         'identidad_form': IdentidadForm(instance=identidad_usuario) if identidad_usuario else None,  # Pasar el formulario de identidad
     })
-
 
 # Vista para mostrar el mensaje de reserva exitosa
 def reserva_exitosa_view(request):
