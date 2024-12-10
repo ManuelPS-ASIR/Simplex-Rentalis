@@ -391,14 +391,13 @@ def autocompletar_direcciones(request):
     else:
         return JsonResponse({"error": "Error al contactar con Photon"}, status=500)
 
+import json
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.serializers.json import DjangoJSONEncoder
 from datetime import timedelta
-import json
 from .models import Propiedades, Reservas, Identidades
 from .forms import ReservaForm, IdentidadForm
-
 def alquilar_propiedad(request, propiedad_id):
     print("Iniciando el proceso de alquiler de propiedad...")
     propiedad = get_object_or_404(Propiedades, id=propiedad_id)
@@ -421,7 +420,6 @@ def alquilar_propiedad(request, propiedad_id):
         request.session['next_url'] = request.path
         messages.warning(request, "Debes completar tu identidad antes de realizar una reserva.")
         return redirect('completar_identidad')  # Redirige al formulario de identidad
-
     # Obtener la capacidad máxima de la propiedad
     capacidad_maxima = propiedad.capacidad_maxima
     print(f"Capacidad máxima de la propiedad: {capacidad_maxima}")
@@ -429,10 +427,22 @@ def alquilar_propiedad(request, propiedad_id):
     if request.method == 'POST':
         print("Recibiendo una solicitud POST...")
         
+        # Leer y decodificar el cuerpo de la solicitud
+        body_unicode = request.body.decode('utf-8')
+        if body_unicode:
+            try:
+                body_data = json.loads(body_unicode)
+                print(f"Datos recibidos en el cuerpo de la solicitud: {body_data}")
+            except json.JSONDecodeError as e:
+                print(f"Error decodificando JSON: {e}")
+                messages.error(request, "Error procesando la solicitud. Por favor, intenta nuevamente.")
+                return redirect('alquilar_propiedad', propiedad_id=propiedad_id)
+        else:
+            body_data = {}
         # Paso 1: Formularios de reserva
-        if 'cantidad_personas' in request.POST:
-            form_reserva = ReservaForm(request.POST)
-            print(f"Datos recibidos en el formulario de reserva: {request.POST}")
+        if 'cantidad_personas' in body_data:
+            form_reserva = ReservaForm(body_data)
+            print(f"Datos recibidos en el formulario de reserva: {body_data}")
             if form_reserva.is_valid():
                 # Almacenar los datos en la sesión
                 reserva_data = form_reserva.cleaned_data
@@ -482,13 +492,12 @@ def alquilar_propiedad(request, propiedad_id):
             else:
                 print(f"Errores en el formulario de reserva: {form_reserva.errors}")
                 identidad_forms = []
-
         # Paso 2: Procesar formularios de identidad
         else:
-            print(f"Datos recibidos para formularios de identidad: {request.POST}")
+            print(f"Datos recibidos para formularios de identidad: {body_data}")
             num_personas = reserva_data.get('cantidad_personas', 1) if reserva_data else 0
             print(f"Número de personas para formularios de identidad: {num_personas}")
-            identidad_forms = [IdentidadForm(request.POST, prefix=str(i)) for i in range(num_personas)]
+            identidad_forms = [IdentidadForm(body_data, prefix=str(i)) for i in range(num_personas)]
             print(f"Formularios de identidad generados: {[form.is_valid() for form in identidad_forms]}")
 
             if all(form.is_valid() for form in identidad_forms):
