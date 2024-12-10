@@ -398,6 +398,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from datetime import timedelta
 from .models import Propiedades, Reservas, Identidades
 from .forms import ReservaForm, IdentidadForm
+
 def alquilar_propiedad(request, propiedad_id):
     print("Iniciando el proceso de alquiler de propiedad...")
     propiedad = get_object_or_404(Propiedades, id=propiedad_id)
@@ -407,7 +408,6 @@ def alquilar_propiedad(request, propiedad_id):
     if not request.user.is_authenticated:
         messages.warning(request, "Debes iniciar sesión para realizar una reserva.")
         return redirect('login')  # Redirige a la página de inicio de sesión
-    
     form_reserva = ReservaForm()
     identidad_forms = []
     reserva_data = request.session.get('reserva_data', {})  # Recuperar datos del paso 1 si existen
@@ -533,7 +533,6 @@ def alquilar_propiedad(request, propiedad_id):
                     print(form.errors)
 
                 form_reserva = ReservaForm(initial=reserva_data)
-
     reservas = propiedad.reservas.all()
     fechas_no_disponibles = []
     for reserva in reservas:
@@ -551,6 +550,7 @@ def alquilar_propiedad(request, propiedad_id):
         'identidad_usuario': identidad_usuario,  # Pasar la identidad del usuario al contexto
         'identidad_form': IdentidadForm(instance=identidad_usuario) if identidad_usuario else None,  # Pasar el formulario de identidad
     })
+
 
 # Vista para mostrar el mensaje de reserva exitosa
 def reserva_exitosa_view(request):
