@@ -21,13 +21,7 @@
         <!-- Selección de cantidad de personas -->
         <div class="form-group">
             <label for="cantidadPersonas">Cantidad de personas:</label>
-            <select id="cantidadPersonas" name="cantidad_personas" class="form-control">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-            </select>
+            <input type="number" id="cantidadPersonas" name="cantidad_personas" class="form-control" value="1" min="1" max="20" required>
         </div>
 
         <!-- Formulario de identidad del usuario -->
@@ -87,43 +81,45 @@
         });
 
         // Generar formularios de acompañantes dinámicamente
-        document.getElementById('cantidadPersonas').addEventListener('change', function() {
+        document.getElementById('cantidadPersonas').addEventListener('input', function() {
             const cantidad = parseInt(this.value, 10);
             const container = document.getElementById('formulariosAcompanantes');
             container.innerHTML = "";
 
-            for (let i = 2; i <= cantidad; i++) {
-                const formHtml = `
-                    <div class="form-group">
-                        <h4>Acompañante ${i}</h4>
-                        
-                        <label for="tipoDocumento_${i}">Tipo documento:</label>
-                        <input type="text" id="tipoDocumento_${i}" name="acompanante_${i}_tipo_documento" class="form-control" required>
-                        
-                        <label for="numeroDocumento_${i}">Número documento:</label>
-                        <input type="text" id="numeroDocumento_${i}" name="acompanante_${i}_numero_documento" class="form-control" required>
-                        
-                        <label for="fechaExpedicion_${i}">Fecha expedición:</label>
-                        <input type="date" id="fechaExpedicion_${i}" name="acompanante_${i}_fecha_expedicion" class="form-control" required>
-                        
-                        <label for="primerApellido_${i}">Primer apellido:</label>
-                        <input type="text" id="primerApellido_${i}" name="acompanante_${i}_primer_apellido" class="form-control" required>
-                        
-                        <label for="segundoApellido_${i}">Segundo apellido:</label>
-                        <input type="text" id="segundoApellido_${i}" name="acompanante_${i}_segundo_apellido" class="form-control">
-                        
-                        <label for="nombre_${i}">Nombre:</label>
-                        <input type="text" id="nombre_${i}" name="acompanante_${i}_nombre" class="form-control" required>
-                        
-                        <label for="sexo_${i}">Sexo:</label>
-                        <select id="sexo_${i}" name="acompanante_${i}_sexo" class="form-control" required>
-                            <option value="masculino">Masculino</option>
-                            <option value="femenino">Femenino</option>
-                            <option value="otro">Otro</option>
-                        </select>
-                    </div>
-                `;
-                container.innerHTML += formHtml;
+            if (cantidad >= 2) {
+                for (let i = 2; i <= cantidad; i++) {
+                    const formHtml = `
+                        <div class="form-group">
+                            <h4>Acompañante ${i}</h4>
+                            
+                            <label for="tipoDocumento_${i}">Tipo documento:</label>
+                            <input type="text" id="tipoDocumento_${i}" name="acompanante_${i}_tipo_documento" class="form-control" required>
+                            
+                            <label for="numeroDocumento_${i}">Número documento:</label>
+                            <input type="text" id="numeroDocumento_${i}" name="acompanante_${i}_numero_documento" class="form-control" required>
+                            
+                            <label for="fechaExpedicion_${i}">Fecha expedición:</label>
+                            <input type="date" id="fechaExpedicion_${i}" name="acompanante_${i}_fecha_expedicion" class="form-control" required>
+                            
+                            <label for="primerApellido_${i}">Primer apellido:</label>
+                            <input type="text" id="primerApellido_${i}" name="acompanante_${i}_primer_apellido" class="form-control" required>
+                            
+                            <label for="segundoApellido_${i}">Segundo apellido:</label>
+                            <input type="text" id="segundoApellido_${i}" name="acompanante_${i}_segundo_apellido" class="form-control">
+                            
+                            <label for="nombre_${i}">Nombre:</label>
+                            <input type="text" id="nombre_${i}" name="acompanante_${i}_nombre" class="form-control" required>
+                            
+                            <label for="sexo_${i}">Sexo:</label>
+                            <select id="sexo_${i}" name="acompanante_${i}_sexo" class="form-control" required>
+                                <option value="masculino">Masculino</option>
+                                <option value="femenino">Femenino</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                    `;
+                    container.innerHTML += formHtml;
+                }
             }
         });
     });
