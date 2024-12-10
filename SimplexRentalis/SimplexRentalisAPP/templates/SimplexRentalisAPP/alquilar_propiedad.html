@@ -7,14 +7,15 @@
     <form id="reservaForm" method="post">
         {% csrf_token %}
         
-        <!-- Selección de fechas -->
+        <!-- Selección de fechas con Flatpickr -->
         <div class="form-group">
-            <label for="fechaInicio">Fecha de comienzo:</label>
-            <input type="date" id="fechaInicio" name="fecha_inicio" class="form-control" required>
+            <label for="fecha_reserva">Selecciona el rango de fechas:</label>
+            <input type="text" id="fecha_reserva" name="fecha_reserva" class="form-control" placeholder="Selecciona fechas" required>
         </div>
-        <div class="form-group">
-            <label for="fechaFin">Fecha de fin:</label>
-            <input type="date" id="fechaFin" name="fecha_fin" class="form-control" required>
+
+        <!-- Mostrar el costo total -->
+        <div id="costo_total" class="alert alert-info text-center">
+            Total: €0.00
         </div>
 
         <!-- Selección de cantidad de personas -->
@@ -32,7 +33,6 @@
         <!-- Formulario de identidad del usuario -->
         <h3>Información del titular de la reserva</h3>
         <div id="identidadTitular">
-            <!-- Verifica si existe un formulario de identidad para el usuario -->
             {% if identidad_form %}
                 {{ identidad_form.as_p }}
             {% else %}
@@ -49,47 +49,83 @@
     </form>
 </div>
 
+<!-- Incluir Flatpickr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script> <!-- Localización en español -->
 <script>
-    // JavaScript para generar formularios adicionales
-    document.getElementById('cantidadPersonas').addEventListener('change', function() {
-        const cantidad = parseInt(this.value, 10);
-        const container = document.getElementById('formulariosAcompanantes');
-        container.innerHTML = ""; // Limpiar formularios existentes
+    document.addEventListener('DOMContentLoaded', function () {
+        // Fechas no disponibles en formato JSON
+        const fechasNoDisponibles = JSON.parse('{{ fechas_no_disponibles_json|escapejs }}');
+        const precioPorNoche = parseFloat('{{ propiedad.precio_por_noche|default:"100" }}');
 
-        // Generar formularios para cada acompañante
-        for (let i = 2; i <= cantidad; i++) {
-            const formHtml = `
-                <div class="form-group">
-                    <h4>Acompañante ${i}</h4>
-                    
-                    <label for="tipoDocumento_${i}">Tipo documento:</label>
-                    <input type="text" id="tipoDocumento_${i}" name="acompanante_${i}_tipo_documento" class="form-control" required>
-                    
-                    <label for="numeroDocumento_${i}">Numero documento:</label>
-                    <input type="text" id="numeroDocumento_${i}" name="acompanante_${i}_numero_documento" class="form-control" required>
-                    
-                    <label for="fechaExpedicion_${i}">Fecha expedicion:</label>
-                    <input type="date" id="fechaExpedicion_${i}" name="acompanante_${i}_fecha_expedicion" class="form-control" required>
-                    
-                    <label for="primerApellido_${i}">Primer apellido:</label>
-                    <input type="text" id="primerApellido_${i}" name="acompanante_${i}_primer_apellido" class="form-control" required>
-                    
-                    <label for="segundoApellido_${i}">Segundo apellido:</label>
-                    <input type="text" id="segundoApellido_${i}" name="acompanante_${i}_segundo_apellido" class="form-control">
-                    
-                    <label for="nombre_${i}">Nombre:</label>
-                    <input type="text" id="nombre_${i}" name="acompanante_${i}_nombre" class="form-control" required>
-                    
-                    <label for="sexo_${i}">Sexo:</label>
-                    <select id="sexo_${i}" name="acompanante_${i}_sexo" class="form-control" required>
-                        <option value="masculino">Masculino</option>
-                        <option value="femenino">Femenino</option>
-                        <option value="otro">Otro</option>
-                    </select>
-                </div>
-            `;
-            container.innerHTML += formHtml;
-        }
+        // Configurar Flatpickr para el rango de fechas
+        flatpickr("#fecha_reserva", {
+            mode: "range",
+            minDate: "today",
+            disable: fechasNoDisponibles.map(fecha => new Date(fecha)),
+            dateFormat: "Y-m-d",
+            locale: "es",
+            onChange: function(selectedDates) {
+                if (selectedDates.length > 1) {
+                    const start = selectedDates[0];
+                    const end = selectedDates[1];
+
+                    // Calcular diferencia en días (no incluye el día de salida)
+                    const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+
+                    // Calcular el total
+                    const total = diffDays * precioPorNoche;
+
+                    // Actualizar el costo total en el DOM
+                    document.getElementById('costo_total').innerText = `Total: €${total.toFixed(2)}`;
+                } else {
+                    // Si no hay rango válido, mostrar €0.00
+                    document.getElementById('costo_total').innerText = "Total: €0.00";
+                }
+            }
+        });
+
+        // Generar formularios de acompañantes dinámicamente
+        document.getElementById('cantidadPersonas').addEventListener('change', function() {
+            const cantidad = parseInt(this.value, 10);
+            const container = document.getElementById('formulariosAcompanantes');
+            container.innerHTML = "";
+
+            for (let i = 2; i <= cantidad; i++) {
+                const formHtml = `
+                    <div class="form-group">
+                        <h4>Acompañante ${i}</h4>
+                        
+                        <label for="tipoDocumento_${i}">Tipo documento:</label>
+                        <input type="text" id="tipoDocumento_${i}" name="acompanante_${i}_tipo_documento" class="form-control" required>
+                        
+                        <label for="numeroDocumento_${i}">Número documento:</label>
+                        <input type="text" id="numeroDocumento_${i}" name="acompanante_${i}_numero_documento" class="form-control" required>
+                        
+                        <label for="fechaExpedicion_${i}">Fecha expedición:</label>
+                        <input type="date" id="fechaExpedicion_${i}" name="acompanante_${i}_fecha_expedicion" class="form-control" required>
+                        
+                        <label for="primerApellido_${i}">Primer apellido:</label>
+                        <input type="text" id="primerApellido_${i}" name="acompanante_${i}_primer_apellido" class="form-control" required>
+                        
+                        <label for="segundoApellido_${i}">Segundo apellido:</label>
+                        <input type="text" id="segundoApellido_${i}" name="acompanante_${i}_segundo_apellido" class="form-control">
+                        
+                        <label for="nombre_${i}">Nombre:</label>
+                        <input type="text" id="nombre_${i}" name="acompanante_${i}_nombre" class="form-control" required>
+                        
+                        <label for="sexo_${i}">Sexo:</label>
+                        <select id="sexo_${i}" name="acompanante_${i}_sexo" class="form-control" required>
+                            <option value="masculino">Masculino</option>
+                            <option value="femenino">Femenino</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                `;
+                container.innerHTML += formHtml;
+            }
+        });
     });
 </script>
 {% endblock %}
