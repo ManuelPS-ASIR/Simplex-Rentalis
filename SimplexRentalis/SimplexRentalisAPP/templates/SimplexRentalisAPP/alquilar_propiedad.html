@@ -7,6 +7,9 @@
     <form id="reservaForm" method="post">
         {% csrf_token %}
         
+        <!-- Campo oculto para propiedad -->
+        <input type="hidden" name="propiedad" value="{{ propiedad.id }}">
+
         <!-- Selección de fechas con Flatpickr -->
         <div class="form-group">
             <label for="fecha_reserva">Selecciona el rango de fechas:</label>
@@ -27,15 +30,25 @@
             <small id="cantidadPersonasHelp" class="form-text text-muted"></small> <!-- Mensaje para el máximo -->
         </div>
 
-        <!-- Formulario de identidad del usuario -->
+        <!-- Información de identidad del titular -->
         <h3>Información del titular de la reserva</h3>
         <div id="identidadTitular">
-            {% if identidad_form %}
+            {% if usuario.identidad_asociada %}
+                <!-- Si el usuario ya tiene identidad asociada, mostramos los datos actuales -->
+                <p><strong>Tipo de documento:</strong> {{ usuario.identidad_asociada.tipo_documento }}</p>
+                <p><strong>Número de documento:</strong> {{ usuario.identidad_asociada.numero_documento }}</p>
+                <p><strong>Nombre:</strong> {{ usuario.identidad_asociada.usuario.first_name }} {{ usuario.identidad_asociada.usuario.last_name }}</p>
+
+                <!-- Se muestra el formulario para que el usuario pueda modificar los datos -->
                 <div id="formBase">
                     {{ identidad_form.as_p }}
                 </div>
             {% else %}
+                <!-- Si no hay identidad asociada, mostramos el formulario para registrar una nueva identidad -->
                 <p>No tienes una identidad registrada. Por favor, completa tu información antes de continuar.</p>
+                <div id="formBase">
+                    {{ identidad_form.as_p }}
+                </div>
             {% endif %}
         </div>
 
@@ -63,7 +76,7 @@
         // Configuración de Flatpickr
         flatpickr("#fecha_reserva", {
             mode: "range",
-            minDate: "today",
+            minDate: new Date().fp_incr(1), // No permitir la selección del día actual
             disable: fechasNoDisponibles.map(fecha => new Date(fecha)),
             dateFormat: "Y-m-d",
             locale: "es",
@@ -75,6 +88,12 @@
                     const fechaInicio = selectedDates[0];
                     const fechaFin = selectedDates[1];
                     
+                    // Establecer la fecha de inicio a las 12:00 AM
+                    fechaInicio.setHours(12, 0, 0, 0);
+                    
+                    // Establecer la fecha de fin a las 11:59 AM
+                    fechaFin.setHours(11, 59, 59, 999);
+
                     // Establecer las fechas en los campos ocultos
                     document.getElementById('fecha_inicio').value = fechaInicio.toISOString().split('T')[0];
                     document.getElementById('fecha_fin').value = fechaFin.toISOString().split('T')[0];
@@ -153,6 +172,12 @@
             if (!fechaInicio || !fechaFin) {
                 event.preventDefault(); // Detener el envío del formulario
                 alert('⚠️ ¡Debes seleccionar un rango de fechas antes de reservar!');
+            }
+
+            // Validación de fechas (fecha inicio no puede ser posterior a la fecha fin)
+            if (new Date(fechaInicio) > new Date(fechaFin)) {
+                event.preventDefault(); // Detener el envío del formulario
+                alert('⚠️ ¡La fecha de inicio no puede ser posterior a la fecha de fin!');
             }
 
             // Validación de cantidad de personas

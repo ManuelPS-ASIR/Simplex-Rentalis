@@ -424,16 +424,19 @@ def alquilar_propiedad(request, propiedad_id):
 
     if request.method == 'POST':
         print("Recibiendo una solicitud POST...")
-        # Paso 1: Validar datos de reserva
-        if 'fecha_reserva' in request.POST:
+        
+        # Añadir este bloque aquí
+        if 'cantidad_personas' in request.POST:
             form_reserva = ReservaForm(request.POST)
             print(f"Datos recibidos en el formulario de reserva: {request.POST}")
             if form_reserva.is_valid():
                 # Almacenar los datos en la sesión
+                request.session['reserva_data'] = form_reserva.cleaned_data
                 reserva_data = form_reserva.cleaned_data
                 print(f"Datos de reserva después de ser validados: {reserva_data}")
-                request.session['reserva_data'] = reserva_data
-                num_personas = reserva_data.get('cantidad_personas', 1)
+                
+                # Obtener el número de personas correctamente
+                num_personas = int(reserva_data.get('cantidad_personas', 1))
                 print(f"Número de personas en la reserva: {num_personas}")
 
                 # Asegurarse de que el número de personas no supere la capacidad máxima de la propiedad
@@ -498,9 +501,12 @@ def alquilar_propiedad(request, propiedad_id):
                     print(f"Reserva guardada: {reserva}")
 
                     # Guardar identidades
-                    for form in identidad_forms:
+                    for i, form in enumerate(identidad_forms):
                         identidad = form.save(commit=False)
                         identidad.reserva = reserva
+                        # Verificar si es el primer acompañante o el usuario principal
+                        if i == 0:
+                            identidad.usuario = request.user  # Asociar la identidad del usuario al primero
                         identidad.save()
                         print(f"Identidad guardada: {identidad}")
 
@@ -537,6 +543,7 @@ def alquilar_propiedad(request, propiedad_id):
 
 
 
+
 # Vista para mostrar el mensaje de reserva exitosa
 def reserva_exitosa_view(request):
     return render(request, 'SimplexRentalisAPP/reserva_exitosa.html')
@@ -552,15 +559,35 @@ def completar_identidad(request):
     if request.method == 'POST':
         form = IdentidadForm(request.POST)
         if form.is_valid():
-            identidad = form.save(commit=False)
-            identidad.usuario = request.user  # Asociar la identidad al usuario autenticado
-            identidad.save()
+            tipo_documento = form.cleaned_data['tipo_documento']
+            numero_documento = form.cleaned_data['numero_documento']
+            usuario = request.user
 
-            # Actualizar el campo identidad en el modelo User
-            request.user.identidad = identidad
-            request.user.save()
+            # Verificar si el usuario ya tiene una identidad asociada
+            if usuario.identidad_asociada:  # Si el usuario ya tiene una identidad asociada
+                # Usar la identidad existente
+                identidad = usuario.identidad_asociada
+                
+                # Solo actualizar si hay cambios en los datos
+                if identidad.tipo_documento != tipo_documento or identidad.numero_documento != numero_documento:
+                    identidad.tipo_documento = tipo_documento
+                    identidad.numero_documento = numero_documento
+                    identidad.save()
+                    messages.success(request, "Tu identidad ha sido actualizada correctamente.")
+                else:
+                    messages.info(request, "Los datos de identidad son los mismos. No se realizaron cambios.")
 
-            messages.success(request, "Tu identidad ha sido guardada correctamente.")
+            else:
+                # Si no tiene una identidad asociada, crear una nueva
+                identidad = form.save(commit=False)
+                identidad.usuario = usuario  # Asociar la identidad al usuario autenticado
+                identidad.save()
+
+                # Actualizar el campo identidad en el modelo User (si es necesario)
+                usuario.identidad_asociada = identidad
+                usuario.save()
+
+                messages.success(request, "Tu identidad ha sido guardada correctamente.")
 
             # Redirigir a la URL almacenada en la sesión o al perfil por defecto
             next_url = request.session.pop('next_url', 'perfil')
