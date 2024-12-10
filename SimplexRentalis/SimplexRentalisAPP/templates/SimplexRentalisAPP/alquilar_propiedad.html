@@ -1,322 +1,95 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block title %}
-Alquilar Propiedad
-{% endblock %}
+{% extends "base.html" %}
+
 {% block content %}
-<div id="main-content" style="max-width: 800px; margin: auto; font-family: 'Helvetica Neue', Arial, sans-serif; padding: 20px; background-color: #f9f9f9; box-shadow: 0px 4px 12px rgba(0,0,0,0.15); border-radius: 10px;">
-    <!-- Cuadro informativo con imagen y mensaje -->
-    <div style="text-align: center; margin-bottom: 30px; padding: 20px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1);">
-        {% if propiedad.galeria %}
-        <img src="{{ propiedad.galeria.imagen.url }}" alt="Imagen de portada de {{ propiedad.nombre }}" style="width: 100%; height: auto; object-fit: cover; border-radius: 10px;">
-        {% endif %}
-        <h2 style="margin-top: 15px; font-size: 2em; color: #333; font-weight: bold; text-transform: uppercase;">Reserva en: <strong>{{ propiedad.nombre }}</strong></h2>
-        <p style="font-size: 1.2em; color: #555; margin-top: 10px;">Haz tu reserva para disfrutar de una experiencia única.</p>
-    </div>
-    <!-- Formulario de reserva -->
-    <form id="reserva-form" method="post" action="{% url 'alquilar_propiedad' propiedad.id %}" style="padding: 30px; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1);">
+<div class="container">
+    <h2>Reservar Propiedad</h2>
+    
+    <form id="reservaForm" method="post">
         {% csrf_token %}
-        <div id="step1">
-            <h2 style="margin-bottom: 20px; font-size: 1.8em; color: #333;">Detalles de la Reserva</h2>
-            
-            <!-- Calendario de fechas -->
-            <div style="margin-bottom: 20px;">
-                <label for="fecha_reserva" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">Selecciona el rango de fechas</label>
-                <input type="text" id="fecha_reserva" name="fecha_reserva" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1em; transition: all 0.3s ease;" placeholder="Selecciona fechas">
-            </div>
-
-            <!-- Mostrar el costo total -->
-            <div id="costo_total" style="margin-bottom: 20px; font-size: 1.5em; color: #007bff; text-align: center; font-weight: bold;">
-                Total: €0.00
-            </div>
-
-            <!-- Sección de personas -->
-            <div style="margin-bottom: 20px;">
-                <label for="personas" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">Número de Personas</label>
-                <input type="number" name="personas" id="personas" min="1" max="{{ propiedad.capacidad_maxima }}" value="1" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1em; transition: all 0.3s ease;">
-                <small style="color: #777;">Capacidad máxima: {{ propiedad.capacidad_maxima }} personas</small>
-            </div>
-
-            <!-- Sección de mascotas -->
-            <div style="margin-bottom: 20px; display: flex; align-items: center;">
-                <input type="checkbox" name="mascotas" id="mascotas" style="margin-right: 10px; transform: scale(1.3);">
-                <label for="mascotas" style="font-size: 1.2em; color: #333; margin-bottom: 5px; display: block;">¿Traerás mascotas?</label>
-            </div>
-
-            <!-- Botón de siguiente -->
-            <div style="text-align: center;">
-                <button type="button" id="next-button" class="btn btn-primary" disabled style="padding: 15px 30px; font-size: 1.5em; background-color: #007bff; border: none; border-radius: 5px; color: white; cursor: pointer; transition: background-color 0.3s ease;">
-                    Siguiente
-                </button>
-            </div>
+        
+        <!-- Selección de fechas -->
+        <div class="form-group">
+            <label for="fechaInicio">Fecha de comienzo:</label>
+            <input type="date" id="fechaInicio" name="fecha_inicio" class="form-control" required>
         </div>
-        <div id="step2" style="display: none;">
-            <h2 style="margin-bottom: 20px; font-size: 1.8em; color: #333;">Datos de las Personas</h2>
-
-            <!-- Formularios de identidades -->
-            <div id="identidades-container" style="padding: 20px; background-color: #f4f4f4; border-radius: 10px; box-shadow: 0px 4px 12px rgba(0,0,0,0.1);">
-                <!-- Se generarán dinámicamente los formularios de identidad aquí -->
-            </div>
-
-            <!-- Botón de confirmar -->
-            <div style="text-align: center; margin-top: 20px;">
-                <button type="submit" id="submit-button" class="btn btn-primary" style="padding: 15px 30px; font-size: 1.5em; background-color: #007bff; border: none; border-radius: 5px; color: white; cursor: pointer; transition: background-color 0.3s ease;">
-                    Confirmar Reserva
-                </button>
-            </div>
+        <div class="form-group">
+            <label for="fechaFin">Fecha de fin:</label>
+            <input type="date" id="fechaFin" name="fecha_fin" class="form-control" required>
         </div>
+
+        <!-- Selección de cantidad de personas -->
+        <div class="form-group">
+            <label for="cantidadPersonas">Cantidad de personas:</label>
+            <select id="cantidadPersonas" name="cantidad_personas" class="form-control">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+
+        <!-- Formulario de identidad del usuario -->
+        <h3>Información del titular de la reserva</h3>
+        <div id="identidadTitular">
+            <!-- Verifica si existe un formulario de identidad para el usuario -->
+            {% if identidad_form %}
+                {{ identidad_form.as_p }}
+            {% else %}
+                <p>No tienes una identidad registrada. Por favor, completa tu información antes de continuar.</p>
+            {% endif %}
+        </div>
+
+        <!-- Formularios adicionales para acompañantes -->
+        <h3>Información de acompañantes</h3>
+        <div id="formulariosAcompanantes"></div>
+
+        <!-- Botón para enviar -->
+        <button type="submit" class="btn btn-primary">Reservar</button>
     </form>
 </div>
 
-<!-- Incluir Flatpickr -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script> <!-- Cargar localización en español -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Fechas no disponibles en formato JSON
-        const fechasNoDisponibles = JSON.parse('{{ fechas_no_disponibles_json|escapejs }}');
-        const precioPorNoche = parseFloat('{{ propiedad.precio_por_noche|default:"100" }}'); // Precio por noche con valor predeterminado
+    // JavaScript para generar formularios adicionales
+    document.getElementById('cantidadPersonas').addEventListener('change', function() {
+        const cantidad = parseInt(this.value, 10);
+        const container = document.getElementById('formulariosAcompanantes');
+        container.innerHTML = ""; // Limpiar formularios existentes
 
-        // Configurar Flatpickr
-        const flatpickrInstance = flatpickr("#fecha_reserva", {
-            mode: "range",
-            minDate: "today",
-            disable: fechasNoDisponibles.map(fecha => new Date(fecha)), // Convertir fechas a objetos Date
-            dateFormat: "Y-m-d",
-            locale: "es", // Configurar idioma español
-            onChange: function(selectedDates) {
-                const nextButton = document.getElementById('next-button');
-
-                if (selectedDates.length > 1) {
-                    const start = selectedDates[0]; // Fecha de inicio
-                    const end = selectedDates[1];   // Fecha de fin
+        // Generar formularios para cada acompañante
+        for (let i = 2; i <= cantidad; i++) {
+            const formHtml = `
+                <div class="form-group">
+                    <h4>Acompañante ${i}</h4>
                     
-                    // Calcular diferencia en días (no incluye el día de salida)
-                    const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)); 
+                    <label for="tipoDocumento_${i}">Tipo documento:</label>
+                    <input type="text" id="tipoDocumento_${i}" name="acompanante_${i}_tipo_documento" class="form-control" required>
                     
-                    // Calcular el total
-                    const total = diffDays * precioPorNoche;
-
-                    // Actualizar el costo total en el DOM
-                    document.getElementById('costo_total').innerText = `Total: €${total.toFixed(2)}`;
-
-                    // Habilitar el botón de siguiente si el rango es válido
-                    nextButton.disabled = (diffDays <= 0); // Asegurarse de que el rango sea válido
-                } else {
-                    // Si no hay rango válido, mostrar €0.00
-                    document.getElementById('costo_total').innerText = "Total: €0.00";
-
-                    // Deshabilitar el botón de siguiente
-                    nextButton.disabled = true;
-                }
-            }
-        });
-
-        // Manejar el botón "Siguiente"
-        document.getElementById('next-button').addEventListener('click', function () {
-            const numPersonas = parseInt(document.getElementById('personas').value, 10);
-            if (numPersonas > 0) {
-                // Actualizar el formulario de personas basado en el número de personas seleccionadas
-                const formContainer = document.getElementById('identidades-container');
-                formContainer.innerHTML = ''; // Limpiar el contenedor
-
-                                // Crear los formularios de identidad según el número de personas
-                                for (let i = 1; i <= numPersonas; i++) {
-                    const fieldset = document.createElement('fieldset');
-                    fieldset.style.padding = '15px';
-                    fieldset.style.marginBottom = '15px';
-                    fieldset.style.border = '1px solid #ddd';
-                    fieldset.style.borderRadius = '5px';
-                    fieldset.style.backgroundColor = '#ffffff';
-                    fieldset.style.boxShadow = '0px 4px 8px rgba(0, 0, 0, 0.1)';
-
-                    const legend = document.createElement('legend');
-                    legend.textContent = `Persona ${i}`;
-                    legend.style.fontSize = '1.2em';
-                    legend.style.color = '#007bff';
-                    legend.style.fontWeight = 'bold';
-                    legend.style.marginBottom = '10px';
-                    fieldset.appendChild(legend);
-
-                    // Añadir los campos del modelo Identidades
-                    const fields = [
-                        { name: 'tipo_documento', placeholder: 'Tipo de Documento', type: 'select', options: ['DNI', 'Carnet de Conducir', 'Pasaporte'] },
-                        { name: 'numero_documento', placeholder: 'Número de Documento', type: 'text' },
-                        { name: 'fecha_expedicion', placeholder: 'Fecha de Expedición', type: 'date' },
-                        { name: 'primer_apellido', placeholder: 'Primer Apellido', type: 'text' },
-                        { name: 'segundo_apellido', placeholder: 'Segundo Apellido (Opcional)', type: 'text' },
-                        { name: 'nombre', placeholder: 'Nombre', type: 'text' },
-                        { name: 'sexo', placeholder: 'Sexo', type: 'select', options: ['Masculino', 'Femenino', 'Otro'] },
-                    ];
-
-                    fields.forEach(field => {
-                        const inputWrapper = document.createElement('div');
-                        inputWrapper.style.marginBottom = '15px';
-
-                        const label = document.createElement('label');
-                        label.textContent = field.placeholder;
-                        label.style.display = 'block';
-                        label.style.fontSize = '1em';
-                        label.style.color = '#333';
-                        label.style.marginBottom = '5px';
-                        inputWrapper.appendChild(label);
-
-                        let input;
-                        if (field.type === 'select') {
-                            input = document.createElement('select');
-                            input.name = `${field.name}_${i}`;
-                            input.style.width = '100%';
-                            input.style.padding = '10px';
-                            input.style.border = '2px solid #ddd';
-                            input.style.borderRadius = '5px';
-                            input.style.fontSize = '1em';
-                            input.style.transition = 'all 0.3s ease';
-
-                            // Opción por defecto
-                            const defaultOption = document.createElement('option');
-                            defaultOption.value = '';
-                            defaultOption.textContent = 'Seleccionar';
-                            defaultOption.disabled = true;
-                            defaultOption.selected = true;
-                            input.appendChild(defaultOption);
-
-                            field.options.forEach(option => {
-                                const opt = document.createElement('option');
-                                opt.value = option.toLowerCase().replace(' ', '_');
-                                opt.textContent = option;
-                                input.appendChild(opt);
-                            });
-
-                            input.addEventListener('change', function () {
-                                const numeroDocumentoInput = document.querySelector(`input[name="numero_documento_${i}"]`);
-                                if (input.value === 'dni') {
-                                    numeroDocumentoInput.maxLength = 9;
-                                    numeroDocumentoInput.pattern = '\\d{8}[A-Za-z]';
-                                    numeroDocumentoInput.setAttribute('title', 'El DNI debe tener 8 dígitos seguidos de una letra.');
-                                } else if (input.value === 'pasaporte') {
-                                    numeroDocumentoInput.maxLength = 9;
-                                    numeroDocumentoInput.pattern = '[A-Za-z0-9]{6,9}';
-                                    numeroDocumentoInput.setAttribute('title', 'El número de pasaporte debe tener entre 6 y 9 caracteres alfanuméricos.');
-                                } else if (input.value === 'carnet_de_conducir') {
-                                    numeroDocumentoInput.maxLength = 12;
-                                    numeroDocumentoInput.pattern = '\\d{5,12}';
-                                    numeroDocumentoInput.setAttribute('title', 'El número de carnet de conducir debe tener entre 5 y 12 caracteres.');
-                                }
-                            });
-                        } else {
-                            input = document.createElement('input');
-                            input.name = `${field.name}_${i}`;
-                            input.placeholder = field.placeholder;
-                            input.type = field.type;
-                            input.style.width = '100%';
-                            input.style.padding = '10px';
-                            input.style.border = '2px solid #ddd';
-                            input.style.borderRadius = '5px';
-                            input.style.fontSize = '1em';
-                            input.style.transition = 'all 0.3s ease';
-                            input.required = (field.name !== 'segundo_apellido'); // Segundo apellido opcional
-
-                            // Validación de la fecha de expedición
-                            if (field.name === 'fecha_expedicion') {
-                                input.max = new Date().toISOString().split("T")[0];
-                            }
-
-                            // Validación de caracteres en número de documento
-                            if (field.name === 'numero_documento') {
-                                input.addEventListener('input', function () {
-                                    const tipoDocumento = document.querySelector(`select[name="tipo_documento_${i}"]`).value;
-                                    let validationMessage = "";
-                                    
-                                    if (tipoDocumento === 'dni') {
-                                        if (!/^\d{8}[A-Za-z]?$/.test(input.value)) {
-                                            validationMessage = "El DNI debe tener 8 dígitos seguidos de una letra.";
-                                        } else {
-                                            validationMessage = "";
-                                        }
-                                    } else if (tipoDocumento === 'pasaporte') {
-                                        if (!/^[A-Za-z0-9]{6,9}$/.test(input.value)) {
-                                            validationMessage = "El número de pasaporte debe tener entre 6 y 9 caracteres alfanuméricos.";
-                                        } else {
-                                            validationMessage = "";
-                                        }
-                                    }
-
-                                    input.setCustomValidity(validationMessage);
-                                    input.reportValidity();
-                                });
-                            }
-                        }
-                        inputWrapper.appendChild(input);
-                        fieldset.appendChild(inputWrapper);
-                    });
-
-                    formContainer.appendChild(fieldset);
-                }
-
-                // Mostrar el segundo paso
-                document.getElementById('step1').style.display = 'none';
-                document.getElementById('step2').style.display = 'block';
-            } else {
-                alert("El número de personas debe ser mayor a 0.");
-            }
-        });
-
-        // Manejar la confirmación de la reserva
-        document.getElementById('reserva-form').addEventListener('submit', function (event) {
-            event.preventDefault(); // Evitar el envío del formulario real
-
-            // Crear el contenedor del mensaje de confirmación
-            const confirmationMessage = document.createElement('div');
-            confirmationMessage.id = 'confirmation-message';
-            confirmationMessage.style.position = 'fixed';
-            confirmationMessage.style.top = '0';
-            confirmationMessage.style.left = '0';
-            confirmationMessage.style.width = '100%';
-            confirmationMessage.style.height = '100%';
-            confirmationMessage.style.backgroundColor = 'rgba(0,0,0,0.8)';
-            confirmationMessage.style.display = 'flex';
-            confirmationMessage.style.justifyContent = 'center';
-            confirmationMessage.style.alignItems = 'center';
-            confirmationMessage.style.zIndex = '9999';
-
-            // Crear el contenido del mensaje
-            const messageContent = document.createElement('div');
-            messageContent.style.backgroundColor = '#fff';
-            messageContent.style.padding = '20px';
-            messageContent.style.borderRadius = '10px';
-            messageContent.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-            messageContent.style.textAlign = 'center';
-            messageContent.style.fontFamily = "'Helvetica Neue', Arial, sans-serif";
-
-            // Añadir el texto del mensaje
-            const messageText = document.createElement('p');
-            messageText.innerText = 'Reserva confirmada. Puedes ver los detalles de tu reserva desde el panel de Mis Reservas.';
-            messageText.style.marginBottom = '20px';
-            messageContent.appendChild(messageText);
-
-            // Crear el botón de redirección
-            const redirectButton = document.createElement('button');
-            redirectButton.innerText = 'OK';
-            redirectButton.style.padding = '10px 20px';
-            redirectButton.style.fontSize = '1.2em';
-            redirectButton.style.backgroundColor = '#007bff';
-            redirectButton.style.color = '#fff';
-            redirectButton.style.border = 'none';
-            redirectButton.style.borderRadius = '5px';
-            redirectButton.style.cursor = 'pointer';
-            redirectButton.addEventListener('click', function () {
-                window.location.href = '/'; // Redirigir a la página de inicio
-            });
-
-            messageContent.appendChild(redirectButton);
-            confirmationMessage.appendChild(messageContent);
-            document.body.appendChild(confirmationMessage);
-
-            // Enviar el formulario
-            document.getElementById('reserva-form').submit();
-        });
+                    <label for="numeroDocumento_${i}">Numero documento:</label>
+                    <input type="text" id="numeroDocumento_${i}" name="acompanante_${i}_numero_documento" class="form-control" required>
+                    
+                    <label for="fechaExpedicion_${i}">Fecha expedicion:</label>
+                    <input type="date" id="fechaExpedicion_${i}" name="acompanante_${i}_fecha_expedicion" class="form-control" required>
+                    
+                    <label for="primerApellido_${i}">Primer apellido:</label>
+                    <input type="text" id="primerApellido_${i}" name="acompanante_${i}_primer_apellido" class="form-control" required>
+                    
+                    <label for="segundoApellido_${i}">Segundo apellido:</label>
+                    <input type="text" id="segundoApellido_${i}" name="acompanante_${i}_segundo_apellido" class="form-control">
+                    
+                    <label for="nombre_${i}">Nombre:</label>
+                    <input type="text" id="nombre_${i}" name="acompanante_${i}_nombre" class="form-control" required>
+                    
+                    <label for="sexo_${i}">Sexo:</label>
+                    <select id="sexo_${i}" name="acompanante_${i}_sexo" class="form-control" required>
+                        <option value="masculino">Masculino</option>
+                        <option value="femenino">Femenino</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+            `;
+            container.innerHTML += formHtml;
+        }
     });
-
 </script>
 {% endblock %}

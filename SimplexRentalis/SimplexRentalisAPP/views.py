@@ -392,6 +392,7 @@ def autocompletar_direcciones(request):
         return JsonResponse({"error": "Error al contactar con Photon"}, status=500)
 
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
 from django.core.serializers.json import DjangoJSONEncoder
 from datetime import timedelta
 import json
@@ -403,7 +404,10 @@ def alquilar_propiedad(request, propiedad_id):
     form_reserva = ReservaForm()
     identidad_forms = []
     reserva_data = request.session.get('reserva_data')  # Recuperar datos del paso 1 si existen
-    if not request.user.identidad:
+
+    # Verificar si el usuario tiene un modelo de identidad
+    identidad_usuario = Identidades.objects.filter(usuario=request.user).first()
+    if not identidad_usuario:
         request.session['next_url'] = request.path
         messages.warning(request, "Debes completar tu identidad antes de realizar una reserva.")
         return redirect('completar_identidad')  # Redirige al formulario de identidad
@@ -417,16 +421,20 @@ def alquilar_propiedad(request, propiedad_id):
                 reserva_data = form_reserva.cleaned_data
                 request.session['reserva_data'] = reserva_data
                 num_personas = reserva_data.get('personas', 1)
-                
+
                 # Generar formularios de identidad según el número de personas
                 identidad_forms = [IdentidadForm(prefix=str(i)) for i in range(num_personas)]
+
+                # Rellenar el primer formulario con datos del usuario
+                if identidad_usuario:
+                    identidad_forms[0] = IdentidadForm(instance=identidad_usuario, prefix="0")
             else:
                 identidad_forms = []
         # Paso 2: Procesar formularios de identidad
         else:
             num_personas = reserva_data.get('personas', 1) if reserva_data else 0
             identidad_forms = [IdentidadForm(request.POST, prefix=str(i)) for i in range(num_personas)]
-            
+
             # Verificar que todos los formularios de identidad sean válidos
             if all(form.is_valid() for form in identidad_forms):
                 # Crear reserva
@@ -435,17 +443,11 @@ def alquilar_propiedad(request, propiedad_id):
                 reserva.usuario = request.user
                 reserva.save()
 
-                # Depuración
-                print(f"Reserva creada: {reserva}")
-
                 # Guardar identidades
                 for form in identidad_forms:
                     identidad = form.save(commit=False)
                     identidad.reserva = reserva
                     identidad.save()
-
-                    # Depuración
-                    print(f"Identidad guardada: {identidad}")
 
                 # Limpiar datos de la sesión
                 del request.session['reserva_data']
@@ -469,7 +471,10 @@ def alquilar_propiedad(request, propiedad_id):
         'form_reserva': form_reserva,
         'identidad_forms': identidad_forms,
         'fechas_no_disponibles_json': fechas_no_disponibles_json,
+        'identidad_usuario': identidad_usuario,  # Pasar la identidad del usuario al contexto
+        'identidad_form': IdentidadForm(instance=identidad_usuario) if identidad_usuario else None,  # Pasar el formulario de identidad
     })
+
 
 # Vista para mostrar el mensaje de reserva exitosa
 def reserva_exitosa_view(request):
@@ -506,3 +511,17 @@ def completar_identidad(request):
         form = IdentidadForm()
 
     return render(request, 'SimplexRentalisAPP/completar_identidad.html', {'form': form})
+
+def obtener_fechas_no_disponibles(propiedad):
+    reservas = propiedad.reservas.all()
+    fechas_no_disponibles = []
+    for reserva in reservas:
+        rango = [reserva.fecha_inicio + timedelta(days=i) for i in range((reserva.fecha_fin - reserva.fecha_inicio).days + 1)]
+        fechas_no_disponibles.extend(rango)
+    return fechas_no_disponibles
+
+def procesar_formularios_identidad(post_data, num_personas):
+    identidad_forms = [IdentidadForm(post_data, prefix=str(i)) for i in range(num_personas)]
+    son_validos = all(form.is_valid() for form in identidad_forms)
+    identidades = [form.save(commit=False) for form in identidad_forms if form.is_valid()]
+    return son_validos, identidades, identidad_forms
