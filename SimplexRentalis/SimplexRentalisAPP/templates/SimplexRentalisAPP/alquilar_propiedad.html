@@ -10,7 +10,9 @@
         <!-- Selección de fechas con Flatpickr -->
         <div class="form-group">
             <label for="fecha_reserva">Selecciona el rango de fechas:</label>
-            <input type="text" id="fecha_reserva" name="fecha_reserva" class="form-control" placeholder="Selecciona fechas" required>
+            <input type="text" id="fecha_reserva" class="form-control" placeholder="Selecciona fechas" required>
+            <input type="hidden" id="fecha_inicio" name="fecha_inicio" required>
+            <input type="hidden" id="fecha_fin" name="fecha_fin" required>
         </div>
 
         <!-- Mostrar el costo total -->
@@ -21,7 +23,8 @@
         <!-- Selección de cantidad de personas -->
         <div class="form-group">
             <label for="cantidadPersonas">Cantidad de personas:</label>
-            <input type="number" id="cantidadPersonas" name="cantidad_personas" class="form-control" value="1" min="1" max="20" required>
+            <input type="number" id="cantidadPersonas" name="cantidad_personas" class="form-control" value="1" min="1" required>
+            <small id="cantidadPersonasHelp" class="form-text text-muted"></small> <!-- Mensaje para el máximo -->
         </div>
 
         <!-- Formulario de identidad del usuario -->
@@ -51,6 +54,9 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script> <!-- Localización en español -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Obtener la capacidad máxima de la propiedad desde un atributo data- en el HTML
+        const capacidadMaxima = parseInt(document.getElementById('propiedad').dataset.capacidadMaxima, 10);
+        
         const precioPorNoche = parseFloat('{{ propiedad.precio_por_noche|default:"100" }}');
         const fechasNoDisponibles = JSON.parse('{{ fechas_no_disponibles_json|escapejs }}');
 
@@ -63,8 +69,18 @@
             locale: "es",
             onChange: function(selectedDates) {
                 const costoTotalElement = document.getElementById('costo_total');
+                
+                // Verificar si se han seleccionado dos fechas
                 if (selectedDates.length > 1) {
-                    const diffDays = Math.ceil((selectedDates[1] - selectedDates[0]) / (1000 * 60 * 60 * 24));
+                    const fechaInicio = selectedDates[0];
+                    const fechaFin = selectedDates[1];
+                    
+                    // Establecer las fechas en los campos ocultos
+                    document.getElementById('fecha_inicio').value = fechaInicio.toISOString().split('T')[0];
+                    document.getElementById('fecha_fin').value = fechaFin.toISOString().split('T')[0];
+
+                    // Calcular el costo total
+                    const diffDays = Math.ceil((fechaFin - fechaInicio) / (1000 * 60 * 60 * 24));
                     const total = diffDays * precioPorNoche;
                     costoTotalElement.innerText = `Total: €${total.toFixed(2)}`;
                 } else {
@@ -79,9 +95,18 @@
             const container = document.getElementById('formulariosAcompanantes');
             const baseForm = document.getElementById('formBase');
 
-            container.innerHTML = ""; // Limpiar formularios existentes
+            // Mostrar un mensaje si se excede la capacidad máxima
+            const cantidadPersonasHelp = document.getElementById('cantidadPersonasHelp');
+            if (cantidad > capacidadMaxima) {
+                cantidadPersonasHelp.textContent = `La capacidad máxima es ${capacidadMaxima} personas.`;
+            } else {
+                cantidadPersonasHelp.textContent = '';
+            }
 
-            if (cantidad >= 2 && baseForm) {
+            // Limpiar formularios existentes y generar nuevos formularios si es necesario
+            container.innerHTML = ""; 
+
+            if (cantidad > 1 && baseForm) {
                 for (let i = 2; i <= cantidad; i++) {
                     // Clonar el formulario del titular
                     const formClone = baseForm.cloneNode(true);
@@ -116,6 +141,29 @@
                 }
             }
         });
+
+        // Validar el formulario antes de enviarlo
+        document.getElementById('reservaForm').addEventListener('submit', function(event) {
+            const fechaInicio = document.getElementById('fecha_inicio').value;
+            const fechaFin = document.getElementById('fecha_fin').value;
+            const cantidadPersonas = parseInt(document.getElementById('cantidadPersonas').value, 10);
+
+            // Validación de fechas
+            if (!fechaInicio || !fechaFin) {
+                event.preventDefault(); // Detener el envío del formulario
+                alert('Debes seleccionar un rango de fechas antes de reservar.');
+            }
+
+            // Validación de cantidad de personas
+            if (cantidadPersonas > capacidadMaxima) {
+                event.preventDefault(); // Detener el envío del formulario
+                alert(`La cantidad de personas no puede ser mayor a ${capacidadMaxima}.`);
+            }
+        });
     });
 </script>
+
+<!-- Agregar el valor de capacidad máxima como un atributo data en el HTML -->
+<div id="propiedad" data-capacidad-maxima="{{ propiedad.capacidad_maxima }}"></div>
+
 {% endblock %}

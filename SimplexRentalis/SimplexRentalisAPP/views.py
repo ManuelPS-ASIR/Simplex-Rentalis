@@ -391,6 +391,7 @@ def autocompletar_direcciones(request):
     else:
         return JsonResponse({"error": "Error al contactar con Photon"}, status=500)
 
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.serializers.json import DjangoJSONEncoder
@@ -400,13 +401,18 @@ from .models import Propiedades, Reservas, Identidades
 from .forms import ReservaForm, IdentidadForm
 
 def alquilar_propiedad(request, propiedad_id):
+    print("Iniciando el proceso de alquiler de propiedad...")
     propiedad = get_object_or_404(Propiedades, id=propiedad_id)
+    print(f"Propiedad encontrada: {propiedad}")
+    
     form_reserva = ReservaForm()
     identidad_forms = []
     reserva_data = request.session.get('reserva_data')  # Recuperar datos del paso 1 si existen
+    print(f"Reserva Data recuperada de la sesión: {reserva_data}")
 
     # Verificar si el usuario tiene un modelo de identidad
     identidad_usuario = Identidades.objects.filter(usuario=request.user).first()
+    print(f"Identidad del usuario: {identidad_usuario}")
     if not identidad_usuario:
         request.session['next_url'] = request.path
         messages.warning(request, "Debes completar tu identidad antes de realizar una reserva.")
@@ -414,53 +420,98 @@ def alquilar_propiedad(request, propiedad_id):
 
     # Obtener la capacidad máxima de la propiedad
     capacidad_maxima = propiedad.capacidad_maxima
+    print(f"Capacidad máxima de la propiedad: {capacidad_maxima}")
 
     if request.method == 'POST':
+        print("Recibiendo una solicitud POST...")
         # Paso 1: Validar datos de reserva
         if 'fecha_reserva' in request.POST:
             form_reserva = ReservaForm(request.POST)
+            print(f"Datos recibidos en el formulario de reserva: {request.POST}")
             if form_reserva.is_valid():
                 # Almacenar los datos en la sesión
                 reserva_data = form_reserva.cleaned_data
+                print(f"Datos de reserva después de ser validados: {reserva_data}")
                 request.session['reserva_data'] = reserva_data
-                num_personas = reserva_data.get('personas', 1)
+                num_personas = reserva_data.get('cantidad_personas', 1)
+                print(f"Número de personas en la reserva: {num_personas}")
 
                 # Asegurarse de que el número de personas no supere la capacidad máxima de la propiedad
                 if num_personas > capacidad_maxima:
                     messages.error(request, f"La cantidad de personas no puede ser mayor a {capacidad_maxima}.")
                     identidad_forms = []
+                    print(f"Cantidad de personas excede la capacidad. Identidad Forms vacíos.")
                 else:
-                    # Generar formularios de identidad según el número de personas
-                    identidad_forms = [IdentidadForm(prefix=str(i)) for i in range(num_personas)]
+                    # Verificar si las fechas seleccionadas están disponibles
+                    fecha_inicio = reserva_data['fecha_inicio']
+                    fecha_fin = reserva_data['fecha_fin']
+                    fechas_no_disponibles = []
 
-                    # Rellenar el primer formulario con datos del usuario
-                    if identidad_usuario:
-                        identidad_forms[0] = IdentidadForm(instance=identidad_usuario, prefix="0")
+                    # Obtener todas las reservas existentes para la propiedad
+                    reservas = propiedad.reservas.all()
+                    for reserva in reservas:
+                        rango = [reserva.fecha_inicio + timedelta(days=i) for i in range((reserva.fecha_fin - reserva.fecha_inicio).days + 1)]
+                        fechas_no_disponibles.extend(rango)
+
+                    # Verificar si el rango de fechas ya está ocupado
+                    fechas_no_disponibles = set(fechas_no_disponibles)
+                    rango_reserva = [fecha_inicio + timedelta(days=i) for i in range((fecha_fin - fecha_inicio).days + 1)]
+
+                    if any(fecha in fechas_no_disponibles for fecha in rango_reserva):
+                        messages.error(request, "Las fechas seleccionadas ya están ocupadas.")
+                        identidad_forms = []
+                    else:
+                        # Generar formularios de identidad según el número de personas
+                        identidad_forms = [IdentidadForm(prefix=str(i)) for i in range(num_personas)]
+                        print(f"Formularios de identidad generados: {len(identidad_forms)}")
+
+                        # Rellenar el primer formulario con datos del usuario
+                        if identidad_usuario:
+                            identidad_forms[0] = IdentidadForm(instance=identidad_usuario, prefix="0")
+                            print("Formulario de identidad del usuario rellenado.")
             else:
+                print(f"Errores en el formulario de reserva: {form_reserva.errors}")
                 identidad_forms = []
         # Paso 2: Procesar formularios de identidad
         else:
-            num_personas = reserva_data.get('personas', 1) if reserva_data else 0
+            print(f"Datos recibidos para formularios de identidad: {request.POST}")
+            num_personas = reserva_data.get('cantidad_personas', 1) if reserva_data else 0
+            print(f"Número de personas para formularios de identidad: {num_personas}")
             identidad_forms = [IdentidadForm(request.POST, prefix=str(i)) for i in range(num_personas)]
+            print(f"Formularios de identidad generados: {[form.is_valid() for form in identidad_forms]}")
 
             # Verificar que todos los formularios de identidad sean válidos
             if all(form.is_valid() for form in identidad_forms):
-                # Crear reserva
-                reserva = Reservas(**reserva_data)
-                reserva.propiedad = propiedad
-                reserva.usuario = request.user
-                reserva.save()
+                print("Todos los formularios de identidad son válidos.")
+                
+                if reserva_data:
+                    print("Creando la reserva...")
+                    # Crear la reserva
+                    reserva = Reservas(
+                        propiedad=propiedad,
+                        usuario=request.user,
+                        fecha_inicio=reserva_data['fecha_inicio'],
+                        fecha_fin=reserva_data['fecha_fin'],
+                        cantidad_personas=reserva_data['cantidad_personas'],
+                    )
+                    reserva.save()  # Guardar la reserva
+                    print(f"Reserva guardada: {reserva}")
 
-                # Guardar identidades
-                for form in identidad_forms:
-                    identidad = form.save(commit=False)
-                    identidad.reserva = reserva
-                    identidad.save()
+                    # Guardar identidades
+                    for form in identidad_forms:
+                        identidad = form.save(commit=False)
+                        identidad.reserva = reserva
+                        identidad.save()
+                        print(f"Identidad guardada: {identidad}")
 
-                # Limpiar datos de la sesión
-                del request.session['reserva_data']
-                return redirect('reserva_exitosa')
+                    # Limpiar datos de la sesión
+                    del request.session['reserva_data']
+                    return redirect('reserva_exitosa')
             else:
+                print("Errores en los formularios de identidad:")
+                for form in identidad_forms:
+                    print(form.errors)
+
                 # Si hay errores, renderizar los formularios con mensajes
                 form_reserva = ReservaForm(initial=reserva_data)
 
@@ -474,6 +525,7 @@ def alquilar_propiedad(request, propiedad_id):
     fechas_no_disponibles_json = json.dumps([fecha.strftime('%Y-%m-%d') for fecha in fechas_no_disponibles], cls=DjangoJSONEncoder)
 
     # Renderizar la página
+    print(f"Renderizando la propiedad con ID {propiedad_id}")
     return render(request, 'SimplexRentalisAPP/alquilar_propiedad.html', {
         'propiedad': propiedad,
         'form_reserva': form_reserva,
@@ -482,6 +534,8 @@ def alquilar_propiedad(request, propiedad_id):
         'identidad_usuario': identidad_usuario,  # Pasar la identidad del usuario al contexto
         'identidad_form': IdentidadForm(instance=identidad_usuario) if identidad_usuario else None,  # Pasar el formulario de identidad
     })
+
+
 
 # Vista para mostrar el mensaje de reserva exitosa
 def reserva_exitosa_view(request):
