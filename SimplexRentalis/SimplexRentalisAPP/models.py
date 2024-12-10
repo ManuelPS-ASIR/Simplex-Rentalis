@@ -157,18 +157,10 @@ class Galeria(models.Model):
 ###################################
 ##### 2. Modelo de Reservas #######
 ###################################
-class ReservaPersona(models.Model):
-    reserva = models.ForeignKey('Reservas', on_delete=models.CASCADE)
-    identidad = models.ForeignKey('Identidades', on_delete=models.CASCADE)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['reserva', 'identidad'], name='unique_reserva_identidad'),
-        ]
-
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+from decimal import Decimal
 
 class Reservas(models.Model):
     id = models.AutoField(primary_key=True)
@@ -198,7 +190,7 @@ class Reservas(models.Model):
     personas = models.ManyToManyField('Identidades', through='ReservaPersona', related_name="reservas", blank=False)
     
     # Nuevo campo para almacenar el costo total
-    costo_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=False, blank=False)
+    costo_total = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), null=False, blank=False)
 
     class Meta:
         indexes = [
@@ -216,6 +208,7 @@ class Reservas(models.Model):
     def clean(self):
         hoy = timezone.localdate()
 
+        # Verificación de fechas
         if self.fecha_inicio is None or self.fecha_fin is None:
             raise ValidationError("Las fechas de inicio y fin de la reserva no pueden estar vacías.")
         
@@ -240,30 +233,43 @@ class Reservas(models.Model):
         
         if self.mascotas and not self.tipo_mascota:
             raise ValidationError("Debe especificar el tipo de mascota si se ha marcado la opción de mascotas.")
-        
-        # Validación de personas: Limitar el número de personas a la capacidad máxima
-        max_personas = self.propiedad.capacidad_maxima
-        if len(self.personas.all()) > max_personas:
-            raise ValidationError(f"La cantidad de personas no puede superar {max_personas}.")
 
     def save(self, *args, **kwargs):
         self.full_clean()  # Realizar la validación completa antes de guardar
 
         # Calcular el costo total antes de guardar
-        if self.fecha_inicio and self.fecha_fin and self.propiedad.precio_por_noche:
+        if self.fecha_inicio and self.fecha_fin and self.propiedad.precio_noche:
             # Calcular el número de días de la reserva
             num_dias = (self.fecha_fin - self.fecha_inicio).days
-            # Calcular el costo total
-            self.costo_total = num_dias * self.propiedad.precio_por_noche
+            # Extraer el valor decimal del precio_noche antes de multiplicar
+            precio_noche = self.propiedad.precio_noche.amount if hasattr(self.propiedad.precio_noche, 'amount') else self.propiedad.precio_noche
+            self.costo_total = Decimal(num_dias) * Decimal(precio_noche)
 
+        # Guarda el objeto antes de validar la relación many-to-many
         super().save(*args, **kwargs)
 
-###################################
-##### 3. Modelo de Identidades ####
+        # Validar la relación many-to-many después de guardar
+        max_personas = self.propiedad.capacidad_maxima
+        if self.personas.count() > max_personas:
+            raise ValidationError(f"La cantidad de personas no puede superar {max_personas}.")
+
+        # Guardar cambios nuevamente después de la validación si es necesario
+        super().save(*args, **kwargs)
+
+
+class ReservaPersona(models.Model):
+    reserva = models.ForeignKey('Reservas', on_delete=models.CASCADE)
+    identidad = models.ForeignKey('Identidades', on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['reserva', 'identidad'], name='unique_reserva_identidad'),
+        ]
+
 ###################################
 class Identidades(models.Model):
     id = models.AutoField(primary_key=True)  # Identificador único para cada identidad
-    reserva = models.ForeignKey('Reservas', on_delete=models.CASCADE)
+    reserva = models.ForeignKey('Reservas', on_delete=models.CASCADE, related_name='identidades_reserva')
     tipo_documento = models.CharField(
         max_length=30, 
         choices=[
@@ -280,13 +286,6 @@ class Identidades(models.Model):
         blank=True,
         related_name='identidad_asociada'  # Nombre único para el acceso inverso
     )
-    reserva = models.ForeignKey(
-        'Reservas',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name='identidades_reserva'
-    )  # Relación opcional con una reserva
     numero_documento = models.CharField(max_length=50, unique=True)
     fecha_expedicion = models.DateField()
     primer_apellido = models.CharField(max_length=255)
