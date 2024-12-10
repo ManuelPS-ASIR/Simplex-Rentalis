@@ -28,7 +28,9 @@
         <h3>Información del titular de la reserva</h3>
         <div id="identidadTitular">
             {% if identidad_form %}
-                {{ identidad_form.as_p }}
+                <div id="formBase">
+                    {{ identidad_form.as_p }}
+                </div>
             {% else %}
                 <p>No tienes una identidad registrada. Por favor, completa tu información antes de continuar.</p>
             {% endif %}
@@ -49,11 +51,10 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script> <!-- Localización en español -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Fechas no disponibles en formato JSON
-        const fechasNoDisponibles = JSON.parse('{{ fechas_no_disponibles_json|escapejs }}');
         const precioPorNoche = parseFloat('{{ propiedad.precio_por_noche|default:"100" }}');
+        const fechasNoDisponibles = JSON.parse('{{ fechas_no_disponibles_json|escapejs }}');
 
-        // Configurar Flatpickr para el rango de fechas
+        // Configuración de Flatpickr
         flatpickr("#fecha_reserva", {
             mode: "range",
             minDate: "today",
@@ -61,64 +62,57 @@
             dateFormat: "Y-m-d",
             locale: "es",
             onChange: function(selectedDates) {
+                const costoTotalElement = document.getElementById('costo_total');
                 if (selectedDates.length > 1) {
-                    const start = selectedDates[0];
-                    const end = selectedDates[1];
-
-                    // Calcular diferencia en días (no incluye el día de salida)
-                    const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-
-                    // Calcular el total
+                    const diffDays = Math.ceil((selectedDates[1] - selectedDates[0]) / (1000 * 60 * 60 * 24));
                     const total = diffDays * precioPorNoche;
-
-                    // Actualizar el costo total en el DOM
-                    document.getElementById('costo_total').innerText = `Total: €${total.toFixed(2)}`;
+                    costoTotalElement.innerText = `Total: €${total.toFixed(2)}`;
                 } else {
-                    // Si no hay rango válido, mostrar €0.00
-                    document.getElementById('costo_total').innerText = "Total: €0.00";
+                    costoTotalElement.innerText = "Total: €0.00";
                 }
             }
         });
 
-        // Generar formularios de acompañantes dinámicamente
+        // Manejar dinámicamente los formularios de acompañantes
         document.getElementById('cantidadPersonas').addEventListener('input', function() {
             const cantidad = parseInt(this.value, 10);
             const container = document.getElementById('formulariosAcompanantes');
-            container.innerHTML = "";
+            const baseForm = document.getElementById('formBase');
 
-            if (cantidad >= 2) {
+            container.innerHTML = ""; // Limpiar formularios existentes
+
+            if (cantidad >= 2 && baseForm) {
                 for (let i = 2; i <= cantidad; i++) {
-                    const formHtml = `
-                        <div class="form-group">
-                            <h4>Acompañante ${i}</h4>
-                            
-                            <label for="tipoDocumento_${i}">Tipo documento:</label>
-                            <input type="text" id="tipoDocumento_${i}" name="acompanante_${i}_tipo_documento" class="form-control" required>
-                            
-                            <label for="numeroDocumento_${i}">Número documento:</label>
-                            <input type="text" id="numeroDocumento_${i}" name="acompanante_${i}_numero_documento" class="form-control" required>
-                            
-                            <label for="fechaExpedicion_${i}">Fecha expedición:</label>
-                            <input type="date" id="fechaExpedicion_${i}" name="acompanante_${i}_fecha_expedicion" class="form-control" required>
-                            
-                            <label for="primerApellido_${i}">Primer apellido:</label>
-                            <input type="text" id="primerApellido_${i}" name="acompanante_${i}_primer_apellido" class="form-control" required>
-                            
-                            <label for="segundoApellido_${i}">Segundo apellido:</label>
-                            <input type="text" id="segundoApellido_${i}" name="acompanante_${i}_segundo_apellido" class="form-control">
-                            
-                            <label for="nombre_${i}">Nombre:</label>
-                            <input type="text" id="nombre_${i}" name="acompanante_${i}_nombre" class="form-control" required>
-                            
-                            <label for="sexo_${i}">Sexo:</label>
-                            <select id="sexo_${i}" name="acompanante_${i}_sexo" class="form-control" required>
-                                <option value="masculino">Masculino</option>
-                                <option value="femenino">Femenino</option>
-                                <option value="otro">Otro</option>
-                            </select>
-                        </div>
-                    `;
-                    container.innerHTML += formHtml;
+                    // Clonar el formulario del titular
+                    const formClone = baseForm.cloneNode(true);
+                    formClone.querySelectorAll("label, input, select").forEach((element) => {
+                        const attrName = element.getAttribute("name");
+                        const attrId = element.getAttribute("id");
+
+                        if (attrName) {
+                            // Cambiar el atributo 'name'
+                            element.setAttribute("name", attrName.replace("titular", `acompanante_${i}`));
+                        }
+                        if (attrId) {
+                            // Cambiar el atributo 'id'
+                            element.setAttribute("id", attrId.replace("titular", `acompanante_${i}`));
+                            element.previousElementSibling.setAttribute(
+                                "for",
+                                attrId.replace("titular", `acompanante_${i}`)
+                            );
+                        }
+                        if (element.tagName === "INPUT" || element.tagName === "SELECT") {
+                            element.value = ""; // Limpiar valores
+                        }
+                    });
+
+                    // Agregar encabezado para el acompañante
+                    const title = document.createElement("h4");
+                    title.textContent = `Acompañante ${i}`;
+                    container.appendChild(title);
+
+                    // Insertar el formulario clonado en el contenedor
+                    container.appendChild(formClone);
                 }
             }
         });
