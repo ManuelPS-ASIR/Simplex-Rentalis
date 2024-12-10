@@ -95,10 +95,11 @@
             const container = document.getElementById('formulariosAcompanantes');
             const baseForm = document.getElementById('formBase');
 
-            // Mostrar un mensaje si se excede la capacidad máxima
+            // Mostrar un mensaje de advertencia si se excede la capacidad máxima
             const cantidadPersonasHelp = document.getElementById('cantidadPersonasHelp');
             if (cantidad > capacidadMaxima) {
-                cantidadPersonasHelp.textContent = `La capacidad máxima es ${capacidadMaxima} personas.`;
+                cantidadPersonasHelp.textContent = `🚨 *Advertencia*: La capacidad máxima es **${capacidadMaxima} personas**. No puedes reservar para más de esa cantidad.`;
+                cantidadPersonasHelp.style.color = 'red'; // Color de advertencia
             } else {
                 cantidadPersonasHelp.textContent = '';
             }
@@ -151,13 +152,13 @@
             // Validación de fechas
             if (!fechaInicio || !fechaFin) {
                 event.preventDefault(); // Detener el envío del formulario
-                alert('Debes seleccionar un rango de fechas antes de reservar.');
+                alert('⚠️ ¡Debes seleccionar un rango de fechas antes de reservar!');
             }
 
             // Validación de cantidad de personas
             if (cantidadPersonas > capacidadMaxima) {
                 event.preventDefault(); // Detener el envío del formulario
-                alert(`La cantidad de personas no puede ser mayor a ${capacidadMaxima}.`);
+                alert(`🚨 ¡La cantidad de personas no puede ser mayor a ${capacidadMaxima}!`);
             }
         });
     });
