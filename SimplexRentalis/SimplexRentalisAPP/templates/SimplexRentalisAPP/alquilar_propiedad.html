@@ -33,7 +33,7 @@
 
         <div class="form-group">
             <label for="cantidad_personas">Cantidad de personas</label>
-            {{ form_reserva.cantidad_personas }}
+            <input type="number" id="id_cantidad_personas" name="cantidad_personas" min="1" max="{{ propiedad.capacidad_maxima }}" value="1" oninput="validateCantidadPersonas(this);" />
             {% if form_reserva.cantidad_personas.errors %}
             <div class="error">{{ form_reserva.cantidad_personas.errors }}</div>
             {% endif %}
@@ -67,7 +67,7 @@
         <div id="acompanantes-container">
             {{ formset_identidades.management_form }}
             {% for form in formset_identidades %}
-                <div class="acompanante-form">
+                <div class="acompanante-form" style="display: none;">
                     {{ form.as_p }}
                     {% if form.non_field_errors %}
                     <div class="error">{{ form.non_field_errors }}</div>
@@ -84,20 +84,34 @@
     document.addEventListener('DOMContentLoaded', function() {
         const cantidadPersonasField = document.querySelector('#id_cantidad_personas');
         const acompanantesContainer = document.getElementById('acompanantes-container');
+        const formsets = document.querySelectorAll('.acompanante-form');
 
+        // Mostrar el número correcto de formularios de acompañantes al cargar la página
+        const initialCantidad = parseInt(cantidadPersonasField.value) || 1;
+        formsets.forEach((formset, index) => {
+            formset.style.display = index < initialCantidad - 1 ? 'block' : 'none';
+        });
+
+        // Actualizar los formularios de acompañantes cuando cambia la cantidad de personas
         cantidadPersonasField.addEventListener('change', function() {
             const cantidad = parseInt(cantidadPersonasField.value) || 1;
-            const formsets = document.querySelectorAll('.acompanante-form');
-
             formsets.forEach((formset, index) => {
-                if (index < cantidad - 1) {
-                    formset.style.display = 'block';
-                } else {
-                    formset.style.display = 'none';
-                }
+                formset.style.display = index < cantidad - 1 ? 'block' : 'none';
             });
         });
     });
+
+    function validateCantidadPersonas(input) {
+        const min = parseInt(input.min);
+        const max = parseInt(input.max);
+        let value = parseInt(input.value);
+
+        if (isNaN(value) || value < min) {
+            input.value = min;
+        } else if (value > max) {
+            input.value = max;
+        }
+    }
 </script>
 
 {% endblock %}
