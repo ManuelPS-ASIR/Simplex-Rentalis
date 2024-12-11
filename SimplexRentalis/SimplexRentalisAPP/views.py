@@ -456,7 +456,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.forms import modelformset_factory
-from .models import Propiedades, Identidades, Reservas
+from .models import Propiedades, Identidades, Reservas, ReservaPersona
 from .forms import ReservaForm, IdentidadForm
 from datetime import datetime, timedelta
 from django.core.exceptions import ValidationError
@@ -470,7 +470,7 @@ def alquilar_propiedad(request, propiedad_id):
     if not identidad_usuario:
         messages.warning(request, "Debes completar tu identidad antes de realizar una reserva.")
         request.session['next_url'] = request.path
-        return redirect('completar_identidad')
+        return redirect('SimplexRentalisAPP/completar_identidad')
 
     IdentidadFormSet = modelformset_factory(Identidades, form=IdentidadForm, extra=0)
 
@@ -490,30 +490,47 @@ def alquilar_propiedad(request, propiedad_id):
             reserva.fecha_inicio = datetime.combine(reserva.fecha_inicio, datetime.min.time()) + timedelta(hours=12)
             reserva.fecha_fin = datetime.combine(reserva.fecha_fin, datetime.min.time()) + timedelta(hours=11, minutes=59)
 
-            try:
-                reserva.full_clean()  # Validar la reserva antes de guardarla
-                reserva.save()  # Guardar la reserva
+            # Verificar si hay reservas existentes en el mismo rango de fechas
+            reservas_existentes = Reservas.objects.filter(
+                propiedad=propiedad,
+                fecha_inicio__lt=reserva.fecha_fin,
+                fecha_fin__gt=reserva.fecha_inicio
+            ).exclude(id=reserva.id)
 
-                if form_identidad.is_valid():
-                    form_identidad.save()
+            if reservas_existentes.exists():
+                mensajes_reservas = [f"Reserva {r.id} desde {r.fecha_inicio} hasta {r.fecha_fin}" for r in reservas_existentes]
+                print("Reservas existentes en el rango de fechas seleccionado:", mensajes_reservas)
+                messages.error(request, f"La propiedad ya tiene una reserva en el rango de fechas seleccionado: {mensajes_reservas}")
+            else:
+                try:
+                    reserva.full_clean()  # Validar la reserva antes de guardarla
+                    reserva.save()  # Guardar la reserva
 
-                    if formset_identidades.is_valid():
-                        for form in formset_identidades:
-                            acompanante = form.save(commit=False)
-                            acompanante.reserva = reserva
-                            acompanante.save()
+                    # Guardar la identidad del usuario en ReservaPersona
+                    ReservaPersona.objects.create(reserva=reserva, identidad=identidad_usuario)
 
-                        messages.success(request, "Reserva realizada con éxito.")
-                        return redirect('reserva_exitosa')
+                    if form_identidad.is_valid():
+                        form_identidad.save()
+
+                        if formset_identidades.is_valid():
+                            for form in formset_identidades:
+                                acompanante = form.save(commit=False)
+                                acompanante.reserva = reserva
+                                acompanante.save()
+                                # Guardar la identidad del acompañante en ReservaPersona
+                                ReservaPersona.objects.create(reserva=reserva, identidad=acompanante.identidad)
+
+                            messages.success(request, "Reserva realizada con éxito.")
+                            return redirect('reserva_exitosa')
+                        else:
+                            print("Errores en formularios de acompañantes:", formset_identidades.errors)
+                            messages.error(request, "Por favor, corrige los errores en los formularios de acompañantes.")
                     else:
-                        print("Errores en formularios de acompañantes:", formset_identidades.errors)
-                        messages.error(request, "Por favor, corrige los errores en los formularios de acompañantes.")
-                else:
-                    print("Errores en formulario de identidad del usuario:", form_identidad.errors)
-                    messages.error(request, "Por favor, corrige los errores en el formulario de identidad.")
-            except ValidationError as e:
-                print("Errores en formulario de reserva:", e.message_dict)
-                messages.error(request, f"Errores en la reserva: {e.message_dict}")
+                        print("Errores en formulario de identidad del usuario:", form_identidad.errors)
+                        messages.error(request, "Por favor, corrige los errores en el formulario de identidad.")
+                except ValidationError as e:
+                    print("Errores en formulario de reserva:", e.message_dict)
+                    messages.error(request, f"Errores en la reserva: {e.message_dict}")
         else:
             print("Errores en formulario de reserva:", form_reserva.errors)
             print("Datos enviados:", form_reserva.cleaned_data)
@@ -531,7 +548,6 @@ def alquilar_propiedad(request, propiedad_id):
         'formset_identidades': formset_identidades,
         'identidad_usuario': identidad_usuario,
     })
-
 
 
 
