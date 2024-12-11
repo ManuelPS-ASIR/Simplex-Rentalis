@@ -2,12 +2,10 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm
-from .models import User
+from .models import User, Identidades, Propiedades, Galeria
 import re
 from datetime import date
 import dns.resolver
-
-
 class RegistroForm(UserCreationForm):
     username = forms.CharField(
         label=_("Nombre de usuario"),
@@ -132,8 +130,6 @@ class RegistroForm(UserCreationForm):
         except dns.resolver.NoNameservers:
             raise ValidationError(_("El dominio del correo electrónico no parece ser válido."))
         return email
-
-
 class ConfiguracionCuentaForm(forms.ModelForm):
     username = forms.CharField(
         label=_("Nombre de usuario"),
@@ -195,44 +191,12 @@ class ConfiguracionCuentaForm(forms.ModelForm):
         if age < 18:
             raise ValidationError(_("Debe tener al menos 18 años para registrarse."))
         return fecha_nacimiento
-
-from .models import Propiedades
-from .models import Galeria
-
 class PropiedadForm(forms.ModelForm):
     class Meta:
         model = Propiedades
         fields = [
             'nombre', 'descripcion', 'direccion', 'precio_noche', 'calificacion', 'permite_mascotas', 'en_mantenimiento', 'capacidad_maxima'
         ]
-
-
-
-
-
-from django import forms
-from .models import Reservas, Identidades
-from django.forms import modelformset_factory
-
-class ReservaForm(forms.ModelForm):
-    class Meta:
-        model = Reservas
-        fields = ['propiedad', 'fecha_inicio', 'fecha_fin', 'mascotas', 'tipo_mascota']
-
-    def clean(self):
-        cleaned_data = super().clean()
-        fecha_inicio = cleaned_data.get("fecha_inicio")
-        fecha_fin = cleaned_data.get("fecha_fin")
-
-        if fecha_inicio and fecha_fin:
-            if fecha_inicio >= fecha_fin:
-                raise forms.ValidationError("La fecha de inicio debe ser anterior a la fecha de fin.")
-        return cleaned_data
-
-from django import forms
-import re
-from .models import Identidades
-
 class IdentidadForm(forms.ModelForm):
     class Meta:
         model = Identidades
@@ -251,7 +215,7 @@ class IdentidadForm(forms.ModelForm):
     def clean_numero_documento(self):
         numero_documento = self.cleaned_data.get("numero_documento")
         
-        # Verificar que el número de documento tenga exactamente 9 caracteres
+                # Verificar que el número de documento tenga exactamente 9 caracteres
         if len(numero_documento) != 9:
             raise forms.ValidationError("El número de documento debe tener exactamente 9 caracteres.")
         
@@ -260,3 +224,24 @@ class IdentidadForm(forms.ModelForm):
             raise forms.ValidationError("El número de documento debe tener el formato de un DNI español: 8 dígitos seguidos de una letra.")
         
         return numero_documento
+from django import forms
+from .models import Reservas
+
+class ReservaForm(forms.ModelForm):
+    fecha_inicio = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        required=True
+    )
+    fecha_fin = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        required=True
+    )
+    cantidad_personas = forms.IntegerField(
+        min_value=1,
+        widget=forms.NumberInput(attrs={'value': 1, 'min': 1}),
+        required=True
+    )
+
+    class Meta:
+        model = Reservas
+        fields = ['fecha_inicio', 'fecha_fin', 'cantidad_personas', 'mascotas', 'tipo_mascota']

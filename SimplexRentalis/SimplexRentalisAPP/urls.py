@@ -40,12 +40,8 @@ urlpatterns = [
     # Ruta para ver detalle de la propiedad
     path('propiedad/<int:pk>/', DetallePropiedadView.as_view(), name='propiedad_detallada'),
     path('autocompletar-direcciones/', autocompletar_direcciones, name='autocompletar_direcciones'),
-
-    #alquilar propiedad
     path('propiedad/<int:propiedad_id>/alquilar/', views.alquilar_propiedad, name='alquilar_propiedad'),
-    path('reserva_exitosa/', views.reserva_exitosa_view, name='reserva_exitosa'), # Página de éxito (opcional)
-    path('completar-identidad/', views.completar_identidad, name='completar_identidad'),
-
+    path('reserva_exitosa/', views.reserva_exitosa, name='reserva_exitosa'),
 ]
 
 if settings.DEBUG:

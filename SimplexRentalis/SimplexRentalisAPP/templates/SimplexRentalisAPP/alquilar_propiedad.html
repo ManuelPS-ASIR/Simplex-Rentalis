@@ -1,195 +1,103 @@
 {% extends "base.html" %}
-
 {% block content %}
 <div class="container">
-    <h2>Reservar Propiedad</h2>
-    
-    <form id="reservaForm" method="post">
+    <h2>Reservar Propiedad: {{ propiedad.nombre }}</h2>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post">
         {% csrf_token %}
         
-        <!-- Campo oculto para propiedad -->
-        <input type="hidden" name="propiedad" value="{{ propiedad.id }}">
-
-        <!-- Selección de fechas con Flatpickr -->
+        <!-- Formulario de Reserva -->
         <div class="form-group">
-            <label for="fecha_reserva">Selecciona el rango de fechas:</label>
-            <input type="text" id="fecha_reserva" class="form-control" placeholder="Selecciona fechas" required>
-            <input type="hidden" id="fecha_inicio" name="fecha_inicio" required>
-            <input type="hidden" id="fecha_fin" name="fecha_fin" required>
+            <label for="fecha_inicio">Fecha de inicio</label>
+            {{ form_reserva.fecha_inicio }}
+            {% if form_reserva.fecha_inicio.errors %}
+            <div class="error">{{ form_reserva.fecha_inicio.errors }}</div>
+            {% endif %}
         </div>
-
-        <!-- Mostrar el costo total -->
-        <div id="costo_total" class="alert alert-info text-center">
-            Total: €0.00
-        </div>
-
-        <!-- Selección de cantidad de personas -->
+        
         <div class="form-group">
-            <label for="cantidadPersonas">Cantidad de personas:</label>
-            <input type="number" id="cantidadPersonas" name="cantidad_personas" class="form-control" value="1" min="1" required>
-            <small id="cantidadPersonasHelp" class="form-text text-muted"></small> <!-- Mensaje para el máximo -->
-        </div>
-
-        <!-- Información de identidad del titular -->
-        <h3>Información del titular de la reserva</h3>
-        <div id="identidadTitular">
-            {% if usuario.identidad_asociada %}
-                <!-- Si el usuario ya tiene identidad asociada, mostramos los datos actuales -->
-                <p><strong>Tipo de documento:</strong> {{ usuario.identidad_asociada.tipo_documento }}</p>
-                <p><strong>Número de documento:</strong> {{ usuario.identidad_asociada.numero_documento }}</p>
-                <p><strong>Nombre:</strong> {{ usuario.identidad_asociada.usuario.first_name }} {{ usuario.identidad_asociada.usuario.last_name }}</p>
-
-                <!-- Se muestra el formulario para que el usuario pueda modificar los datos -->
-                <div id="formBase">
-                    {{ identidad_form.as_p }}
-                </div>
-            {% else %}
-                <!-- Si no hay identidad asociada, mostramos el formulario para registrar una nueva identidad -->
-                <p>No tienes una identidad registrada. Por favor, completa tu información antes de continuar.</p>
-                <div id="formBase">
-                    {{ identidad_form.as_p }}
-                </div>
+            <label for="fecha_fin">Fecha de fin</label>
+            {{ form_reserva.fecha_fin }}
+            {% if form_reserva.fecha_fin.errors %}
+            <div class="error">{{ form_reserva.fecha_fin.errors }}</div>
             {% endif %}
         </div>
 
-        <!-- Formularios adicionales para acompañantes -->
-        <h3>Información de acompañantes</h3>
-        <div id="formulariosAcompanantes"></div>
+        <div class="form-group">
+            <label for="cantidad_personas">Cantidad de personas</label>
+            {{ form_reserva.cantidad_personas }}
+            {% if form_reserva.cantidad_personas.errors %}
+            <div class="error">{{ form_reserva.cantidad_personas.errors }}</div>
+            {% endif %}
+        </div>
 
-        <!-- Botón para enviar -->
+        <div class="form-group">
+            <label for="mascotas">¿Llevarás mascotas?</label>
+            {{ form_reserva.mascotas }}
+            {% if form_reserva.mascotas.errors %}
+            <div class="error">{{ form_reserva.mascotas.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="tipo_mascota">Tipo de mascota (si aplica)</label>
+            {{ form_reserva.tipo_mascota }}
+            {% if form_reserva.tipo_mascota.errors %}
+            <div class="error">{{ form_reserva.tipo_mascota.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Formulario de Identidad del Usuario -->
+        <h3>Datos de Identidad del Usuario</h3>
+        {{ form_identidad.as_p }}
+        {% if form_identidad.non_field_errors %}
+        <div class="error">{{ form_identidad.non_field_errors }}</div>
+        {% endif %}
+
+        <!-- Formulario de Identidades de los Acompañantes -->
+        <h3>Datos de Identidad de los Acompañantes</h3>
+        <div id="acompanantes-container">
+            {{ formset_identidades.management_form }}
+            {% for form in formset_identidades %}
+                <div class="acompanante-form">
+                    {{ form.as_p }}
+                    {% if form.non_field_errors %}
+                    <div class="error">{{ form.non_field_errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
         <button type="submit" class="btn btn-primary">Reservar</button>
     </form>
 </div>
 
-<!-- Incluir Flatpickr -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script> <!-- Localización en español -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Obtener la capacidad máxima de la propiedad desde un atributo data- en el HTML
-        const capacidadMaxima = parseInt(document.getElementById('propiedad').dataset.capacidadMaxima, 10);
-        
-        const precioPorNoche = parseFloat('{{ propiedad.precio_por_noche|default:"100" }}');
-        const fechasNoDisponibles = JSON.parse('{{ fechas_no_disponibles_json|escapejs }}');
+    document.addEventListener('DOMContentLoaded', function() {
+        const cantidadPersonasField = document.querySelector('#id_cantidad_personas');
+        const acompanantesContainer = document.getElementById('acompanantes-container');
 
-        // Configuración de Flatpickr
-        flatpickr("#fecha_reserva", {
-            mode: "range",
-            minDate: new Date().fp_incr(1), // No permitir la selección del día actual
-            disable: fechasNoDisponibles.map(fecha => new Date(fecha)),
-            dateFormat: "Y-m-d",
-            locale: "es",
-            onChange: function(selectedDates) {
-                const costoTotalElement = document.getElementById('costo_total');
-                
-                // Verificar si se han seleccionado dos fechas
-                if (selectedDates.length > 1) {
-                    const fechaInicio = selectedDates[0];
-                    const fechaFin = selectedDates[1];
-                    
-                    // Establecer la fecha de inicio a las 12:00 AM
-                    fechaInicio.setHours(12, 0, 0, 0);
-                    
-                    // Establecer la fecha de fin a las 11:59 AM
-                    fechaFin.setHours(11, 59, 59, 999);
+        cantidadPersonasField.addEventListener('change', function() {
+            const cantidad = parseInt(cantidadPersonasField.value) || 1;
+            const formsets = document.querySelectorAll('.acompanante-form');
 
-                    // Establecer las fechas en los campos ocultos
-                    document.getElementById('fecha_inicio').value = fechaInicio.toISOString().split('T')[0];
-                    document.getElementById('fecha_fin').value = fechaFin.toISOString().split('T')[0];
-
-                    // Calcular el costo total
-                    const diffDays = Math.ceil((fechaFin - fechaInicio) / (1000 * 60 * 60 * 24));
-                    const total = diffDays * precioPorNoche;
-                    costoTotalElement.innerText = `Total: €${total.toFixed(2)}`;
+            formsets.forEach((formset, index) => {
+                if (index < cantidad - 1) {
+                    formset.style.display = 'block';
                 } else {
-                    costoTotalElement.innerText = "Total: €0.00";
+                    formset.style.display = 'none';
                 }
-            }
-        });
-
-        // Manejar dinámicamente los formularios de acompañantes
-        document.getElementById('cantidadPersonas').addEventListener('input', function() {
-            const cantidad = parseInt(this.value, 10);
-            const container = document.getElementById('formulariosAcompanantes');
-            const baseForm = document.getElementById('formBase');
-
-            // Mostrar un mensaje de advertencia si se excede la capacidad máxima
-            const cantidadPersonasHelp = document.getElementById('cantidadPersonasHelp');
-            if (cantidad > capacidadMaxima) {
-                cantidadPersonasHelp.textContent = `🚨 *Advertencia*: La capacidad máxima es **${capacidadMaxima} personas**. No puedes reservar para más de esa cantidad.`;
-                cantidadPersonasHelp.style.color = 'red'; // Color de advertencia
-            } else {
-                cantidadPersonasHelp.textContent = '';
-            }
-
-            // Limpiar formularios existentes y generar nuevos formularios si es necesario
-            container.innerHTML = ""; 
-
-            if (cantidad > 1 && baseForm) {
-                for (let i = 2; i <= cantidad; i++) {
-                    // Clonar el formulario del titular
-                    const formClone = baseForm.cloneNode(true);
-                    formClone.querySelectorAll("label, input, select").forEach((element) => {
-                        const attrName = element.getAttribute("name");
-                        const attrId = element.getAttribute("id");
-
-                        if (attrName) {
-                            // Cambiar el atributo 'name'
-                            element.setAttribute("name", attrName.replace("titular", `acompanante_${i}`));
-                        }
-                        if (attrId) {
-                            // Cambiar el atributo 'id'
-                            element.setAttribute("id", attrId.replace("titular", `acompanante_${i}`));
-                            element.previousElementSibling.setAttribute(
-                                "for",
-                                attrId.replace("titular", `acompanante_${i}`)
-                            );
-                        }
-                        if (element.tagName === "INPUT" || element.tagName === "SELECT") {
-                            element.value = ""; // Limpiar valores
-                        }
-                    });
-
-                    // Agregar encabezado para el acompañante
-                    const title = document.createElement("h4");
-                    title.textContent = `Acompañante ${i}`;
-                    container.appendChild(title);
-
-                    // Insertar el formulario clonado en el contenedor
-                    container.appendChild(formClone);
-                }
-            }
-        });
-
-        // Validar el formulario antes de enviarlo
-        document.getElementById('reservaForm').addEventListener('submit', function(event) {
-            const fechaInicio = document.getElementById('fecha_inicio').value;
-            const fechaFin = document.getElementById('fecha_fin').value;
-            const cantidadPersonas = parseInt(document.getElementById('cantidadPersonas').value, 10);
-
-            // Validación de fechas
-            if (!fechaInicio || !fechaFin) {
-                event.preventDefault(); // Detener el envío del formulario
-                alert('⚠️ ¡Debes seleccionar un rango de fechas antes de reservar!');
-            }
-
-            // Validación de fechas (fecha inicio no puede ser posterior a la fecha fin)
-            if (new Date(fechaInicio) > new Date(fechaFin)) {
-                event.preventDefault(); // Detener el envío del formulario
-                alert('⚠️ ¡La fecha de inicio no puede ser posterior a la fecha de fin!');
-            }
-
-            // Validación de cantidad de personas
-            if (cantidadPersonas > capacidadMaxima) {
-                event.preventDefault(); // Detener el envío del formulario
-                alert(`🚨 ¡La cantidad de personas no puede ser mayor a ${capacidadMaxima}!`);
-            }
+            });
         });
     });
 </script>
-
-<!-- Agregar el valor de capacidad máxima como un atributo data en el HTML -->
-<div id="propiedad" data-capacidad-maxima="{{ propiedad.capacidad_maxima }}"></div>
 
 {% endblock %}

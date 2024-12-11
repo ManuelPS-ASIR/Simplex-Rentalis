@@ -25,13 +25,13 @@ class User(AbstractUser):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='usuario_asociado'  # Nombre único para el acceso inverso
+        related_name='usuario_asociado'
     )
     avatar = models.ImageField(
         upload_to='avatars/', 
         null=True, 
         blank=True, 
-        default='defaults/default_avatar.png'  # Ruta del avatar por defecto
+        default='defaults/default_avatar.png'
     )
     es_propietario = models.BooleanField(default=False)
     ultimo_acceso = models.DateTimeField(null=True, blank=True)
@@ -54,7 +54,7 @@ class User(AbstractUser):
         return self.es_propietario
 
     def __str__(self):
-        return f"{self.username}"  # Solo mostrar el nombre de usuario
+        return f"{self.username}"
 
     def clean(self):
         if self.telefono:
@@ -71,19 +71,18 @@ class User(AbstractUser):
                 raise ValidationError("El usuario debe ser mayor de 18 años.")
 
 
-# Señal para actualizar `ultimo_acceso` cuando el usuario inicie sesión
 @receiver(user_logged_in)
 def actualizar_ultimo_acceso(sender, request, user, **kwargs):
-    user.ultimo_acceso = timezone.localtime()  # Usamos localtime para considerar la zona horaria
+    user.ultimo_acceso = timezone.localtime()
     user.save()
+from django.db import models
+from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
+from djmoney.models.fields import MoneyField
 
 ####################################
 ##### 1. Modelo de Propiedades #####
 ####################################
-from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
-from djmoney.models.fields import MoneyField
-
 class Propiedades(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100, blank=False, null=False)
@@ -104,7 +103,6 @@ class Propiedades(models.Model):
     capacidad_maxima = models.IntegerField(default=1, blank=False, null=False)
     cantidad_banos = models.IntegerField(default=1, blank=False, null=False)
     cantidad_dormitorios = models.IntegerField(default=1, blank=False, null=False)
-
     galeria = models.ForeignKey('Galeria', on_delete=models.CASCADE, related_name='propiedades_galeria', blank=True, null=True)
 
     class Meta:
@@ -118,6 +116,10 @@ class Propiedades(models.Model):
     def clean(self):
         if self.calificacion < 1 or self.calificacion > 5:
             raise ValidationError("La calificación debe estar entre 1 y 5.")
+        if self.capacidad_maxima < 1:
+            raise ValidationError("La capacidad máxima debe ser al menos 1.")
+        if not self.propietario.identidad:
+            raise ValidationError("El propietario debe tener una identidad asociada antes de realizar una reserva.")
 
     def esta_disponible(self, fecha_inicio, fecha_fin):
         if fecha_inicio >= fecha_fin:
@@ -131,11 +133,7 @@ class Propiedades(models.Model):
         ).exists():
             return False
         return True
-    def clean(self):
-        # Verificar si el usuario tiene una identidad asociada
-        if not self.usuario.identidad:
-            raise ValidationError("El usuario debe tener una identidad asociada antes de realizar una reserva.")
-
+from django.db import models
 
 ####################################
 ###### 1.1. Modelo de Galeria ######
@@ -153,15 +151,14 @@ class Galeria(models.Model):
 
     def __str__(self):
         return f"Imagen de {self.propiedad.nombre} - {self.id}"
-    
-###################################
-##### 2. Modelo de Reservas #######
-###################################
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from decimal import Decimal
 
+####################################
+##### 2. Modelo de Reservas #######
+####################################
 class Reservas(models.Model):
     id = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey(
@@ -171,6 +168,7 @@ class Reservas(models.Model):
         null=False,
         blank=False
     )
+    cantidad_personas = models.IntegerField()
     usuario = models.ForeignKey('User', on_delete=models.CASCADE, null=False, blank=False)
     fecha_inicio = models.DateField(null=False, blank=False)
     fecha_fin = models.DateField(null=False, blank=False)
@@ -188,8 +186,6 @@ class Reservas(models.Model):
         null=True
     )
     personas = models.ManyToManyField('Identidades', through='ReservaPersona', related_name="reservas", blank=False)
-    
-    # Nuevo campo para almacenar el costo total
     costo_total = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), null=False, blank=False)
 
     class Meta:
@@ -206,12 +202,11 @@ class Reservas(models.Model):
         return f'Reserva {self.id} de {self.propiedad.nombre} del {self.fecha_inicio} al {self.fecha_fin}'
 
     def clean(self):
+        if not hasattr(self, 'propiedad') or self.propiedad is None:
+            raise ValidationError("La propiedad debe estar asignada antes de la validación.")
+        
         hoy = timezone.localdate()
 
-        # Verificación de fechas
-        if self.fecha_inicio is None or self.fecha_fin is None:
-            raise ValidationError("Las fechas de inicio y fin de la reserva no pueden estar vacías.")
-        
         if self.fecha_inicio <= hoy:
             raise ValidationError("La fecha de inicio debe ser posterior a la fecha actual.")
         
@@ -237,25 +232,18 @@ class Reservas(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()  # Realizar la validación completa antes de guardar
 
-        # Calcular el costo total antes de guardar
         if self.fecha_inicio and self.fecha_fin and self.propiedad.precio_noche:
-            # Calcular el número de días de la reserva
             num_dias = (self.fecha_fin - self.fecha_inicio).days
-            # Extraer el valor decimal del precio_noche antes de multiplicar
             precio_noche = self.propiedad.precio_noche.amount if hasattr(self.propiedad.precio_noche, 'amount') else self.propiedad.precio_noche
             self.costo_total = Decimal(num_dias) * Decimal(precio_noche)
 
-        # Guarda el objeto antes de validar la relación many-to-many
         super().save(*args, **kwargs)
 
-        # Validar la relación many-to-many después de guardar
         max_personas = self.propiedad.capacidad_maxima
         if self.personas.count() > max_personas:
             raise ValidationError(f"La cantidad de personas no puede superar {max_personas}.")
 
-        # Guardar cambios nuevamente después de la validación si es necesario
         super().save(*args, **kwargs)
-
 
 class ReservaPersona(models.Model):
     reserva = models.ForeignKey('Reservas', on_delete=models.CASCADE)
@@ -266,7 +254,8 @@ class ReservaPersona(models.Model):
             models.UniqueConstraint(fields=['reserva', 'identidad'], name='unique_reserva_identidad'),
         ]
 
-###################################
+import re
+
 class Identidades(models.Model):
     id = models.AutoField(primary_key=True)  # Identificador único para cada identidad
     reserva = models.ForeignKey('Reservas', on_delete=models.CASCADE, related_name='identidades_reserva')
@@ -284,7 +273,7 @@ class Identidades(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='identidad_asociada'  # Nombre único para el acceso inverso
+        related_name='identidad_asociada'
     )
     numero_documento = models.CharField(max_length=50, unique=True)
     fecha_expedicion = models.DateField()
@@ -305,7 +294,7 @@ class Identidades(models.Model):
     def __str__(self):
         return f'{self.nombre} {self.primer_apellido}'
 
-    def clean(self):        
+    def clean(self):
         # Validación para el tipo de documento
         if self.tipo_documento == 'DNI' and not re.match(r'^\d{8}[A-Za-z]$', self.numero_documento):
             raise ValidationError("El DNI debe tener 8 dígitos seguidos de una letra.")
@@ -313,10 +302,11 @@ class Identidades(models.Model):
             raise ValidationError("El número de pasaporte debe tener entre 6 y 9 caracteres alfanuméricos.")
         elif self.tipo_documento == 'carnet de conducir' and len(self.numero_documento) < 5:
             raise ValidationError("El número de carnet de conducir debe tener al menos 5 caracteres.")
+from django.core.validators import MinValueValidator, MaxValueValidator
 
-##################################
+###################################
 ##### 4. Modelo de Opiniones #####
-##################################
+###################################
 class Opiniones(models.Model):
     id = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey('Propiedades', on_delete=models.CASCADE)
@@ -338,28 +328,19 @@ class Opiniones(models.Model):
 
     def __str__(self):
         return f'Opinión de {self.usuario.username} para {self.propiedad.nombre}'
-    
+import requests
 
 ##################################
 #### 5. Modelo de Direcciones ####
 ##################################
-
-
-from django.db import models
-from django.core.exceptions import ValidationError
-import requests
-
-import requests
-from django.core.exceptions import ValidationError
-
 class Direcciones(models.Model):
     calle = models.CharField(max_length=255)
     numero_casa = models.CharField(max_length=20, blank=False, null=False)
-    numero_puerta = models.CharField(max_length=20, blank=True, null=True)  # Campo opcional para el número de puerta
+    numero_puerta = models.CharField(max_length=20, blank=True, null=True)
     codigo_postal = models.CharField(max_length=20, blank=False, null=False)
     ciudad = models.CharField(max_length=100)
     co_autonoma = models.CharField(max_length=100)
-    provincia = models.CharField(max_length=100)  # Nuevo campo para la provincia
+    provincia = models.CharField(max_length=100)
     pais = models.CharField(max_length=100)
     latitud = models.FloatField(null=True, blank=True)
     longitud = models.FloatField(null=True, blank=True)
@@ -368,23 +349,18 @@ class Direcciones(models.Model):
         return f"{self.calle}, {self.numero_casa}, {self.numero_puerta}, {self.ciudad}, {self.provincia}, {self.co_autonoma}, {self.pais}, {self.codigo_postal}"
 
     def validar_y_geocodificar(self):
-        """
-        Valida la dirección con Photon y almacena las coordenadas.
-        """
-        # Concatenamos todos los elementos de la dirección para la consulta
         query = f"{self.calle}, {self.numero_casa}, {self.numero_puerta}, {self.codigo_postal}, {self.ciudad}, {self.provincia}, {self.co_autonoma}, {self.pais}"
 
         url = "https://photon.komoot.io/api/"
         params = {
-            "q": query,  # Consultamos la dirección completa
-            "limit": 1,  # Limitamos la búsqueda a un solo resultado
+            "q": query,
+            "limit": 1,
         }
         response = requests.get(url, params=params)
         
         if response.status_code == 200:
             data = response.json()
             if data["features"]:
-                # Si encontramos resultados, extraemos las coordenadas
                 location = data["features"][0]["geometry"]["coordinates"]
                 self.latitud = location[1]
                 self.longitud = location[0]
@@ -394,5 +370,5 @@ class Direcciones(models.Model):
             raise ValidationError(f"Error al contactar con Photon API: {response.status_code}")
 
     def save(self, *args, **kwargs):
-        self.validar_y_geocodificar()  # Validar y geocodificar antes de guardar
+        self.validar_y_geocodificar()
         super().save(*args, **kwargs)

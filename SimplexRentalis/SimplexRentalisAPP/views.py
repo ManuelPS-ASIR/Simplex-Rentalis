@@ -391,166 +391,6 @@ def autocompletar_direcciones(request):
     else:
         return JsonResponse({"error": "Error al contactar con Photon"}, status=500)
 
-import json
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from django.core.serializers.json import DjangoJSONEncoder
-from datetime import timedelta
-from .models import Propiedades, Reservas, Identidades
-from .forms import ReservaForm, IdentidadForm
-
-def alquilar_propiedad(request, propiedad_id):
-    print("Iniciando el proceso de alquiler de propiedad...")
-    propiedad = get_object_or_404(Propiedades, id=propiedad_id)
-    print(f"Propiedad encontrada: {propiedad}")
-    
-    # Verificar si el usuario está autenticado
-    if not request.user.is_authenticated:
-        messages.warning(request, "Debes iniciar sesión para realizar una reserva.")
-        return redirect('login')  # Redirige a la página de inicio de sesión
-    form_reserva = ReservaForm()
-    identidad_forms = []
-    reserva_data = request.session.get('reserva_data', {})  # Recuperar datos del paso 1 si existen
-    print(f"Reserva Data recuperada de la sesión: {reserva_data}")
-
-    # Verificar si el usuario tiene un modelo de identidad
-    identidad_usuario = Identidades.objects.filter(usuario=request.user).first()
-    print(f"Identidad del usuario: {identidad_usuario}")
-    if not identidad_usuario:
-        request.session['next_url'] = request.path
-        messages.warning(request, "Debes completar tu identidad antes de realizar una reserva.")
-        return redirect('completar_identidad')  # Redirige al formulario de identidad
-    # Obtener la capacidad máxima de la propiedad
-    capacidad_maxima = propiedad.capacidad_maxima
-    print(f"Capacidad máxima de la propiedad: {capacidad_maxima}")
-
-    if request.method == 'POST':
-        print("Recibiendo una solicitud POST...")
-        
-        # Leer y decodificar el cuerpo de la solicitud
-        body_unicode = request.body.decode('utf-8')
-        if body_unicode:
-            try:
-                body_data = json.loads(body_unicode)
-                print(f"Datos recibidos en el cuerpo de la solicitud: {body_data}")
-            except json.JSONDecodeError as e:
-                print(f"Error decodificando JSON: {e}")
-                messages.error(request, "Error procesando la solicitud. Por favor, intenta nuevamente.")
-                return redirect('alquilar_propiedad', propiedad_id=propiedad_id)
-        else:
-            body_data = {}
-        # Paso 1: Formularios de reserva
-        if 'cantidad_personas' in body_data:
-            form_reserva = ReservaForm(body_data)
-            print(f"Datos recibidos en el formulario de reserva: {body_data}")
-            if form_reserva.is_valid():
-                # Almacenar los datos en la sesión
-                reserva_data = form_reserva.cleaned_data
-                reserva_data['propiedad_id'] = propiedad.id  # Guardar solo el ID de la propiedad
-                request.session['reserva_data'] = {
-                    'propiedad_id': reserva_data['propiedad_id'],
-                    'fecha_inicio': str(reserva_data['fecha_inicio']),
-                    'fecha_fin': str(reserva_data['fecha_fin']),
-                    'cantidad_personas': reserva_data.get('cantidad_personas', 1),  # Asegurarse de que cantidad_personas esté presente
-                    'mascotas': reserva_data['mascotas'],
-                    'tipo_mascota': reserva_data['tipo_mascota'],
-                }
-                print(f"Datos de reserva después de ser validados: {reserva_data}")
-                
-                # Obtener el número de personas correctamente
-                num_personas = int(reserva_data.get('cantidad_personas', 1))
-                print(f"Número de personas en la reserva: {num_personas}")
-
-                # Asegurarse de que el número de personas no supere la capacidad máxima de la propiedad
-                if num_personas > capacidad_maxima:
-                    messages.error(request, f"La cantidad de personas no puede ser mayor a {capacidad_maxima}.")
-                    identidad_forms = []
-                    print(f"Cantidad de personas excede la capacidad. Identidad Forms vacíos.")
-                else:
-                    fecha_inicio = reserva_data['fecha_inicio']
-                    fecha_fin = reserva_data['fecha_fin']
-                    fechas_no_disponibles = []
-
-                    reservas = propiedad.reservas.all()
-                    for reserva in reservas:
-                        rango = [reserva.fecha_inicio + timedelta(days=i) for i in range((reserva.fecha_fin - reserva.fecha_inicio).days + 1)]
-                        fechas_no_disponibles.extend(rango)
-
-                    fechas_no_disponibles = set(fechas_no_disponibles)
-                    rango_reserva = [fecha_inicio + timedelta(days=i) for i in range((fecha_fin - fecha_inicio).days + 1)]
-
-                    if any(fecha in fechas_no_disponibles for fecha in rango_reserva):
-                        messages.error(request, "Las fechas seleccionadas ya están ocupadas.")
-                        identidad_forms = []
-                    else:
-                        identidad_forms = [IdentidadForm(prefix=str(i)) for i in range(num_personas)]
-                        print(f"Formularios de identidad generados: {len(identidad_forms)}")
-
-                        if identidad_usuario:
-                            identidad_forms[0] = IdentidadForm(instance=identidad_usuario, prefix="0")
-                            print("Formulario de identidad del usuario rellenado.")
-            else:
-                print(f"Errores en el formulario de reserva: {form_reserva.errors}")
-                identidad_forms = []
-        # Paso 2: Procesar formularios de identidad
-        else:
-            print(f"Datos recibidos para formularios de identidad: {body_data}")
-            num_personas = reserva_data.get('cantidad_personas', 1) if reserva_data else 0
-            print(f"Número de personas para formularios de identidad: {num_personas}")
-            identidad_forms = [IdentidadForm(body_data, prefix=str(i)) for i in range(num_personas)]
-            print(f"Formularios de identidad generados: {[form.is_valid() for form in identidad_forms]}")
-
-            if all(form.is_valid() for form in identidad_forms):
-                print("Todos los formularios de identidad son válidos.")
-                
-                if reserva_data:
-                    print("Creando la reserva...")
-                    propiedad = get_object_or_404(Propiedades, id=reserva_data['propiedad_id'])
-
-                    reserva = Reservas(
-                        propiedad=propiedad,
-                        usuario=request.user,
-                        fecha_inicio=reserva_data['fecha_inicio'],
-                        fecha_fin=reserva_data['fecha_fin'],
-                        cantidad_personas=reserva_data['cantidad_personas'],
-                    )
-                    reserva.save()
-                    print(f"Reserva guardada: {reserva}")
-
-                    for i, form in enumerate(identidad_forms):
-                        identidad = form.save(commit=False)
-                        identidad.reserva = reserva
-                        if i == 0:
-                            identidad.usuario = request.user
-                        identidad.save()
-                        print(f"Identidad guardada: {identidad}")
-
-                    del request.session['reserva_data']
-                    return redirect('reserva_exitosa')
-            else:
-                print("Errores en los formularios de identidad:")
-                for form in identidad_forms:
-                    print(form.errors)
-
-                form_reserva = ReservaForm(initial=reserva_data)
-    reservas = propiedad.reservas.all()
-    fechas_no_disponibles = []
-    for reserva in reservas:
-        rango = [reserva.fecha_inicio + timedelta(days=i) for i in range((reserva.fecha_fin - reserva.fecha_inicio).days + 1)]
-        fechas_no_disponibles.extend(rango)
-
-    fechas_no_disponibles_json = json.dumps([fecha.strftime('%Y-%m-%d') for fecha in fechas_no_disponibles], cls=DjangoJSONEncoder)
-
-    print(f"Renderizando la propiedad con ID {propiedad_id}")
-    return render(request, 'SimplexRentalisAPP/alquilar_propiedad.html', {
-        'propiedad': propiedad,
-        'form_reserva': form_reserva,
-        'identidad_forms': identidad_forms,
-        'fechas_no_disponibles_json': fechas_no_disponibles_json,
-        'identidad_usuario': identidad_usuario,  # Pasar la identidad del usuario al contexto
-        'identidad_form': IdentidadForm(instance=identidad_usuario) if identidad_usuario else None,  # Pasar el formulario de identidad
-    })
-
 
 # Vista para mostrar el mensaje de reserva exitosa
 def reserva_exitosa_view(request):
@@ -608,16 +448,99 @@ def completar_identidad(request):
 
     return render(request, 'SimplexRentalisAPP/completar_identidad.html', {'form': form})
 
-def obtener_fechas_no_disponibles(propiedad):
-    reservas = propiedad.reservas.all()
-    fechas_no_disponibles = []
-    for reserva in reservas:
-        rango = [reserva.fecha_inicio + timedelta(days=i) for i in range((reserva.fecha_fin - reserva.fecha_inicio).days + 1)]
-        fechas_no_disponibles.extend(rango)
-    return fechas_no_disponibles
 
-def procesar_formularios_identidad(post_data, num_personas):
-    identidad_forms = [IdentidadForm(post_data, prefix=str(i)) for i in range(num_personas)]
-    son_validos = all(form.is_valid() for form in identidad_forms)
-    identidades = [form.save(commit=False) for form in identidad_forms if form.is_valid()]
-    return son_validos, identidades, identidad_forms
+
+
+####################################################################################################################################
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.forms import modelformset_factory
+from .models import Propiedades, Identidades, Reservas
+from .forms import ReservaForm, IdentidadForm
+from datetime import datetime, timedelta
+from django.core.exceptions import ValidationError
+
+@login_required
+def alquilar_propiedad(request, propiedad_id):
+    propiedad = get_object_or_404(Propiedades, id=propiedad_id)
+
+    # Verificar si el usuario tiene una identidad asociada
+    identidad_usuario = Identidades.objects.filter(usuario=request.user).first()
+    if not identidad_usuario:
+        messages.warning(request, "Debes completar tu identidad antes de realizar una reserva.")
+        request.session['next_url'] = request.path
+        return redirect('completar_identidad')
+
+    IdentidadFormSet = modelformset_factory(Identidades, form=IdentidadForm, extra=0)
+
+    if request.method == 'POST':
+        form_reserva = ReservaForm(request.POST)
+        form_identidad = IdentidadForm(request.POST, instance=identidad_usuario)
+        formset_identidades = IdentidadFormSet(request.POST, queryset=Identidades.objects.none(), prefix='acompanante')
+
+        # Asignar la propiedad al formulario antes de validar
+        form_reserva.instance.propiedad = propiedad
+
+        # Crear un objeto de reserva vacío y asignar la propiedad antes de validar el formulario
+        if form_reserva.is_valid():
+            reserva = form_reserva.save(commit=False)
+            reserva.usuario = request.user
+            reserva.propiedad = propiedad
+            reserva.fecha_inicio = datetime.combine(reserva.fecha_inicio, datetime.min.time()) + timedelta(hours=12)
+            reserva.fecha_fin = datetime.combine(reserva.fecha_fin, datetime.min.time()) + timedelta(hours=11, minutes=59)
+
+            try:
+                reserva.full_clean()  # Validar la reserva antes de guardarla
+                reserva.save()  # Guardar la reserva
+
+                if form_identidad.is_valid():
+                    form_identidad.save()
+
+                    if formset_identidades.is_valid():
+                        for form in formset_identidades:
+                            acompanante = form.save(commit=False)
+                            acompanante.reserva = reserva
+                            acompanante.save()
+
+                        messages.success(request, "Reserva realizada con éxito.")
+                        return redirect('reserva_exitosa')
+                    else:
+                        print("Errores en formularios de acompañantes:", formset_identidades.errors)
+                        messages.error(request, "Por favor, corrige los errores en los formularios de acompañantes.")
+                else:
+                    print("Errores en formulario de identidad del usuario:", form_identidad.errors)
+                    messages.error(request, "Por favor, corrige los errores en el formulario de identidad.")
+            except ValidationError as e:
+                print("Errores en formulario de reserva:", e.message_dict)
+                messages.error(request, f"Errores en la reserva: {e.message_dict}")
+        else:
+            print("Errores en formulario de reserva:", form_reserva.errors)
+            print("Datos enviados:", form_reserva.cleaned_data)
+            messages.error(request, "Por favor, corrige los errores en el formulario de reserva.")
+    else:
+        form_reserva = ReservaForm(initial={'cantidad_personas': 1})
+        form_reserva.fields['cantidad_personas'].widget.attrs['max'] = propiedad.capacidad_maxima
+        form_identidad = IdentidadForm(instance=identidad_usuario)
+        formset_identidades = IdentidadFormSet(queryset=Identidades.objects.none(), prefix='acompanante')
+
+    return render(request, 'SimplexRentalisAPP/alquilar_propiedad.html', {
+        'propiedad': propiedad,
+        'form_reserva': form_reserva,
+        'form_identidad': form_identidad,
+        'formset_identidades': formset_identidades,
+        'identidad_usuario': identidad_usuario,
+    })
+
+
+
+
+
+
+
+
+
+from django.shortcuts import render
+
+def reserva_exitosa(request):
+    return render(request, 'SimplexRentalisAPP/reserva_exitosa.html')
