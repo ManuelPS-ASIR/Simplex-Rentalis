@@ -2,10 +2,11 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm
-from .models import User, Identidades, Propiedades, Galeria
+from .models import User, IdentidadReserva, IdentidadUsuario, Propiedades, Galeria
 import re
 from datetime import date
 import dns.resolver
+
 class RegistroForm(UserCreationForm):
     username = forms.CharField(
         label=_("Nombre de usuario"),
@@ -130,6 +131,7 @@ class RegistroForm(UserCreationForm):
         except dns.resolver.NoNameservers:
             raise ValidationError(_("El dominio del correo electrónico no parece ser válido."))
         return email
+
 class ConfiguracionCuentaForm(forms.ModelForm):
     username = forms.CharField(
         label=_("Nombre de usuario"),
@@ -191,40 +193,51 @@ class ConfiguracionCuentaForm(forms.ModelForm):
         if age < 18:
             raise ValidationError(_("Debe tener al menos 18 años para registrarse."))
         return fecha_nacimiento
+
 class PropiedadForm(forms.ModelForm):
     class Meta:
         model = Propiedades
         fields = [
             'nombre', 'descripcion', 'direccion', 'precio_noche', 'calificacion', 'permite_mascotas', 'en_mantenimiento', 'capacidad_maxima'
         ]
-class IdentidadForm(forms.ModelForm):
+
+class IdentidadUsuarioForm(forms.ModelForm):
     class Meta:
-        model = Identidades
-        fields = ['tipo_documento', 'numero_documento', 'fecha_expedicion', 'primer_apellido', 
-                  'segundo_apellido', 'nombre', 'sexo']
+        model = IdentidadUsuario
+        fields = ['tipo_documento', 'numero_documento', 'fecha_expedicion', 'primer_apellido', 'segundo_apellido', 'nombre', 'sexo']
     
-    # Definir el widget para el campo 'fecha_expedicion'
     fecha_expedicion = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
-    
-    # Definir el widget para 'numero_documento' y limitar a 9 caracteres
     numero_documento = forms.CharField(
-        max_length=9,  # Limitar a 9 caracteres
-        widget=forms.TextInput(attrs={'maxlength': '9'})  # Establecer atributo maxlength en HTML
+        max_length=9,
+        widget=forms.TextInput(attrs={'maxlength': '9'})
     )
 
     def clean_numero_documento(self):
         numero_documento = self.cleaned_data.get("numero_documento")
-        
-                # Verificar que el número de documento tenga exactamente 9 caracteres
         if len(numero_documento) != 9:
             raise forms.ValidationError("El número de documento debe tener exactamente 9 caracteres.")
-        
-        # Expresión regular para validar el formato de un DNI español: 8 dígitos + letra
         if not re.match(r'^\d{8}[A-Za-z]$', numero_documento):
             raise forms.ValidationError("El número de documento debe tener el formato de un DNI español: 8 dígitos seguidos de una letra.")
-        
         return numero_documento
-from django import forms
+
+class IdentidadPersonaForm(forms.ModelForm):
+    class Meta:
+        model = IdentidadReserva  # Cambia a IdentidadReserva para las reservas
+        fields = ['tipo_documento', 'numero_documento', 'fecha_expedicion', 'primer_apellido', 'segundo_apellido', 'nombre', 'sexo']
+    
+    fecha_expedicion = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    numero_documento = forms.CharField(
+        max_length=9,
+        widget=forms.TextInput(attrs={'maxlength': '9'})
+    )
+
+    def clean_numero_documento(self):
+        numero_documento = self.cleaned_data.get("numero_documento")
+        if len(numero_documento) != 9:
+            raise forms.ValidationError("El número de documento debe tener exactamente 9 caracteres.")
+        if not re.match(r'^\d{8}[A-Za-z]$', numero_documento):
+            raise forms.ValidationError("El número de documento debe tener el formato de un DNI español: 8 dígitos seguidos de una letra.")
+        return numero_documento
 from .models import Reservas
 
 class ReservaForm(forms.ModelForm):

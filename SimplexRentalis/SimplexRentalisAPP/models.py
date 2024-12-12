@@ -1,15 +1,14 @@
+####################################
+##### 0. Modelo de Usuarios #####
+####################################
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
 from django.utils import timezone
-from django.core.validators import MinValueValidator, MaxValueValidator
 import re
 
-####################################
-##### 0. Modelo de Usuarios #####
-####################################
 class User(AbstractUser):
     email = models.EmailField(unique=True, max_length=254)
     telefono = models.CharField(unique=True, max_length=15, blank=True, null=True)
@@ -20,8 +19,8 @@ class User(AbstractUser):
         blank=True,
         null=True
     )
-    identidad = models.OneToOneField(
-        'Identidades',
+    identidad_usuario = models.OneToOneField(
+        'IdentidadUsuario',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -75,14 +74,102 @@ class User(AbstractUser):
 def actualizar_ultimo_acceso(sender, request, user, **kwargs):
     user.ultimo_acceso = timezone.localtime()
     user.save()
+###################################
+#### Modelo de IdentidadUsuario ###
+###################################
+from django.db import models
+import re
+from django.core.exceptions import ValidationError
+
+class IdentidadUsuario(models.Model):
+    tipo_documento = models.CharField(
+        max_length=30, 
+        choices=[
+            ('DNI', 'DNI'),
+            ('carnet de conducir', 'Carnet de Conducir'),
+            ('pasaporte', 'Pasaporte'),
+        ], 
+        null=False, blank=False
+    )
+    numero_documento = models.CharField(max_length=50, unique=True)
+    fecha_expedicion = models.DateField()
+    primer_apellido = models.CharField(max_length=255)
+    segundo_apellido = models.CharField(max_length=255, blank=True, null=True)
+    nombre = models.CharField(max_length=255)
+    sexo = models.CharField(
+        max_length=10, 
+        choices=[
+            ('masculino', 'Masculino'),
+            ('femenino', 'Femenino'),
+            ('otro', 'Otro'),
+        ], 
+        blank=True,
+        null=True
+    )
+
+    def __str__(self):
+        return f'{self.nombre} {self.primer_apellido}'
+
+    def clean(self):
+        # Validación para el tipo de documento
+        if self.tipo_documento == 'DNI' and not re.match(r'^\d{8}[A-Za-z]$', self.numero_documento):
+            raise ValidationError("El DNI debe tener 8 dígitos seguidos de una letra.")
+        elif self.tipo_documento == 'pasaporte' and not re.match(r'^[A-Za-z0-9]{6,9}$', self.numero_documento):
+            raise ValidationError("El número de pasaporte debe tener entre 6 y 9 caracteres alfanuméricos.")
+        elif self.tipo_documento == 'carnet de conducir' and len(self.numero_documento) < 5:
+            raise ValidationError("El número de carnet de conducir debe tener al menos 5 caracteres.")
+###################################
+#### Modelo de IdentidadReserva ###
+###################################
+from django.db import models
+import re
+from django.core.exceptions import ValidationError
+
+class IdentidadReserva(models.Model):
+    tipo_documento = models.CharField(
+        max_length=30, 
+        choices=[
+            ('DNI', 'DNI'),
+            ('carnet de conducir', 'Carnet de Conducir'),
+            ('pasaporte', 'Pasaporte'),
+        ], 
+        null=False, blank=False
+    )
+    numero_documento = models.CharField(max_length=50)
+    fecha_expedicion = models.DateField()
+    primer_apellido = models.CharField(max_length=255)
+    segundo_apellido = models.CharField(max_length=255, blank=True, null=True)
+    nombre = models.CharField(max_length=255)
+    sexo = models.CharField(
+        max_length=10, 
+        choices=[
+            ('masculino', 'Masculino'),
+            ('femenino', 'Femenino'),
+            ('otro', 'Otro'),
+        ], 
+        blank=True,
+        null=True
+    )
+
+    def __str__(self):
+        return f'{self.nombre} {self.primer_apellido}'
+
+    def clean(self):
+        # Validación para el tipo de documento
+        if self.tipo_documento == 'DNI' and not re.match(r'^\d{8}[A-Za-z]$', self.numero_documento):
+            raise ValidationError("El DNI debe tener 8 dígitos seguidos de una letra.")
+        elif self.tipo_documento == 'pasaporte' and not re.match(r'^[A-Za-z0-9]{6,9}$', self.numero_documento):
+            raise ValidationError("El número de pasaporte debe tener entre 6 y 9 caracteres alfanuméricos.")
+        elif self.tipo_documento == 'carnet de conducir' and len(self.numero_documento) < 5:
+            raise ValidationError("El número de carnet de conducir debe tener al menos 5 caracteres.")
+####################################
+##### 1. Modelo de Propiedades #####
+####################################
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from djmoney.models.fields import MoneyField
 
-####################################
-##### 1. Modelo de Propiedades #####
-####################################
 class Propiedades(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100, blank=False, null=False)
@@ -118,7 +205,7 @@ class Propiedades(models.Model):
             raise ValidationError("La calificación debe estar entre 1 y 5.")
         if self.capacidad_maxima < 1:
             raise ValidationError("La capacidad máxima debe ser al menos 1.")
-        if not self.propietario.identidad:
+        if not self.propietario.identidad_usuario:
             raise ValidationError("El propietario debe tener una identidad asociada antes de realizar una reserva.")
 
     def esta_disponible(self, fecha_inicio, fecha_fin):
@@ -133,11 +220,11 @@ class Propiedades(models.Model):
         ).exists():
             return False
         return True
-from django.db import models
-
 ####################################
 ###### 1.1. Modelo de Galeria ######
 ####################################
+from django.db import models
+
 class Galeria(models.Model):
     id = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey('Propiedades', related_name='gallery_images', on_delete=models.CASCADE)
@@ -151,14 +238,14 @@ class Galeria(models.Model):
 
     def __str__(self):
         return f"Imagen de {self.propiedad.nombre} - {self.id}"
-from django.core.exceptions import ValidationError
-from django.db import models
-from django.utils import timezone
-from decimal import Decimal
-
 ####################################
 ##### 2. Modelo de Reservas #######
 ####################################
+from django.db import models
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+from decimal import Decimal
+
 class Reservas(models.Model):
     id = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey(
@@ -185,7 +272,7 @@ class Reservas(models.Model):
         default=None, 
         null=True
     )
-    personas = models.ManyToManyField('Identidades', through='ReservaPersona', related_name="reservas", blank=False)
+    personas = models.ManyToManyField('IdentidadReserva', through='ReservaPersona', related_name="reservas", blank=False)
     costo_total = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), null=False, blank=False)
 
     class Meta:
@@ -247,66 +334,19 @@ class Reservas(models.Model):
 
 class ReservaPersona(models.Model):
     reserva = models.ForeignKey('Reservas', on_delete=models.CASCADE)
-    identidad = models.ForeignKey('Identidades', on_delete=models.CASCADE)
+    identidad = models.ForeignKey('IdentidadReserva', on_delete=models.CASCADE)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['reserva', 'identidad'], name='unique_reserva_identidad'),
         ]
-
-import re
-
-class Identidades(models.Model):
-    id = models.AutoField(primary_key=True)  # Identificador único para cada identidad
-    reserva = models.ForeignKey('Reservas', on_delete=models.CASCADE, related_name='identidades_reserva')
-    tipo_documento = models.CharField(
-        max_length=30, 
-        choices=[
-            ('DNI', 'DNI'),
-            ('carnet de conducir', 'Carnet de Conducir'),
-            ('pasaporte', 'Pasaporte'),
-        ], 
-        null=False, blank=False
-    )
-    usuario = models.OneToOneField(
-        'User',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='identidad_asociada'
-    )
-    numero_documento = models.CharField(max_length=50, unique=True)
-    fecha_expedicion = models.DateField()
-    primer_apellido = models.CharField(max_length=255)
-    segundo_apellido = models.CharField(max_length=255, blank=True, null=True)
-    nombre = models.CharField(max_length=255)
-    sexo = models.CharField(
-        max_length=10, 
-        choices=[
-            ('masculino', 'Masculino'),
-            ('femenino', 'Femenino'),
-            ('otro', 'Otro'),
-        ], 
-        blank=True,
-        null=True
-    )
-
-    def __str__(self):
-        return f'{self.nombre} {self.primer_apellido}'
-
-    def clean(self):
-        # Validación para el tipo de documento
-        if self.tipo_documento == 'DNI' and not re.match(r'^\d{8}[A-Za-z]$', self.numero_documento):
-            raise ValidationError("El DNI debe tener 8 dígitos seguidos de una letra.")
-        elif self.tipo_documento == 'pasaporte' and not re.match(r'^[A-Za-z0-9]{6,9}$', self.numero_documento):
-            raise ValidationError("El número de pasaporte debe tener entre 6 y 9 caracteres alfanuméricos.")
-        elif self.tipo_documento == 'carnet de conducir' and len(self.numero_documento) < 5:
-            raise ValidationError("El número de carnet de conducir debe tener al menos 5 caracteres.")
-from django.core.validators import MinValueValidator, MaxValueValidator
-
 ###################################
 ##### 4. Modelo de Opiniones #####
 ###################################
+from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
+
 class Opiniones(models.Model):
     id = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey('Propiedades', on_delete=models.CASCADE)
@@ -328,11 +368,13 @@ class Opiniones(models.Model):
 
     def __str__(self):
         return f'Opinión de {self.usuario.username} para {self.propiedad.nombre}'
-import requests
-
 ##################################
 #### 5. Modelo de Direcciones ####
 ##################################
+from django.db import models
+from django.core.exceptions import ValidationError
+import requests
+
 class Direcciones(models.Model):
     calle = models.CharField(max_length=255)
     numero_casa = models.CharField(max_length=20, blank=False, null=False)

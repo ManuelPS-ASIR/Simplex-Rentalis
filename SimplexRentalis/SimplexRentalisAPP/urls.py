@@ -42,6 +42,7 @@ urlpatterns = [
     path('autocompletar-direcciones/', autocompletar_direcciones, name='autocompletar_direcciones'),
     path('propiedad/<int:propiedad_id>/alquilar/', views.alquilar_propiedad, name='alquilar_propiedad'),
     path('reserva_exitosa/', views.reserva_exitosa, name='reserva_exitosa'),
+    path('completar_identidad/', views.completar_identidad_usuario, name='completar_identidad_usuario'),
 ]
 
 if settings.DEBUG:

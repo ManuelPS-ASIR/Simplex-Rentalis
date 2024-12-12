@@ -13,7 +13,6 @@ def index(request):
     return render(request, 'SimplexRentalisAPP/index.html', {
         'propiedades_mas_visitadas': propiedades_mas_visitadas
     })
-
 from django.db.models import Case, When, Value
 
 def propiedades(request):
@@ -29,8 +28,6 @@ def propiedades(request):
         propiedad.portada = portada.imagen.url if portada else "/static/images/default_property.jpg"
 
     return render(request, 'SimplexRentalisAPP/propiedades_list.html', {'propiedades': propiedades})
-
-# Mostrar propiedades del usuario autenticado
 @login_required
 def propiedades_usuario(request):
     propiedades = Propiedades.objects.filter(propietario=request.user)
@@ -43,9 +40,6 @@ def propiedades_usuario(request):
     return render(request, 'SimplexRentalisAPP/propiedades_usuario.html', {
         'propiedades': propiedades
     })
-
-
-# Registro de usuario
 def register(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST, request.FILES)
@@ -70,8 +64,6 @@ def register(request):
             return JsonResponse({'success': False, 'error': errors}, status=400)
 
     return render(request, 'registration/registro.html', {'form': RegistroForm()})
-
-# Inicio de sesión personalizado
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('index')
@@ -96,12 +88,9 @@ def login_view(request):
             return JsonResponse({'success': False, 'error': {'username': _('El nombre de usuario no existe')}})
     
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
-
-# Cierre de sesión
 def logout_view(request):
     logout(request)
     return redirect('index')
-
 # Configuración de la cuenta
 @login_required
 def account_settings(request):
@@ -134,12 +123,6 @@ def account_settings(request):
         form = ConfiguracionCuentaForm(instance=request.user)
 
     return render(request, 'SimplexRentalisAPP/settings.html', {'form': form})
-
-from django.shortcuts import redirect
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from .models import Propiedades, Galeria
-
 @login_required
 def agregar_propiedad(request):
     if request.method == 'POST':
@@ -222,7 +205,6 @@ def agregar_propiedad(request):
         return redirect('propiedades_usuario')  # Cambiar 'mis_propiedades' por el nombre correcto de tu vista de "Mis Propiedades"
 
     return render(request, 'SimplexRentalisAPP/agregar_propiedad.html')
-
 from django.db.models import Min
 
 @login_required
@@ -249,7 +231,6 @@ def agregar_imagenes(request, propiedad_id):
         return JsonResponse({"success": True, "message": "Imágenes cargadas correctamente."})
 
     return render(request, "SimplexRentalisAPP/agregar_imagenes.html", {'propiedad': propiedad})
-
 # Vista detallada de una propiedad
 from django.views.generic.detail import DetailView
 from .models import Propiedades, Galeria
@@ -264,7 +245,6 @@ class DetallePropiedadView(DetailView):
         context['imagen_portada'] = Galeria.objects.filter(propiedad=propiedad, portada=True).first()
         context['imagenes'] = Galeria.objects.filter(propiedad=propiedad)
         return context
-
 # Vista para eliminar la cuenta
 @login_required
 def delete_account(request):
@@ -272,12 +252,12 @@ def delete_account(request):
         user = request.user
         user.delete()
         return redirect('index')  # redirigir a una página adecuada tras la eliminación
-
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
+
 @login_required
 def password_change_view(request):
     if request.method == 'POST':
@@ -293,7 +273,6 @@ def password_change_view(request):
         form = PasswordChangeForm(user=request.user)
 
     return render(request, 'SimplexRentalisAPP/password_change.html', {'form': form})
-
 from .forms import PropiedadForm
 
 def editar_propiedad(request, pk):
@@ -315,8 +294,7 @@ def editar_propiedad(request, pk):
         form = PropiedadForm(instance=propiedad)
 
     # Renderizamos el formulario en una plantilla
-    return render(request, 'editar_propiedad.html', {'form': form, 'propiedad': propiedad})
-
+    return render(request, 'SimplexRentalisAPP/editar_propiedad.html', {'form': form, 'propiedad': propiedad})
 from django.shortcuts import get_object_or_404, redirect
 from .models import Propiedades
 
@@ -327,13 +305,7 @@ def eliminar_propiedad(request, pk):
         propiedad.delete()  # Eliminar la propiedad
         return redirect('propiedades_usuario')  # Redirigir de nuevo a la lista de propiedades
     
-    return render(request, 'confirmar_eliminacion.html', {'propiedad': propiedad})
-
-from django.contrib import messages
-from django.shortcuts import redirect
-from django.http import JsonResponse
-from .models import Propiedades  # Asegúrate de importar el modelo adecuado
-
+    return render(request, 'SimplexRentalisAPP/confirmar_eliminacion.html', {'propiedad': propiedad})
 @login_required
 def cambiar_estado_propietario(request):
     user = request.user
@@ -356,8 +328,6 @@ def cambiar_estado_propietario(request):
             return redirect('settings')  # Redirige a la vista de configuración o preferida
     
     return JsonResponse({'error': 'Método no permitido'}, status=405)
-
-
 from django.http import JsonResponse
 import requests
 
@@ -390,31 +360,26 @@ def autocompletar_direcciones(request):
         return JsonResponse(sugerencias, safe=False)
     else:
         return JsonResponse({"error": "Error al contactar con Photon"}, status=500)
-
-
 # Vista para mostrar el mensaje de reserva exitosa
 def reserva_exitosa_view(request):
     return render(request, 'SimplexRentalisAPP/reserva_exitosa.html')
-
-
-
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import IdentidadForm
-from .models import Identidades
+from .forms import IdentidadUsuarioForm  # Asegúrate de tener este formulario configurado para IdentidadUsuario
+from .models import IdentidadUsuario
 
-def completar_identidad(request):
+def completar_identidad_usuario(request):
     if request.method == 'POST':
-        form = IdentidadForm(request.POST)
+        form = IdentidadUsuarioForm(request.POST)
         if form.is_valid():
             tipo_documento = form.cleaned_data['tipo_documento']
             numero_documento = form.cleaned_data['numero_documento']
             usuario = request.user
 
             # Verificar si el usuario ya tiene una identidad asociada
-            if usuario.identidad_asociada:  # Si el usuario ya tiene una identidad asociada
+            if usuario.identidad_usuario:  # Si el usuario ya tiene una identidad asociada
                 # Usar la identidad existente
-                identidad = usuario.identidad_asociada
+                identidad = usuario.identidad_usuario
                 
                 # Solo actualizar si hay cambios en los datos
                 if identidad.tipo_documento != tipo_documento or identidad.numero_documento != numero_documento:
@@ -424,7 +389,6 @@ def completar_identidad(request):
                     messages.success(request, "Tu identidad ha sido actualizada correctamente.")
                 else:
                     messages.info(request, "Los datos de identidad son los mismos. No se realizaron cambios.")
-
             else:
                 # Si no tiene una identidad asociada, crear una nueva
                 identidad = form.save(commit=False)
@@ -432,7 +396,7 @@ def completar_identidad(request):
                 identidad.save()
 
                 # Actualizar el campo identidad en el modelo User (si es necesario)
-                usuario.identidad_asociada = identidad
+                usuario.identidad_usuario = identidad
                 usuario.save()
 
                 messages.success(request, "Tu identidad ha sido guardada correctamente.")
@@ -444,20 +408,15 @@ def completar_identidad(request):
             messages.error(request, "Por favor, corrige los errores en el formulario.")
             print(form.errors)  # Mensaje de depuración para ver los errores del formulario
     else:
-        form = IdentidadForm()
+        form = IdentidadUsuarioForm()
 
     return render(request, 'SimplexRentalisAPP/completar_identidad.html', {'form': form})
-
-
-
-
-####################################################################################################################################
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.forms import modelformset_factory
-from .models import Propiedades, Identidades, Reservas, ReservaPersona
-from .forms import ReservaForm, IdentidadForm
+from .models import Propiedades, IdentidadReserva, Reservas, ReservaPersona
+from .forms import ReservaForm, IdentidadPersonaForm
 from datetime import datetime, timedelta
 from django.core.exceptions import ValidationError
 
@@ -465,27 +424,39 @@ from django.core.exceptions import ValidationError
 def alquilar_propiedad(request, propiedad_id):
     propiedad = get_object_or_404(Propiedades, id=propiedad_id)
 
-    # Verificar si el usuario tiene una identidad asociada
-    identidad_usuario = Identidades.objects.filter(usuario=request.user).first()
+    # Obtener la identidad del usuario autenticado para autoprellenar el formulario
+    identidad_usuario = request.user.identidad_usuario if hasattr(request.user, 'identidad_usuario') else None
+
+    # Verificar si el usuario tiene una identidad asociada, si no redirigir a completar_identidad
     if not identidad_usuario:
         messages.warning(request, "Debes completar tu identidad antes de realizar una reserva.")
         request.session['next_url'] = request.path
-        return redirect('SimplexRentalisAPP/completar_identidad')
+        return redirect('completar_identidad_usuario')
 
-    IdentidadFormSet = modelformset_factory(Identidades, form=IdentidadForm, extra=0)
+    # Inicializar formulario de IdentidadPersona con los datos de identidad_usuario sin modificarla
+    initial_data = {
+        'tipo_documento': identidad_usuario.tipo_documento,
+        'numero_documento': identidad_usuario.numero_documento,
+        'fecha_expedicion': identidad_usuario.fecha_expedicion,
+        'primer_apellido': identidad_usuario.primer_apellido,
+        'segundo_apellido': identidad_usuario.segundo_apellido,
+        'nombre': identidad_usuario.nombre,
+        'sexo': identidad_usuario.sexo,
+    }
+
+    IdentidadFormSet = modelformset_factory(IdentidadReserva, form=IdentidadPersonaForm, extra=0)
 
     if request.method == 'POST':
         form_reserva = ReservaForm(request.POST)
-        form_identidad = IdentidadForm(request.POST, instance=identidad_usuario)
-        formset_identidades = IdentidadFormSet(request.POST, queryset=Identidades.objects.none(), prefix='acompanante')
+        form_identidad = IdentidadPersonaForm(request.POST)
+        formset_identidades = IdentidadFormSet(request.POST, queryset=IdentidadReserva.objects.none(), prefix='acompanante')
 
         # Asignar la propiedad al formulario antes de validar
         form_reserva.instance.propiedad = propiedad
 
-        # Crear un objeto de reserva vacío y asignar la propiedad antes de validar el formulario
         if form_reserva.is_valid():
             reserva = form_reserva.save(commit=False)
-            reserva.usuario = request.user
+            reserva.usuario = request.user  # Relacionar la reserva con el usuario autenticado
             reserva.propiedad = propiedad
             reserva.fecha_inicio = datetime.combine(reserva.fecha_inicio, datetime.min.time()) + timedelta(hours=12)
             reserva.fecha_fin = datetime.combine(reserva.fecha_fin, datetime.min.time()) + timedelta(hours=11, minutes=59)
@@ -506,19 +477,19 @@ def alquilar_propiedad(request, propiedad_id):
                     reserva.full_clean()  # Validar la reserva antes de guardarla
                     reserva.save()  # Guardar la reserva
 
-                    # Guardar la identidad del usuario en ReservaPersona
-                    ReservaPersona.objects.create(reserva=reserva, identidad=identidad_usuario)
+                    # Guardar la identidad del usuario en ReservaPersona si existe
+                    if identidad_usuario:
+                        ReservaPersona.objects.create(reserva=reserva, identidad=identidad_usuario)
 
                     if form_identidad.is_valid():
-                        form_identidad.save()
+                        nueva_identidad = form_identidad.save()
 
                         if formset_identidades.is_valid():
                             for form in formset_identidades:
                                 acompanante = form.save(commit=False)
-                                acompanante.reserva = reserva
                                 acompanante.save()
                                 # Guardar la identidad del acompañante en ReservaPersona
-                                ReservaPersona.objects.create(reserva=reserva, identidad=acompanante.identidad)
+                                ReservaPersona.objects.create(reserva=reserva, identidad=acompanante)
 
                             messages.success(request, "Reserva realizada con éxito.")
                             return redirect('reserva_exitosa')
@@ -538,8 +509,8 @@ def alquilar_propiedad(request, propiedad_id):
     else:
         form_reserva = ReservaForm(initial={'cantidad_personas': 1})
         form_reserva.fields['cantidad_personas'].widget.attrs['max'] = propiedad.capacidad_maxima
-        form_identidad = IdentidadForm(instance=identidad_usuario)
-        formset_identidades = IdentidadFormSet(queryset=Identidades.objects.none(), prefix='acompanante')
+        form_identidad = IdentidadPersonaForm(initial=initial_data)
+        formset_identidades = IdentidadFormSet(queryset=IdentidadReserva.objects.none(), prefix='acompanante')
 
     return render(request, 'SimplexRentalisAPP/alquilar_propiedad.html', {
         'propiedad': propiedad,
@@ -548,13 +519,6 @@ def alquilar_propiedad(request, propiedad_id):
         'formset_identidades': formset_identidades,
         'identidad_usuario': identidad_usuario,
     })
-
-
-
-
-
-
-
 
 from django.shortcuts import render
 
