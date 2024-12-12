@@ -431,7 +431,7 @@ def alquilar_propiedad(request, propiedad_id):
     if not identidad_usuario:
         messages.warning(request, "Debes completar tu identidad antes de realizar una reserva.")
         request.session['next_url'] = request.path
-        return redirect('completar_identidad_usuario')
+        return redirect('completar_identidad_usuario')  # Asegúrate de que la URL name es correcta
 
     # Inicializar formulario de IdentidadPersona con los datos de identidad_usuario sin modificarla
     initial_data = {
@@ -477,9 +477,17 @@ def alquilar_propiedad(request, propiedad_id):
                     reserva.full_clean()  # Validar la reserva antes de guardarla
                     reserva.save()  # Guardar la reserva
 
-                    # Guardar la identidad del usuario en ReservaPersona si existe
-                    if identidad_usuario:
-                        ReservaPersona.objects.create(reserva=reserva, identidad=identidad_usuario)
+                    # Crear una instancia de IdentidadReserva basada en identidad_usuario para ReservaPersona
+                    nueva_identidad_reserva = IdentidadReserva.objects.create(
+                        tipo_documento=identidad_usuario.tipo_documento,
+                        numero_documento=identidad_usuario.numero_documento,
+                        fecha_expedicion=identidad_usuario.fecha_expedicion,
+                        primer_apellido=identidad_usuario.primer_apellido,
+                        segundo_apellido=identidad_usuario.segundo_apellido,
+                        nombre=identidad_usuario.nombre,
+                        sexo=identidad_usuario.sexo
+                    )
+                    ReservaPersona.objects.create(reserva=reserva, identidad=nueva_identidad_reserva)
 
                     if form_identidad.is_valid():
                         nueva_identidad = form_identidad.save()
