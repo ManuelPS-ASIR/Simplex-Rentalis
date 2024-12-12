@@ -16,16 +16,13 @@
         
         <!-- Formulario de Reserva -->
         <div class="form-group">
-            <label for="fecha_inicio">Fecha de inicio</label>
-            {{ form_reserva.fecha_inicio }}
+            <label for="rango_fechas">Selecciona el rango de fechas</label>
+            <input type="text" id="rango_fechas" class="form-control">
+            <input type="hidden" id="id_fecha_inicio" name="fecha_inicio">
+            <input type="hidden" id="id_fecha_fin" name="fecha_fin">
             {% if form_reserva.fecha_inicio.errors %}
             <div class="error">{{ form_reserva.fecha_inicio.errors }}</div>
             {% endif %}
-        </div>
-        
-        <div class="form-group">
-            <label for="fecha_fin">Fecha de fin</label>
-            {{ form_reserva.fecha_fin }}
             {% if form_reserva.fecha_fin.errors %}
             <div class="error">{{ form_reserva.fecha_fin.errors }}</div>
             {% endif %}
@@ -80,8 +77,28 @@
     </form>
 </div>
 
+<!-- Incluir Flatpickr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script> <!-- Cargar localización en español -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const fechaInicioInput = document.getElementById('id_fecha_inicio');
+        const fechaFinInput = document.getElementById('id_fecha_fin');
+        
+        flatpickr("#rango_fechas", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            locale: "es", // Establecer la localización en español
+            minDate: new Date().fp_incr(1), // No permitir fechas anteriores al día siguiente
+            onChange: function(selectedDates, dateStr, instance) {
+                if (selectedDates.length === 2) {
+                    fechaInicioInput.value = selectedDates[0].toISOString().split('T')[0];
+                    fechaFinInput.value = selectedDates[1].toISOString().split('T')[0];
+                }
+            }
+        });
+
         const cantidadPersonasField = document.querySelector('#id_cantidad_personas');
         const acompanantesContainer = document.getElementById('acompanantes-container');
         const formsets = document.querySelectorAll('.acompanante-form');
