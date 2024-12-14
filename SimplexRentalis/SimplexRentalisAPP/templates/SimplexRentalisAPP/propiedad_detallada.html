@@ -100,15 +100,15 @@ Propiedad en detalle
             <p>{{ opinion.comentario }}</p>
             <div style="display: flex; align-items: center;">
                 <div style="display: flex; align-items: center; margin-right: 10px;">
-                    <span class="likes-count" style="font-size: 40px;">{{ opinion.likes }}</span>
+                    <span class="likes-count" style="font-size: 20px;">{{ opinion.likes }}</span>
                     <button type="button" class="like-btn" style="background: none; border: none; cursor: pointer;">
-                        <img src="{% static 'defaults/like.png' %}" alt="Me gusta" style="width: 40px; height: 40px;">
+                        <img src="{% static 'defaults/like.png' %}" alt="Me gusta" style="width: 20px; height: 20px;">
                     </button>
                 </div>
                 <div style="display: flex; align-items: center;">
-                    <span class="dislikes-count" style="font-size: 40px;">{{ opinion.dislikes }}</span>
+                    <span class="dislikes-count" style="font-size: 20px;">{{ opinion.dislikes }}</span>
                     <button type="button" class="dislike-btn" style="background: none; border: none; cursor: pointer;">
-                        <img src="{% static 'defaults/like.png' %}" alt="No me gusta" style="width: 40px; height: 40px; transform: rotate(180deg);">
+                        <img src="{% static 'defaults/like.png' %}" alt="No me gusta" style="width: 20px; height: 20px; transform: rotate(180deg);">
                     </button>
                 </div>
             </div>
