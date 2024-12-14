@@ -729,3 +729,10 @@ input[type="date"]:valid {
     flex-grow: 1;
     padding: 1rem; /* Asegura un buen espaciado interno */
 }
+
+.image-navigation {
+    position: absolute;
+    top: 50%; /* A mitad de altura */
+    transform: translateY(-50%); /* Centrado verticalmente */
+    z-index: 10;
+}

@@ -122,6 +122,7 @@ Editar Propiedad
             console.error('Error al prellenar los campos:', error);
         }
 
+        // Cambiar imagen principal por clic en una miniatura
         function changeImage(imageUrl, thumbnailElement) {
             var mainImage = document.getElementById('main-image');
             mainImage.src = imageUrl;
@@ -133,6 +134,7 @@ Editar Propiedad
             thumbnailElement.style.border = '2px solid #007bff';
         }
 
+        // Cambiar imagen principal usando las flechas
         function changeImageByArrow(direction) {
             var images = document.querySelectorAll('.thumbnail-image');
             if (!images.length) return; // Validación adicional por si no hay imágenes.
@@ -142,6 +144,8 @@ Editar Propiedad
             } else if (direction === 'prev') {
                 currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
             }
+
+            // Actualizar la imagen principal al cambiar la flecha
             var newImage = images[currentImageIndex];
             changeImage(newImage.src, newImage);
         }
@@ -208,7 +212,32 @@ Editar Propiedad
                 resultsContainer.style.display = 'none';
             }
         });
+
+        // Clicar en miniaturas cambia la imagen principal
+        document.querySelectorAll('.thumbnail-image').forEach(function(thumb, index) {
+            thumb.addEventListener('click', function() {
+                currentImageIndex = index; // Establecer el índice de la imagen seleccionada
+                changeImage(thumb.src, thumb); // Cambiar la imagen principal
+            });
+        });
+
+        // Moverse entre imágenes con las flechas
+        const leftArrow = document.querySelector('.left-arrow');
+        const rightArrow = document.querySelector('.right-arrow');
+
+        if (leftArrow) {
+            leftArrow.addEventListener('click', function() {
+                changeImageByArrow('prev'); // Mover a la imagen anterior
+            });
+        }
+
+        if (rightArrow) {
+            rightArrow.addEventListener('click', function() {
+                changeImageByArrow('next'); // Mover a la siguiente imagen
+            });
+        }
     });
 </script>
+
 
 {% endblock %}
