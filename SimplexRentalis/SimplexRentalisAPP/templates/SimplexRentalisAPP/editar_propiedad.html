@@ -52,12 +52,12 @@ Editar Propiedad
                 <div>
                     <label for="precio_noche">Precio por noche:</label>
                     <input type="number" id="precio_noche" name="precio_noche" value="{{ propiedad.precio_noche }}" class="form-control" required>
-                </div>
+                </div>                
                 <p><strong>Calificación:</strong> 
                     <span style="color: #f0ad4e; font-size: 1.5em;">⭐{{ propiedad.calificacion }}</span>
                 </p>
                 <div>
-                    <label for="id_direccion">Dirección</label>
+                    <label for="direccion-autocomplete">Dirección</label>
                     <input type="text" name="direccion" class="form-control form-control-lg" id="direccion-autocomplete" required placeholder="Escribe tu dirección">
                     <ul id="autocomplete-results" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;">
                         <!-- Las sugerencias de autocompletado aparecerán aquí -->
@@ -66,10 +66,10 @@ Editar Propiedad
                         <strong>Nota:</strong> Elige una dirección de la lista para validar automáticamente.
                     </p>
                 </div>
-                <!-- Campos ocultos para almacenar coordenadas -->
-                <input type="hidden" name="latitud" id="latitud" value="">
-                <input type="hidden" name="longitud" id="longitud" value="">
-                <input type="hidden" name="codigo_postal" id="codigo_postal" value="">
+                    <!-- Campos ocultos para almacenar coordenadas -->
+                    <input type="hidden" name="latitud" id="latitud" value="{{ propiedad.latitud }}">
+                    <input type="hidden" name="longitud" id="longitud" value="{{ propiedad.longitud }}">
+                    <input type="hidden" name="codigo_postal" id="codigo_postal" value="{{ propiedad.codigo_postal }}">                
                 <div>
                     <label for="capacidad_maxima">Capacidad máxima:</label>
                     <input type="number" id="capacidad_maxima" name="capacidad_maxima" value="{{ propiedad.capacidad_maxima }}" class="form-control" required>
@@ -111,11 +111,16 @@ Editar Propiedad
         var currentImageIndex = 0;
 
         // Prellenar los campos con los valores actuales de la base de datos
-        document.getElementById('precio_noche').value = "{{ propiedad.precio_noche }}";
-        document.getElementById('direccion-autocomplete').value = "{{ propiedad.direccion }}";
-        document.getElementById('latitud').value = "{{ propiedad.latitud }}";
-        document.getElementById('longitud').value = "{{ propiedad.longitud }}";
-        document.getElementById('codigo_postal').value = "{{ propiedad.codigo_postal }}";
+        try {
+            var precioNoche = "{{ propiedad.precio_noche }}".replace(/[^\d.-]/g, '');
+            document.getElementById('precio_noche').value = precioNoche;
+            document.getElementById('direccion-autocomplete').value = "{{ propiedad.direccion }}";
+            document.getElementById('latitud').value = "{{ propiedad.latitud }}";
+            document.getElementById('longitud').value = "{{ propiedad.longitud }}";
+            document.getElementById('codigo_postal').value = "{{ propiedad.codigo_postal }}";
+        } catch (error) {
+            console.error('Error al prellenar los campos:', error);
+        }
 
         function changeImage(imageUrl, thumbnailElement) {
             var mainImage = document.getElementById('main-image');
@@ -180,7 +185,7 @@ Editar Propiedad
                             document.getElementById('direccion-autocomplete').value = this.dataset.fullAddress;
                             document.getElementById('latitud').value = this.dataset.latitud;
                             document.getElementById('longitud').value = this.dataset.longitud;
-                            document.getElementById('codigo_postal').value = this.dataset.codigo_postal;
+                            document.getElementById('codigo_postal').value = this.dataset.codigoPostal;
 
                             resultsContainer.style.display = 'none';
                         };
