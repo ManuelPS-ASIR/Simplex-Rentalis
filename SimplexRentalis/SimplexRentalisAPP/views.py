@@ -532,3 +532,22 @@ from django.shortcuts import render
 
 def reserva_exitosa(request):
     return render(request, 'SimplexRentalisAPP/reserva_exitosa.html')
+##################################################################################
+# views.py
+
+from django.http import JsonResponse
+from .models import Reservas
+from datetime import datetime
+
+def obtener_fechas_ocupadas(request, propiedad_id):
+    reservas = Reservas.objects.filter(propiedad_id=propiedad_id)
+    fechas_ocupadas = []
+
+    for reserva in reservas:
+        inicio = reserva.fecha_inicio
+        fin = reserva.fecha_fin
+        while inicio <= fin:
+            fechas_ocupadas.append(inicio.strftime('%Y-%m-%d'))
+            inicio += timedelta(days=1)
+
+    return JsonResponse(fechas_ocupadas, safe=False)

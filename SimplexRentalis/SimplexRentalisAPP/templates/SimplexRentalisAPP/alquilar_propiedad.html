@@ -85,22 +85,35 @@
     document.addEventListener('DOMContentLoaded', function() {
         const fechaInicioInput = document.getElementById('id_fecha_inicio');
         const fechaFinInput = document.getElementById('id_fecha_fin');
+
+        // Obtener el ID de la propiedad desde el atributo data
+        const propiedadId = document.getElementById('propiedad_id').getAttribute('data-propiedad-id');
         
-        flatpickr("#rango_fechas", {
-            mode: "range",
-            dateFormat: "Y-m-d",
-            locale: "es", // Establecer la localización en español
-            minDate: new Date().fp_incr(1), // No permitir fechas anteriores al día siguiente
-            onChange: function(selectedDates, dateStr, instance) {
-                if (selectedDates.length === 2) {
-                    fechaInicioInput.value = selectedDates[0].toISOString().split('T')[0];
-                    fechaFinInput.value = selectedDates[1].toISOString().split('T')[0];
-                }
-            }
-        });
+        let fechasOcupadas = [];
+
+        // Obtener las fechas ocupadas desde el servidor
+        fetch(`/obtener_fechas_ocupadas/${propiedadId}/`)
+            .then(response => response.json())
+            .then(data => {
+                fechasOcupadas = data;
+
+                // Inicializar Flatpickr después de obtener las fechas ocupadas
+                flatpickr("#rango_fechas", {
+                    mode: "range",
+                    dateFormat: "Y-m-d",
+                    locale: "es",
+                    minDate: "today", // No permitir fechas anteriores al día actual
+                    disable: fechasOcupadas, // Desactivar las fechas ocupadas
+                    onChange: function(selectedDates, dateStr, instance) {
+                        if (selectedDates.length === 2) {
+                            fechaInicioInput.value = selectedDates[0].toISOString().split('T')[0];
+                            fechaFinInput.value = selectedDates[1].toISOString().split('T')[0];
+                        }
+                    }
+                });
+            });
 
         const cantidadPersonasField = document.querySelector('#id_cantidad_personas');
-        const acompanantesContainer = document.getElementById('acompanantes-container');
         const formsets = document.querySelectorAll('.acompanante-form');
 
         // Mostrar el número correcto de formularios de acompañantes al cargar la página
@@ -130,5 +143,8 @@
         }
     }
 </script>
+
+<!-- Pasar el ID de la propiedad usando un atributo data -->
+<div id="propiedad_id" data-propiedad-id="{{ propiedad.id }}"></div>
 
 {% endblock %}
