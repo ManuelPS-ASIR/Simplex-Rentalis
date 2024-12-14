@@ -350,20 +350,28 @@ class Opiniones(models.Model):
     id = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey('Propiedades', on_delete=models.CASCADE)
     usuario = models.ForeignKey('User', on_delete=models.CASCADE)
-    likes = models.PositiveIntegerField(default=0)  # Campo para "me gustas"
-    dislikes = models.PositiveIntegerField(default=0)  # Campo para "no me gustas"
+    likes = models.PositiveIntegerField(default=0)
+    dislikes = models.PositiveIntegerField(default=0)
     comentario = models.TextField()
 
     def clean(self):
-        # Impide que los propietarios dejen opiniones sobre sus propias propiedades
         if self.propiedad.propietario == self.usuario:
-            raise ValidationError("Un propietario no puede dejar una opinión sobre sus propias propiedades.")
+            raise ValidationError("Un propietario no puede dejar una opinión sobre su propia propiedad.")
         
         if len(self.comentario) < 10:
             raise ValidationError("El comentario debe tener al menos 10 caracteres.")
 
     def __str__(self):
         return f'Opinión de {self.usuario.username} para {self.propiedad.nombre}'
+
+class OpinionVote(models.Model):
+    opinion = models.ForeignKey(Opiniones, on_delete=models.CASCADE)
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    vote = models.CharField(max_length=7, choices=[('like', 'Like'), ('dislike', 'Dislike')])
+
+    class Meta:
+        unique_together = ('opinion', 'user')  # Cada usuario puede votar solo una vez por opinión
+
 ##################################
 #### 5. Modelo de Direcciones ####
 ##################################

@@ -567,7 +567,7 @@ def obtener_fechas_ocupadas(request, propiedad_id):
 ##################################################################################
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
-from .models import Propiedades, Opiniones
+from .models import Propiedades, Opiniones, OpinionVote
 from django.views.decorators.csrf import csrf_protect
 
 @csrf_protect
@@ -591,13 +591,35 @@ def enviar_opinion(request, propiedad_id):
 @csrf_protect
 def like_opinion(request, opinion_id):
     opinion = get_object_or_404(Opiniones, id=opinion_id)
+    if opinion.usuario == request.user:
+        messages.error(request, 'No puedes votar en tu propia opinión.')
+        return redirect('propiedad_detallada', pk=opinion.propiedad.id)
+
+    # Verifica si el usuario ya ha votado
+    existing_vote = OpinionVote.objects.filter(opinion=opinion, user=request.user).first()
+    if existing_vote:
+        messages.error(request, 'Ya has votado en esta opinión.')
+        return redirect('propiedad_detallada', pk=opinion.propiedad.id)
+
     opinion.likes += 1
     opinion.save()
+    OpinionVote.objects.create(opinion=opinion, user=request.user, vote='like')
     return redirect('propiedad_detallada', pk=opinion.propiedad.id)
 
 @csrf_protect
 def dislike_opinion(request, opinion_id):
     opinion = get_object_or_404(Opiniones, id=opinion_id)
+    if opinion.usuario == request.user:
+        messages.error(request, 'No puedes votar en tu propia opinión.')
+        return redirect('propiedad_detallada', pk=opinion.propiedad.id)
+
+    # Verifica si el usuario ya ha votado
+    existing_vote = OpinionVote.objects.filter(opinion=opinion, user=request.user).first()
+    if existing_vote:
+        messages.error(request, 'Ya has votado en esta opinión.')
+        return redirect('propiedad_detallada', pk=opinion.propiedad.id)
+
     opinion.dislikes += 1
     opinion.save()
+    OpinionVote.objects.create(opinion=opinion, user=request.user, vote='dislike')
     return redirect('propiedad_detallada', pk=opinion.propiedad.id)
