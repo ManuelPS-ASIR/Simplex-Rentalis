@@ -21,7 +21,7 @@
                 <div class="propiedad-card-wrapper position-relative">
                     <!-- Enlace a la página de detalles de la propiedad -->
                     <a href="{% url 'propiedad_detallada' propiedad.pk %}" class="text-decoration-none">
-                        <div class="card shadow-sm border-0 rounded-3 overflow-hidden" style="height: 100%; display: flex; flex-direction: column;">
+                        <div class="card propiedad-card shadow-sm rounded-3 overflow-hidden" style="height: 100%; display: flex; flex-direction: column;">
                             <!-- Imagen de la propiedad -->
                             <div class="card-image" style="height: 200px; overflow: hidden;">
                                 {% if propiedad.portada %}
@@ -58,20 +58,4 @@
         {% endif %}
     </div>
 </div>
-
-<style>
-    .text-truncate {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .stars {
-        color: #f0ad4e; /* Color de las estrellas */
-    }
-    .stars .fa-star,
-    .stars .fa-star-half-alt,
-    .stars .far.fa-star {
-        margin-right: 2px; /* Espacio entre estrellas */
-    }
-</style>
 {% endblock %}
