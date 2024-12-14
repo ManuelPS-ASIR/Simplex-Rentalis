@@ -16,8 +16,8 @@
         
         <!-- Formulario de Reserva -->
         <div class="form-group">
-            <label for="rango_fechas">Selecciona el rango de fechas</label>
-            <input type="text" id="rango_fechas" class="form-control">
+            <label for="id_rango_fechas">Selecciona el rango de fechas</label>
+            <input type="text" id="id_rango_fechas" class="form-control">
             <input type="hidden" id="id_fecha_inicio" name="fecha_inicio">
             <input type="hidden" id="id_fecha_fin" name="fecha_fin">
             {% if form_reserva.fecha_inicio.errors %}
@@ -29,7 +29,7 @@
         </div>
 
         <div class="form-group">
-            <label for="cantidad_personas">Cantidad de personas</label>
+            <label for="id_cantidad_personas">Cantidad de personas</label>
             <input type="number" id="id_cantidad_personas" name="cantidad_personas" min="1" max="{{ propiedad.capacidad_maxima }}" value="1" oninput="validateCantidadPersonas(this);" />
             {% if form_reserva.cantidad_personas.errors %}
             <div class="error">{{ form_reserva.cantidad_personas.errors }}</div>
@@ -37,7 +37,7 @@
         </div>
 
         <div class="form-group">
-            <label for="mascotas">¿Llevarás mascotas?</label>
+            <label for="id_mascotas">¿Llevarás mascotas?</label>
             {{ form_reserva.mascotas }}
             {% if form_reserva.mascotas.errors %}
             <div class="error">{{ form_reserva.mascotas.errors }}</div>
@@ -45,7 +45,7 @@
         </div>
 
         <div class="form-group">
-            <label for="tipo_mascota">Tipo de mascota (si aplica)</label>
+            <label for="id_tipo_mascota">Tipo de mascota (si aplica)</label>
             {{ form_reserva.tipo_mascota }}
             {% if form_reserva.tipo_mascota.errors %}
             <div class="error">{{ form_reserva.tipo_mascota.errors }}</div>
@@ -98,7 +98,7 @@
                 fechasOcupadas = data;
 
                 // Inicializar Flatpickr después de obtener las fechas ocupadas
-                flatpickr("#rango_fechas", {
+                flatpickr("#id_rango_fechas", {
                     mode: "range",
                     dateFormat: "Y-m-d",
                     locale: "es",
