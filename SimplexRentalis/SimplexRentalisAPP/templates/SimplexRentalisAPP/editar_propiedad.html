@@ -8,7 +8,7 @@ Editar Propiedad
 <div id="main-content" style="max-width: 1200px; margin: auto; font-family: Arial, sans-serif; padding: 20px;">
     <h1 class="propiedad-title" style="text-align: center; margin-bottom: 20px; font-size: 2.5em; color: #333;">Editar Propiedad</h1>
 
-    <form method="post" action="{% url 'editar_propiedad' propiedad.pk %}">
+    <form method="post" enctype="multipart/form-data" action="{% url 'editar_propiedad' propiedad.pk %}">
         {% csrf_token %}
         <div class="detalle-container" style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 40px;">
             <!-- Imagen principal y miniaturas -->
@@ -30,9 +30,15 @@ Editar Propiedad
 
                 <div class="thumbnails-container" style="display: flex; gap: 10px; margin-top: 10px; overflow-x: auto;">
                     {% for imagen in imagenes %}
-                        <img src="{{ imagen.imagen.url }}" alt="{{ imagen.descripcion }}" class="thumbnail-image" 
-                             style="width: 100px; height: 60px; object-fit: cover; border-radius: 5px; cursor: pointer; border: 2px solid transparent;" 
-                             onclick="changeImage('{{ imagen.imagen.url }}', this)">
+                        <div class="thumbnail-wrapper" style="position: relative; display: inline-block;">
+                            <img src="{{ imagen.imagen.url }}" alt="{{ imagen.descripcion }}" class="thumbnail-image" 
+                                 style="width: 100px; height: 60px; object-fit: cover; border-radius: 5px; cursor: pointer; border: 2px solid transparent;" 
+                                 onclick="changeImage('{{ imagen.imagen.url }}', this)">
+                            <button type="button" class="btn btn-danger btn-sm delete-image" data-image-id="{{ imagen.id }}" style="position: absolute; top: 5px; right: 5px;">
+                                &times;
+                            </button>
+                            <input type="radio" name="portada" value="{{ imagen.id }}" {% if imagen.portada %}checked{% endif %} style="position: absolute; bottom: 5px; right: 5px;">
+                        </div>
                     {% endfor %}
                 </div>
 
@@ -69,7 +75,7 @@ Editar Propiedad
                     <!-- Campos ocultos para almacenar coordenadas -->
                     <input type="hidden" name="latitud" id="latitud" value="{{ propiedad.latitud }}">
                     <input type="hidden" name="longitud" id="longitud" value="{{ propiedad.longitud }}">
-                    <input type="hidden" name="codigo_postal" id="codigo_postal" value="{{ propiedad.codigo_postal }}">                
+                    <input type="hidden" name="codigo_postal" id="codigo_postal }}" value="{{ propiedad.codigo_postal }}">
                 <div>
                     <label for="capacidad_maxima">Capacidad máxima:</label>
                     <input type="number" id="capacidad_maxima" name="capacidad_maxima" value="{{ propiedad.capacidad_maxima }}" class="form-control" required>
@@ -95,6 +101,11 @@ Editar Propiedad
         <div class="descripcion-container" id="descripcion" style="margin-bottom: 40px;">
             <h3>Descripción</h3>
             <textarea name="descripcion" class="form-control" rows="5" required>{{ propiedad.descripcion }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="imagenes">Subir Imágenes (entre 5 y 15)</label>
+            <input type="file" name="imagenes" class="form-control-file" id="imagenes" multiple>
         </div>
 
         <div class="text-center" style="margin-bottom: 40px;">
@@ -236,8 +247,13 @@ Editar Propiedad
                 changeImageByArrow('next'); // Mover a la siguiente imagen
             });
         }
+
+        // Eliminar imágenes
+        function deleteImage(imageId) {
+            const imageElement = document.querySelector(`.thumbnail-wrapper input[value="${imageId}"]`).closest('.thumbnail-wrapper');
+            imageElement.remove();
+        }
+
     });
 </script>
-
-
 {% endblock %}

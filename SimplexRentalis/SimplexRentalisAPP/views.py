@@ -336,37 +336,35 @@ def editar_propiedad(request, pk):
         print(f"Propiedad actualizada: {propiedad}")  # Mensaje de depuración
 
         # Manejo de imágenes
-        if 'imagenes' in request.FILES:
-            images = request.FILES.getlist('imagenes')
-            if not (5 <= len(images) <= 15):
-                messages.error(request, "Debes subir entre 5 y 15 imágenes.")
-                print("Error: Número de imágenes no válido.")  # Mensaje de depuración
-                return redirect('editar_propiedad', pk=pk)
+        nuevas_imagenes = request.FILES.getlist('imagenes')
+        total_imagenes = imagenes.count() + len(nuevas_imagenes)
 
-            # Eliminar las imágenes existentes
-            Galeria.objects.filter(propiedad=propiedad).delete()
-
-            # Guardar las nuevas imágenes y manejar la portada
-            for index, image in enumerate(images):
-                nueva_imagen = Galeria.objects.create(propiedad=propiedad, imagen=image)
-                print(f"Imagen guardada: {nueva_imagen}")  # Mensaje de depuración
-                # Establecer la portada según el índice enviado
-                if str(index) == portada:
-                    nueva_imagen.portada = True
-                    nueva_imagen.save()
-                    print(f"Portada establecida: {nueva_imagen}")  # Mensaje de depuración
-
-            # Si ninguna imagen fue marcada como portada, establecer la primera como predeterminada
-            if not any(img.portada for img in Galeria.objects.filter(propiedad=propiedad)):
-                primera_imagen = Galeria.objects.filter(propiedad=propiedad).first()
-                if primera_imagen:
-                    primera_imagen.portada = True
-                    primera_imagen.save()
-                    print(f"Portada predeterminada: {primera_imagen}")  # Mensaje de depuración
-        else:
-            messages.error(request, "Debes subir imágenes.")
-            print("Error: No se subieron imágenes.")  # Mensaje de depuración
+        if not (5 <= total_imagenes <= 15):
+            messages.error(request, "Debes tener entre 5 y 15 imágenes en total (existentes + nuevas).")
+            print("Error: Número de imágenes no válido.")  # Mensaje de depuración
             return redirect('editar_propiedad', pk=pk)
+
+        # Eliminar las imágenes seleccionadas para eliminar
+        imagenes_eliminar = request.POST.getlist('imagenes_eliminar')
+        Galeria.objects.filter(id__in=imagenes_eliminar).delete()
+
+        # Guardar las nuevas imágenes y manejar la portada
+        for index, image in enumerate(nuevas_imagenes):
+            nueva_imagen = Galeria.objects.create(propiedad=propiedad, imagen=image)
+            print(f"Imagen guardada: {nueva_imagen}")  # Mensaje de depuración
+            # Establecer la portada según el índice enviado
+            if str(nueva_imagen.id) == portada:
+                nueva_imagen.portada = True
+                nueva_imagen.save()
+                print(f"Portada establecida: {nueva_imagen}")  # Mensaje de depuración
+
+        # Si ninguna imagen fue marcada como portada, establecer la primera como predeterminada
+        if not any(img.portada for img in Galeria.objects.filter(propiedad=propiedad)):
+            primera_imagen = Galeria.objects.filter(propiedad=propiedad).first()
+            if primera_imagen:
+                primera_imagen.portada = True
+                primera_imagen.save()
+                print(f"Portada predeterminada: {primera_imagen}")  # Mensaje de depuración
 
         # Redirigir a los detalles de la propiedad después de actualizarla
         messages.success(request, "Propiedad actualizada exitosamente.")
@@ -383,7 +381,6 @@ def editar_propiedad(request, pk):
         'precio_noche': propiedad.precio_noche,
         'direccion': propiedad.direccion,
     })
-
 
 
 from django.shortcuts import get_object_or_404, redirect
