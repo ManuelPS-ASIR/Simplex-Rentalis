@@ -286,9 +286,19 @@ def password_change_view(request):
     return render(request, 'SimplexRentalisAPP/password_change.html', {'form': form})
 from .forms import PropiedadForm
 
+from django.shortcuts import render, get_object_or_404, redirect
+from .forms import PropiedadForm
+from .models import Propiedades, Galeria  # Importamos Galeria en lugar de Imagen
+
 def editar_propiedad(request, pk):
     # Obtener la propiedad a editar
     propiedad = get_object_or_404(Propiedades, pk=pk)
+
+    # Obtener las imágenes asociadas a la propiedad
+    imagenes = Galeria.objects.filter(propiedad=propiedad)
+
+    # Obtener la imagen de portada, si existe
+    imagen_portada = imagenes.filter(portada=True).first() if imagenes else None
 
     # Si el método de la solicitud es POST, significa que el formulario fue enviado
     if request.method == 'POST':
@@ -305,7 +315,15 @@ def editar_propiedad(request, pk):
         form = PropiedadForm(instance=propiedad)
 
     # Renderizamos el formulario en una plantilla
-    return render(request, 'SimplexRentalisAPP/editar_propiedad.html', {'form': form, 'propiedad': propiedad})
+    return render(request, 'SimplexRentalisAPP/editar_propiedad.html', {
+        'form': form,
+        'propiedad': propiedad,
+        'imagenes': imagenes,
+        'imagen_portada': imagen_portada,
+    })
+
+
+
 from django.shortcuts import get_object_or_404, redirect
 from .models import Propiedades
 
