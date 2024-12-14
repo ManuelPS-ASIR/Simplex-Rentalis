@@ -163,5 +163,18 @@ Propiedad en detalle
             exploreButton.style.display = 'none';
         }, 500); // Eliminar el botón después de la transición
     }
+
+    // Ocultar el botón cuando se desplaza hacia abajo
+    window.addEventListener('scroll', function() {
+        const exploreButton = document.getElementById('explore-button');
+        if (window.scrollY > 100) {
+            exploreButton.style.transition = 'opacity 0.5s';
+            exploreButton.style.opacity = '0';
+            setTimeout(() => {
+                exploreButton.style.display = 'none';
+            }, 500);
+        }
+    });
 </script>
+
 {% endblock %}
