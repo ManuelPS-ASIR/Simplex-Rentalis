@@ -11,6 +11,7 @@ Editar Propiedad
     <form method="post" action="{% url 'editar_propiedad' propiedad.pk %}">
         {% csrf_token %}
         <div class="detalle-container" style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 40px;">
+            <!-- Imagen principal y miniaturas -->
             <div class="propiedad-image" style="flex: 3; position: relative;">
                 <div class="image-navigation" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); z-index: 10;">
                     <span class="arrow left-arrow" onclick="changeImageByArrow('prev')" style="cursor: pointer;">
@@ -42,6 +43,7 @@ Editar Propiedad
                 </div>
             </div>
 
+            <!-- Información de la propiedad -->
             <div class="propiedad-summary" style="flex: 2; background-color: #f9f9f9; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
                 <div>
                     <label for="nombre">Nombre:</label>
@@ -55,9 +57,19 @@ Editar Propiedad
                     <span style="color: #f0ad4e; font-size: 1.5em;">⭐{{ propiedad.calificacion }}</span>
                 </p>
                 <div>
-                    <label for="direccion">Dirección:</label>
-                    <input type="text" id="direccion" name="direccion" value="{{ propiedad.direccion }}" class="form-control" required>
+                    <label for="id_direccion">Dirección</label>
+                    <input type="text" name="direccion" class="form-control form-control-lg" id="direccion-autocomplete" required placeholder="Escribe tu dirección">
+                    <ul id="autocomplete-results" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;">
+                        <!-- Las sugerencias de autocompletado aparecerán aquí -->
+                    </ul>
+                    <p class="mt-2 text-muted" style="font-size: 0.9em;">
+                        <strong>Nota:</strong> Elige una dirección de la lista para validar automáticamente.
+                    </p>
                 </div>
+                <!-- Campos ocultos para almacenar coordenadas -->
+                <input type="hidden" name="latitud" id="latitud" value="">
+                <input type="hidden" name="longitud" id="longitud" value="">
+                <input type="hidden" name="codigo_postal" id="codigo_postal" value="">
                 <div>
                     <label for="capacidad_maxima">Capacidad máxima:</label>
                     <input type="number" id="capacidad_maxima" name="capacidad_maxima" value="{{ propiedad.capacidad_maxima }}" class="form-control" required>
@@ -94,57 +106,96 @@ Editar Propiedad
         <a href="{% url 'propiedades' %}" class="btn" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Volver a la lista de propiedades</a>
     </div>
 </div>
-
 <script>
-    var currentImageIndex = 0; // Índice de la imagen actual
+    document.addEventListener('DOMContentLoaded', function() {
+        var currentImageIndex = 0;
 
-    function changeImage(imageUrl, thumbnailElement) {
-        var mainImage = document.getElementById('main-image');
-        mainImage.src = imageUrl;
+        function changeImage(imageUrl, thumbnailElement) {
+            var mainImage = document.getElementById('main-image');
+            mainImage.src = imageUrl;
 
-        var thumbnails = document.querySelectorAll('.thumbnail-image');
-        thumbnails.forEach(function(thumb) {
-            thumb.style.border = '2px solid transparent';
-        });
-        thumbnailElement.style.border = '2px solid #007bff';
-    }
-
-    function changeImageByArrow(direction) {
-        var images = document.querySelectorAll('.thumbnail-image');
-        if (direction === 'next') {
-            currentImageIndex = (currentImageIndex + 1) % images.length;
-        } else if (direction === 'prev') {
-            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+            var thumbnails = document.querySelectorAll('.thumbnail-image');
+            thumbnails.forEach(function(thumb) {
+                thumb.style.border = '2px solid transparent';
+            });
+            thumbnailElement.style.border = '2px solid #007bff';
         }
-        var newImage = images[currentImageIndex];
-        changeImage(newImage.src, newImage);
-    }
 
-    function scrollToDescription() {
-        var descriptionElement = document.getElementById('descripcion');
-        window.scrollTo({
-            top: descriptionElement.offsetTop - 20,
-            behavior: 'smooth'
+        function changeImageByArrow(direction) {
+            var images = document.querySelectorAll('.thumbnail-image');
+            if (!images.length) return; // Validación adicional por si no hay imágenes.
+
+            if (direction === 'next') {
+                currentImageIndex = (currentImageIndex + 1) % images.length;
+            } else if (direction === 'prev') {
+                currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+            }
+            var newImage = images[currentImageIndex];
+            changeImage(newImage.src, newImage);
+        }
+
+        // Autocompletado de direcciones
+        document.getElementById('direccion-autocomplete').addEventListener('input', function() {
+            const query = this.value.trim();
+            const resultsContainer = document.getElementById('autocomplete-results');
+
+            if (query.length < 3) {
+                resultsContainer.style.display = 'none';
+                return;
+            }
+
+            fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=default`)
+                .then(response => response.json())
+                .then(data => {
+                    resultsContainer.innerHTML = '';
+                    if (!data || !data.features || data.features.length === 0) {
+                        resultsContainer.style.display = 'none';
+                        return;
+                    }
+
+                    data.features.forEach((feature) => {
+                        const item = document.createElement('li');
+                        const direccion = feature.properties.name || '';
+                        const ciudad = feature.properties.city || '';
+                        const provincia = feature.properties.county || '';
+                        const co_autonoma = feature.properties.region || '';
+                        const pais = feature.properties.country || '';
+                        const codigo_postal = feature.properties.postcode || '';
+
+                        item.textContent = `${direccion}, ${ciudad}, ${provincia}, ${co_autonoma}, ${pais}`;
+                        item.classList.add('list-group-item', 'list-group-item-action');
+                        item.dataset.latitud = feature.geometry.coordinates[1];
+                        item.dataset.longitud = feature.geometry.coordinates[0];
+                        item.dataset.fullAddress = item.textContent;
+                        item.dataset.codigoPostal = codigo_postal;
+
+                        item.onclick = function() {
+                            document.getElementById('direccion-autocomplete').value = this.dataset.fullAddress;
+                            document.getElementById('latitud').value = this.dataset.latitud;
+                            document.getElementById('longitud').value = this.dataset.longitud;
+                            document.getElementById('codigo_postal').value = this.dataset.codigoPostal;
+
+                            resultsContainer.style.display = 'none';
+                        };
+
+                        resultsContainer.appendChild(item);
+                    });
+
+                    resultsContainer.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error al obtener las sugerencias de Photon:', error);
+                    resultsContainer.style.display = 'none';
+                });
         });
 
-        var exploreButton = document.getElementById('explore-button');
-        exploreButton.style.transition = 'opacity 0.5s';
-        exploreButton.style.opacity = '0';
-        setTimeout(function() {
-            exploreButton.style.display = 'none';
-        }, 500);
-    }
-
-    window.addEventListener('scroll', function() {
-        var exploreButton = document.getElementById('explore-button');
-        if (window.scrollY > 100) {
-            exploreButton.style.transition = 'opacity 0.5s';
-            exploreButton.style.opacity = '0';
-            setTimeout(function() {
-                exploreButton.style.display = 'none';
-            }, 500);
-        }
+        // Cierra los resultados de autocompletado cuando se hace clic fuera de ellos
+        document.addEventListener('click', function(event) {
+            const resultsContainer = document.getElementById('autocomplete-results');
+            if (!resultsContainer.contains(event.target) && event.target.id !== 'direccion-autocomplete') {
+                resultsContainer.style.display = 'none';
+            }
+        });
     });
 </script>
-
 {% endblock %}

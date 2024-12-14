@@ -290,38 +290,101 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .forms import PropiedadForm
 from .models import Propiedades, Galeria  # Importamos Galeria en lugar de Imagen
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from .forms import PropiedadForm
+from .models import Propiedades, Galeria
+
 def editar_propiedad(request, pk):
-    # Obtener la propiedad a editar
     propiedad = get_object_or_404(Propiedades, pk=pk)
-
-    # Obtener las imágenes asociadas a la propiedad
     imagenes = Galeria.objects.filter(propiedad=propiedad)
-
-    # Obtener la imagen de portada, si existe
     imagen_portada = imagenes.filter(portada=True).first() if imagenes else None
 
-    # Si el método de la solicitud es POST, significa que el formulario fue enviado
     if request.method == 'POST':
-        form = PropiedadForm(request.POST, instance=propiedad)
-        
-        # Verificamos si el formulario es válido
-        if form.is_valid():
-            # Guardamos los cambios de la propiedad
-            form.save()
-            # Redirigimos a la vista de detalles de la propiedad (puedes cambiar la URL si es necesario)
-            return redirect('propiedad_detallada', pk=propiedad.pk)
+        nombre = request.POST.get('nombre')
+        descripcion = request.POST.get('descripcion')
+        direccion = request.POST.get('direccion')
+        precio_noche = request.POST.get('precio_noche', '0')
+        capacidad_maxima = request.POST.get('capacidad_maxima', '0')
+        permite_mascotas = 'permite_mascotas' in request.POST
+        en_mantenimiento = 'en_mantenimiento' in request.POST
+        portada = request.POST.get('portada', '0')  # Índice de la imagen de portada
+
+        print(f"Datos recibidos: nombre={nombre}, descripcion={descripcion}, direccion={direccion}, "
+              f"precio_noche={precio_noche}, capacidad_maxima={capacidad_maxima}, permite_mascotas={permite_mascotas}, "
+              f"en_mantenimiento={en_mantenimiento}, portada={portada}")  # Mensaje de depuración
+
+        try:
+            precio_noche = float(precio_noche)
+            capacidad_maxima = int(capacidad_maxima)
+        except ValueError:
+            messages.error(request, "Valores inválidos.")
+            print("Error: Valores inválidos para precio_noche o capacidad_maxima.")  # Mensaje de depuración
+            return redirect('editar_propiedad', pk=pk)
+
+        # Verificar si ya existe una propiedad con la misma dirección para el usuario
+        if Propiedades.objects.filter(direccion=direccion, propietario=request.user).exclude(pk=pk).exists():
+            messages.error(request, "Ya existe una propiedad con esta dirección.")
+            print(f"Error: Ya existe una propiedad con la dirección {direccion} para el usuario {request.user}.")  # Mensaje de depuración
+            return redirect('editar_propiedad', pk=pk)
+
+        # Actualizar la propiedad
+        propiedad.nombre = nombre
+        propiedad.descripcion = descripcion
+        propiedad.direccion = direccion
+        propiedad.precio_noche = precio_noche
+        propiedad.capacidad_maxima = capacidad_maxima
+        propiedad.permite_mascotas = permite_mascotas
+        propiedad.en_mantenimiento = en_mantenimiento
+        propiedad.save()
+        print(f"Propiedad actualizada: {propiedad}")  # Mensaje de depuración
+
+        # Manejo de imágenes
+        if 'imagenes' in request.FILES:
+            images = request.FILES.getlist('imagenes')
+            if not (5 <= len(images) <= 15):
+                messages.error(request, "Debes subir entre 5 y 15 imágenes.")
+                print("Error: Número de imágenes no válido.")  # Mensaje de depuración
+                return redirect('editar_propiedad', pk=pk)
+
+            # Eliminar las imágenes existentes
+            Galeria.objects.filter(propiedad=propiedad).delete()
+
+            # Guardar las nuevas imágenes y manejar la portada
+            for index, image in enumerate(images):
+                nueva_imagen = Galeria.objects.create(propiedad=propiedad, imagen=image)
+                print(f"Imagen guardada: {nueva_imagen}")  # Mensaje de depuración
+                # Establecer la portada según el índice enviado
+                if str(index) == portada:
+                    nueva_imagen.portada = True
+                    nueva_imagen.save()
+                    print(f"Portada establecida: {nueva_imagen}")  # Mensaje de depuración
+
+            # Si ninguna imagen fue marcada como portada, establecer la primera como predeterminada
+            if not any(img.portada for img in Galeria.objects.filter(propiedad=propiedad)):
+                primera_imagen = Galeria.objects.filter(propiedad=propiedad).first()
+                if primera_imagen:
+                    primera_imagen.portada = True
+                    primera_imagen.save()
+                    print(f"Portada predeterminada: {primera_imagen}")  # Mensaje de depuración
+        else:
+            messages.error(request, "Debes subir imágenes.")
+            print("Error: No se subieron imágenes.")  # Mensaje de depuración
+            return redirect('editar_propiedad', pk=pk)
+
+        # Redirigir a los detalles de la propiedad después de actualizarla
+        messages.success(request, "Propiedad actualizada exitosamente.")
+        print("Propiedad actualizada exitosamente.")  # Mensaje de depuración
+        return redirect('propiedad_detallada', pk=propiedad.pk)
     else:
-        # Si es una solicitud GET, prellenamos el formulario con los datos de la propiedad
         form = PropiedadForm(instance=propiedad)
 
-    # Renderizamos el formulario en una plantilla
     return render(request, 'SimplexRentalisAPP/editar_propiedad.html', {
         'form': form,
         'propiedad': propiedad,
         'imagenes': imagenes,
         'imagen_portada': imagen_portada,
     })
-
 
 
 from django.shortcuts import get_object_or_404, redirect
