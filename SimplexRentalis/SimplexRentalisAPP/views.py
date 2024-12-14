@@ -595,15 +595,26 @@ def like_opinion(request, opinion_id):
         messages.error(request, 'No puedes votar en tu propia opinión.')
         return redirect('propiedad_detallada', pk=opinion.propiedad.id)
 
-    # Verifica si el usuario ya ha votado
-    existing_vote = OpinionVote.objects.filter(opinion=opinion, user=request.user).first()
+    existing_vote = OpinionVote.objects.filter(opinion=opinion, usuario=request.user).first()
     if existing_vote:
-        messages.error(request, 'Ya has votado en esta opinión.')
-        return redirect('propiedad_detallada', pk=opinion.propiedad.id)
+        if existing_vote.voto == 'like':
+            existing_vote.delete()
+            opinion.likes -= 1
+            opinion.save()
+            messages.success(request, 'Has retirado tu "me gusta".')
+        elif existing_vote.voto == 'dislike':
+            existing_vote.voto = 'like'
+            existing_vote.save()
+            opinion.dislikes -= 1
+            opinion.likes += 1
+            opinion.save()
+            messages.success(request, 'Has cambiado tu voto a "me gusta".')
+    else:
+        OpinionVote.objects.create(opinion=opinion, usuario=request.user, voto='like')
+        opinion.likes += 1
+        opinion.save()
+        messages.success(request, 'Has votado "me gusta".')
 
-    opinion.likes += 1
-    opinion.save()
-    OpinionVote.objects.create(opinion=opinion, user=request.user, vote='like')
     return redirect('propiedad_detallada', pk=opinion.propiedad.id)
 
 @csrf_protect
@@ -613,13 +624,24 @@ def dislike_opinion(request, opinion_id):
         messages.error(request, 'No puedes votar en tu propia opinión.')
         return redirect('propiedad_detallada', pk=opinion.propiedad.id)
 
-    # Verifica si el usuario ya ha votado
-    existing_vote = OpinionVote.objects.filter(opinion=opinion, user=request.user).first()
+    existing_vote = OpinionVote.objects.filter(opinion=opinion, usuario=request.user).first()
     if existing_vote:
-        messages.error(request, 'Ya has votado en esta opinión.')
-        return redirect('propiedad_detallada', pk=opinion.propiedad.id)
+        if existing_vote.voto == 'dislike':
+            existing_vote.delete()
+            opinion.dislikes -= 1
+            opinion.save()
+            messages.success(request, 'Has retirado tu "no me gusta".')
+        elif existing_vote.voto == 'like':
+            existing_vote.voto = 'dislike'
+            existing_vote.save()
+            opinion.likes -= 1
+            opinion.dislikes += 1
+            opinion.save()
+            messages.success(request, 'Has cambiado tu voto a "no me gusta".')
+    else:
+        OpinionVote.objects.create(opinion=opinion, usuario=request.user, voto='dislike')
+        opinion.dislikes += 1
+        opinion.save()
+        messages.success(request, 'Has votado "no me gusta".')
 
-    opinion.dislikes += 1
-    opinion.save()
-    OpinionVote.objects.create(opinion=opinion, user=request.user, vote='dislike')
     return redirect('propiedad_detallada', pk=opinion.propiedad.id)
