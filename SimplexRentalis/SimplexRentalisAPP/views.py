@@ -304,11 +304,10 @@ def editar_propiedad(request, pk):
         capacidad_maxima = request.POST.get('capacidad_maxima', '0')
         permite_mascotas = 'permite_mascotas' in request.POST
         en_mantenimiento = 'en_mantenimiento' in request.POST
-        portada = request.POST.get('portada', '0')  # Índice de la imagen de portada
 
         print(f"Datos recibidos: nombre={nombre}, descripcion={descripcion}, direccion={direccion}, "
               f"precio_noche={precio_noche}, capacidad_maxima={capacidad_maxima}, permite_mascotas={permite_mascotas}, "
-              f"en_mantenimiento={en_mantenimiento}, portada={portada}")  # Mensaje de depuración
+              f"en_mantenimiento={en_mantenimiento}")  # Mensaje de depuración
 
         try:
             precio_noche = float(precio_noche)
@@ -346,25 +345,22 @@ def editar_propiedad(request, pk):
 
         # Eliminar las imágenes seleccionadas para eliminar
         imagenes_eliminar = request.POST.getlist('imagenes_eliminar')
-        Galeria.objects.filter(id__in=imagenes_eliminar).delete()
+        if imagenes_eliminar:
+            Galeria.objects.filter(id__in=imagenes_eliminar).delete()
+            print(f"Imágenes eliminadas: {imagenes_eliminar}")  # Mensaje de depuración
 
-        # Guardar las nuevas imágenes y manejar la portada
-        for index, image in enumerate(nuevas_imagenes):
+        # Guardar las nuevas imágenes
+        for image in nuevas_imagenes:
             nueva_imagen = Galeria.objects.create(propiedad=propiedad, imagen=image)
             print(f"Imagen guardada: {nueva_imagen}")  # Mensaje de depuración
-            # Establecer la portada según el índice enviado
-            if str(nueva_imagen.id) == portada:
-                nueva_imagen.portada = True
-                nueva_imagen.save()
-                print(f"Portada establecida: {nueva_imagen}")  # Mensaje de depuración
 
-        # Si ninguna imagen fue marcada como portada, establecer la primera como predeterminada
-        if not any(img.portada for img in Galeria.objects.filter(propiedad=propiedad)):
-            primera_imagen = Galeria.objects.filter(propiedad=propiedad).first()
-            if primera_imagen:
-                primera_imagen.portada = True
-                primera_imagen.save()
-                print(f"Portada predeterminada: {primera_imagen}")  # Mensaje de depuración
+        # Subir nueva imagen de portada y eliminar la anterior
+        if 'portada_imagen' in request.FILES:
+            nueva_portada = request.FILES['portada_imagen']
+            if imagen_portada:
+                imagen_portada.delete()
+            nueva_imagen_portada = Galeria.objects.create(propiedad=propiedad, imagen=nueva_portada, portada=True)
+            print(f"Portada actualizada: {nueva_imagen_portada}")  # Mensaje de depuración
 
         # Redirigir a los detalles de la propiedad después de actualizarla
         messages.success(request, "Propiedad actualizada exitosamente.")

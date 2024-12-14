@@ -37,7 +37,7 @@ Editar Propiedad
                             <button type="button" class="btn btn-danger btn-sm delete-image" data-image-id="{{ imagen.id }}" style="position: absolute; top: 5px; right: 5px;">
                                 &times;
                             </button>
-                            <input type="radio" name="portada" value="{{ imagen.id }}" {% if imagen.portada %}checked{% endif %} style="position: absolute; bottom: 5px; right: 5px;">
+                            <input type="checkbox" name="imagenes_eliminar" value="{{ imagen.id }}" class="d-none"> <!-- Para recolectar IDs de imágenes a eliminar -->
                         </div>
                     {% endfor %}
                 </div>
@@ -75,7 +75,7 @@ Editar Propiedad
                     <!-- Campos ocultos para almacenar coordenadas -->
                     <input type="hidden" name="latitud" id="latitud" value="{{ propiedad.latitud }}">
                     <input type="hidden" name="longitud" id="longitud" value="{{ propiedad.longitud }}">
-                    <input type="hidden" name="codigo_postal" id="codigo_postal }}" value="{{ propiedad.codigo_postal }}">
+                    <input type="hidden" name="codigo_postal" id="codigo_postal" value="{{ propiedad.codigo_postal }}">
                 <div>
                     <label for="capacidad_maxima">Capacidad máxima:</label>
                     <input type="number" id="capacidad_maxima" name="capacidad_maxima" value="{{ propiedad.capacidad_maxima }}" class="form-control" required>
@@ -108,6 +108,12 @@ Editar Propiedad
             <input type="file" name="imagenes" class="form-control-file" id="imagenes" multiple>
         </div>
 
+        <div class="form-group">
+            <label for="portada_imagen">Subir Imagen de Portada</label>
+            <input type="file" name="portada_imagen" class="form-control-file" id="portada_imagen">
+            <p class="text-muted">Sube una nueva imagen para reemplazar la portada actual.</p>
+        </div>
+
         <div class="text-center" style="margin-bottom: 40px;">
             <button type="submit" class="btn btn-primary" style="padding: 10px 20px; font-size: 1em;">Guardar cambios</button>
         </div>
@@ -117,6 +123,7 @@ Editar Propiedad
         <a href="{% url 'propiedades' %}" class="btn" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Volver a la lista de propiedades</a>
     </div>
 </div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var currentImageIndex = 0;
@@ -249,10 +256,20 @@ Editar Propiedad
         }
 
         // Eliminar imágenes
-        function deleteImage(imageId) {
-            const imageElement = document.querySelector(`.thumbnail-wrapper input[value="${imageId}"]`).closest('.thumbnail-wrapper');
-            imageElement.remove();
-        }
+        document.querySelectorAll('.delete-image').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const imageId = this.dataset.imageId;
+                if (confirm('¿Estás seguro de que deseas eliminar esta imagen?')) {
+                    const imageElement = document.querySelector(`.thumbnail-wrapper input[value="${imageId}"]`).closest('.thumbnail-wrapper');
+                    imageElement.remove();
+                    // Marcar la imagen para ser eliminada al enviar el formulario
+                    const checkbox = document.querySelector(`input[name="imagenes_eliminar"][value="${imageId}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                }
+            });
+        });
 
     });
 </script>
