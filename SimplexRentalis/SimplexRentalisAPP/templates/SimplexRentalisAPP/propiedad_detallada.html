@@ -18,8 +18,7 @@ Propiedad en detalle
 
             {% if imagen_portada %}
                 <img src="{{ imagen_portada.imagen.url }}" alt="Imagen de Portada" class="img-fluid main-image" id="main-image" 
-                     style="width: 100%; height: auto; max-height: 400px; border-radius: 10px; object-fit: cover;" 
-                     onclick="changeImage('{{ imagen_portada.imagen.url }}', this)">
+                     style="width: 100%; height: 400px; object-fit: cover; border-radius: 10px;">
             {% else %}
                 <div class="no-imagen" style="text-align: center; font-size: 18px; color: gray; border: 1px solid #ccc; padding: 20px; border-radius: 10px;">
                     No hay imagen de portada disponible.
@@ -82,17 +81,17 @@ Propiedad en detalle
 
     <div class="contacto-container" style="background-color: #f1f1f1; padding: 20px; border-radius: 10px; margin-bottom: 40px;">
         <h3>Contacto</h3>
-        <div style="display: flex; align-items: center;">
-            <img src="{% if propiedades.propietario.avatar %}{{ propiedades.propietario.avatar.url }}{% else %}/media/defaults/default_avatar.png{% endif %}" alt="Avatar" style="width: 60px; height: 60px; border-radius: 50%; margin-right: 20px;">
-            <div>
-                <p><strong>Dueño:</strong> {{ propiedades.propietario.username }}</p>
-                <p><strong>Teléfono:</strong> {{ propiedades.propietario.telefono }}</p>
-                <p><strong>Correo electrónico:</strong> {{ propiedades.propietario.email }}</p>
-            </div>
-        </div>
+<div style="display: flex; align-items: center;">
+    <img src="{% if propiedades.propietario.avatar %}{{ propiedades.propietario.avatar.url }}{% else %}/media/defaults/default_avatar.png{% endif %}" alt="Avatar" style="width: 60px; height: 60px; border-radius: 50%; margin-right: 20px;">
+    <div>
+        <p><strong>Dueño:</strong> {{ propiedades.propietario.username }}</p>
+        <p><strong>Teléfono:</strong> {{ propiedades.propietario.telefono }}</p>
+        <p><strong>Correo electrónico:</strong> {{ propiedades.propietario.email }}</p>
     </div>
+</div>
+</div>
 
-    <div class="opiniones-container" style="margin-bottom: 40px;">
+<div class="opiniones-container" style="margin-bottom: 40px;">
     <h3>Opiniones</h3>
     {% for opinion in propiedades.opiniones_set.all %}
         <div class="opinion" style="background-color: #f9f9f9; padding: 10px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);" data-opinion-id="{{ opinion.id }}">
@@ -112,8 +111,8 @@ Propiedad en detalle
                     </button>
                 </div>
             </div>
-        </div>          
-        {% empty %}
+        </div>
+    {% empty %}
         <p>No hay opiniones disponibles.</p>
     {% endfor %}
 
@@ -138,97 +137,97 @@ Propiedad en detalle
 </div>
 
 <script>
-var currentImageIndex = 0; // Índice de la imagen actual
+    var currentImageIndex = 0; // Índice de la imagen actual
 
-function changeImage(imageUrl, thumbnailElement) {
-    var mainImage = document.getElementById('main-image');
-    mainImage.src = imageUrl;
+    function changeImage(imageUrl, thumbnailElement) {
+        var mainImage = document.getElementById('main-image');
+        mainImage.src = imageUrl;
 
-    var thumbnails = document.querySelectorAll('.thumbnail-image');
-    thumbnails.forEach(function(thumb) {
-        thumb.style.border = '2px solid transparent';
-    });
-    thumbnailElement.style.border = '2px solid #007bff';
-}
-
-function changeImageByArrow(direction) {
-    var images = document.querySelectorAll('.thumbnail-image');
-    if (direction === 'next') {
-        currentImageIndex = (currentImageIndex + 1) % images.length;
-    } else if (direction === 'prev') {
-        currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+        var thumbnails = document.querySelectorAll('.thumbnail-image');
+        thumbnails.forEach(function(thumb) {
+            thumb.style.border = '2px solid transparent';
+        });
+        thumbnailElement.style.border = '2px solid #007bff';
     }
-    var newImage = images[currentImageIndex];
-    changeImage(newImage.src, newImage);
-}
 
-function scrollToDescription() {
-    var descriptionElement = document.getElementById('descripcion');
-    window.scrollTo({
-        top: descriptionElement.offsetTop - 20,
-        behavior: 'smooth'
-    });
+    function changeImageByArrow(direction) {
+        var images = document.querySelectorAll('.thumbnail-image');
+        if (direction === 'next') {
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+        } else if (direction === 'prev') {
+            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+        }
+        var newImage = images[currentImageIndex];
+        changeImage(newImage.src, newImage);
+    }
 
-    var exploreButton = document.getElementById('explore-button');
-    exploreButton.style.transition = 'opacity 0.5s';
-    exploreButton.style.opacity = '0';
-    setTimeout(function() {
-        exploreButton.style.display = 'none';
-    }, 500);
-}
+    function scrollToDescription() {
+        var descriptionElement = document.getElementById('descripcion');
+        window.scrollTo({
+            top: descriptionElement.offsetTop - 20,
+            behavior: 'smooth'
+        });
 
-window.addEventListener('scroll', function() {
-    var exploreButton = document.getElementById('explore-button');
-    if (window.scrollY > 100) {
+        var exploreButton = document.getElementById('explore-button');
         exploreButton.style.transition = 'opacity 0.5s';
         exploreButton.style.opacity = '0';
         setTimeout(function() {
             exploreButton.style.display = 'none';
         }, 500);
     }
-});
 
-document.querySelectorAll('.like-btn').forEach(function(button) {
-    button.addEventListener('click', function() {
-        var opinionId = this.closest('.opinion').getAttribute('data-opinion-id');
-        fetch(`/opinion/${opinionId}/like/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({})
-        }).then(response => response.json()).then(data => {
-            if (data.error) {
-                alert(data.error);
-            } else {
-                this.closest('.opinion').querySelector('.likes-count').innerText = data.likes;
-                this.closest('.opinion').querySelector('.dislikes-count').innerText = data.dislikes;
-            }
-        }).catch(error => console.log(error));
+    window.addEventListener('scroll', function() {
+        var exploreButton = document.getElementById('explore-button');
+        if (window.scrollY > 100) {
+            exploreButton.style.transition = 'opacity 0.5s';
+            exploreButton.style.opacity = '0';
+            setTimeout(function() {
+                exploreButton.style.display = 'none';
+            }, 500);
+        }
     });
-});
 
-document.querySelectorAll('.dislike-btn').forEach(function(button) {
-    button.addEventListener('click', function() {
-        var opinionId = this.closest('.opinion').getAttribute('data-opinion-id');
-        fetch(`/opinion/${opinionId}/dislike/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({})
-        }).then(response => response.json()).then(data => {
-            if (data.error) {
-                alert(data.error);
-            } else {
-                this.closest('.opinion').querySelector('.likes-count').innerText = data.likes;
-                this.closest('.opinion').querySelector('.dislikes-count').innerText = data.dislikes;
-            }
-        }).catch(error => console.log(error));
+    document.querySelectorAll('.like-btn').forEach(function(button) {
+        button.addEventListener('click', function() {
+            var opinionId = this.closest('.opinion').getAttribute('data-opinion-id');
+            fetch(`/opinion/${opinionId}/like/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({})
+            }).then(response => response.json()).then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    this.closest('.opinion').querySelector('.likes-count').innerText = data.likes;
+                    this.closest('.opinion').querySelector('.dislikes-count').innerText = data.dislikes;
+                }
+            }).catch(error => console.log(error));
+        });
     });
-});
+
+    document.querySelectorAll('.dislike-btn').forEach(function(button) {
+        button.addEventListener('click', function() {
+            var opinionId = this.closest('.opinion').getAttribute('data-opinion-id');
+            fetch(`/opinion/${opinionId}/dislike/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({})
+            }).then(response => response.json()).then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    this.closest('.opinion').querySelector('.likes-count').innerText = data.likes;
+                    this.closest('.opinion').querySelector('.dislikes-count').innerText = data.dislikes;
+                }
+            }).catch(error => console.log(error));
+        });
+    });
 </script>
 
 {% endblock %}
