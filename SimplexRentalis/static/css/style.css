@@ -49,7 +49,7 @@
     top: 0;
     left: 0;
     width: 100%;
-    background-color: #004080; /* Color de la barra superior */
+    background-color: #303030; /* Color de la barra superior */
     color: white;
     z-index: 900; /* Asegura que esté debajo del menú lateral */
     padding: 10px 20px;

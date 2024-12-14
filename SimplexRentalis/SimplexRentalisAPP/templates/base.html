@@ -15,46 +15,46 @@
 </head>
 <body>
   <!-- Bootstrap JS Bundle con Popper -->
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Menú de la hamburguesa en el lateral -->
-  <div id="menu">
-    <span class="hamburguesa">&#9776;</span> <!-- Ícono de hamburguesa -->
-    <a href="#" class="menu-item">Mis reservas</a>
-    {% if user.es_propietario %}
-        <a href="/mis_propiedades/" class="menu-item">Mis propiedades</a>
-    {% endif %}
-    <a href="#" class="menu-item">Inicio</a>
-    <a href="#" class="menu-item">Servicios</a>
-    <a href="#" class="menu-item">Acerca de</a>
-    <a href="#" class="menu-item">Contacto</a>
-  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Barra superior fija -->
   <div class="navbar">
-    <div class="container-fluid">
-      <!-- Verificamos si el usuario está autenticado -->
-      <div id="userMenu" class="position-relative">
-        {% if user.is_authenticated %}
-        <!-- Si está autenticado, mostramos su nombre y avatar con un dropdown -->
-        <a href="#" class="d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-          {% if user.avatar %}
-              <img src="{{ user.avatar.url }}" alt="Avatar" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
-          {% else %}
-              <img src="/media/defaults/default_avatar.png" alt="Avatar" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
-          {% endif %}
-          <span class="text-light">{{ user.username }}</span>
-        </a>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-          <li><a class="dropdown-item" href="{% url 'settings' %}">Configuración de la cuenta</a></li>
-          <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>  <!-- Botón de cerrar sesión -->
-        </ul>
-        {% else %}
-        <!-- Si no está autenticado, mostramos el botón de Iniciar sesión -->
-        <button class="btn btn-outline-light btn-login" data-bs-toggle="modal" data-bs-target="#loginModal">Iniciar Sesión</button>
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center">
+        <!-- Nombre de la aplicación -->
+        <a href="/" class="menu-item text-light me-3">SimplexRentalis</a>
+        <!-- Botón "Mis Propiedades" si el usuario es propietario -->
+        {% if user.is_authenticated and user.es_propietario %}
+          <a href="/mis_propiedades/" class="btn btn-outline-light me-3">Mis Propiedades</a>
         {% endif %}
       </div>
-      <a href="/" class="menu-item">SimplexRentalis</a>
+      <div class="d-flex align-items-center">
+        <!-- Botón "Mis Reservas" si el usuario está autenticado -->
+        {% if user.is_authenticated %}
+          <a href="/mis_reservas/" class="btn btn-outline-light me-3">Mis Reservas</a>
+        {% endif %}
+        <!-- Verificamos si el usuario está autenticado -->
+        <div id="userMenu" class="position-relative">
+          {% if user.is_authenticated %}
+            <!-- Si está autenticado, mostramos su nombre y avatar con un dropdown -->
+            <a href="#" class="d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" alt="Avatar" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
+              {% else %}
+                <img src="/media/defaults/default_avatar.png" alt="Avatar" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
+              {% endif %}
+              <span class="text-light">{{ user.username }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="{% url 'settings' %}">Configuración de la cuenta</a></li>
+              <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
+            </ul>
+          {% else %}
+            <!-- Si no está autenticado, mostramos el botón de Iniciar sesión -->
+            <button class="btn btn-outline-light btn-login" data-bs-toggle="modal" data-bs-target="#loginModal">Iniciar Sesión</button>
+          {% endif %}
+        </div>
+      </div>
     </div>
   </div>
 
@@ -111,16 +111,16 @@
                   <div class="invalid-feedback"></div>
               </div>
             </div>                   
-          <div class="mb-3">
-            <label for="register_password" class="form-label">Contraseña</label>
-            <input type="password" class="form-control" id="register_password" name="password1" required>
-            <div class="invalid-feedback"></div>
-          </div>
-          <div class="mb-3">
-            <label for="register_confirm_password" class="form-label">Repetir Contraseña</label>
-            <input type="password" class="form-control" id="register_confirm_password" name="password2" required>
-            <div class="invalid-feedback"></div>
-          </div>          
+            <div class="mb-3">
+              <label for="register_password" class="form-label">Contraseña</label>
+              <input type="password" class="form-control" id="register_password" name="password1" required>
+              <div class="invalid-feedback"></div>
+            </div>
+            <div class="mb-3">
+              <label for="register_confirm_password" class="form-label">Repetir Contraseña</label>
+              <input type="password" class="form-control" id="register_confirm_password" name="password2" required>
+              <div class="invalid-feedback"></div>
+            </div>          
             <div class="mb-3">
               <label for="register_gender" class="form-label">Género</label>
               <select class="form-control" id="register_gender" name="genero" required>
@@ -149,7 +149,9 @@
   </div>
 
   <!-- Aquí va el código JavaScript -->
-  <!-- Aquí va el código JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Aquí va el código JavaScript -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
@@ -299,6 +301,8 @@
       if (this.value.length > 9) {
         this.value = this.value.slice(0, 9);
       }
+    });
+
     // Validación de la fecha de nacimiento para asegurar que el usuario tenga al menos 18 años
     const birthdayInput = document.getElementById("register_birthday");
     birthdayInput.addEventListener("input", function() {
@@ -318,6 +322,9 @@
         this.classList.remove('is-invalid');
         this.nextElementSibling.textContent = "";
       }
+    });
+
+    // Validación del campo de correo electrónico
     const emailInput = document.getElementById("register_email");
     emailInput.addEventListener("input", function() {
       const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -331,9 +338,4 @@
         this.nextElementSibling.textContent = "";
       }
     });
-
-    });
-    });
-  </script>
-</body>
-</html>
+</script>
