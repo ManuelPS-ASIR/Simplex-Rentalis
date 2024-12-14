@@ -21,7 +21,6 @@ urlpatterns = [
     path('delete_account/', views.delete_account, name='delete_account'),
     path('cambiar_estado_propietario/', views.cambiar_estado_propietario, name='cambiar_estado_propietario'),
 
-
     # Rutas para la aplicación
     path("", views.index, name="index"),
     path('propiedades/', views.propiedades, name='propiedades'),
@@ -31,8 +30,6 @@ urlpatterns = [
     path('editar_propiedad/<int:pk>/', views.editar_propiedad, name='editar_propiedad'),
     path('eliminar_propiedad/<int:pk>/', views.eliminar_propiedad, name='eliminar_propiedad'),
 
-
-    
     # Ruta para agregar propiedad
     path('propiedades/agregar/', views.agregar_propiedad, name='agregar_propiedad'),
     path('agregar/', views.agregar_propiedad, name='agregar_propiedad'),
@@ -45,7 +42,8 @@ urlpatterns = [
     path('completar_identidad/', views.completar_identidad_usuario, name='completar_identidad_usuario'),
     path('obtener_fechas_ocupadas/<int:propiedad_id>/', views.obtener_fechas_ocupadas, name='obtener_fechas_ocupadas'),
     path('propiedad/<int:propiedad_id>/enviar_opinion/', views.enviar_opinion, name='enviar_opinion'),
-
+    path('opinion/<int:opinion_id>/like/', views.like_opinion, name='like_opinion'),  # Nueva ruta para "me gusta"
+    path('opinion/<int:opinion_id>/dislike/', views.dislike_opinion, name='dislike_opinion'),  # Nueva ruta para "no me gusta"
 ]
 
 if settings.DEBUG:

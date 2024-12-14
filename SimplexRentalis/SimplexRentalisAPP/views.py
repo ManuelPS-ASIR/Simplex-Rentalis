@@ -587,3 +587,17 @@ def enviar_opinion(request, propiedad_id):
             messages.error(request, 'Por favor, escribe un comentario.')
 
     return redirect('propiedad_detallada', pk=propiedad_id)
+
+@csrf_protect
+def like_opinion(request, opinion_id):
+    opinion = get_object_or_404(Opiniones, id=opinion_id)
+    opinion.likes += 1
+    opinion.save()
+    return redirect('propiedad_detallada', pk=opinion.propiedad.id)
+
+@csrf_protect
+def dislike_opinion(request, opinion_id):
+    opinion = get_object_or_404(Opiniones, id=opinion_id)
+    opinion.dislikes += 1
+    opinion.save()
+    return redirect('propiedad_detallada', pk=opinion.propiedad.id)

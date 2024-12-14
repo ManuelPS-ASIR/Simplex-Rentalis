@@ -98,7 +98,18 @@ Propiedad en detalle
             <div class="opinion" style="background-color: #f9f9f9; padding: 10px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);">
                 <strong>{{ opinion.usuario }}:</strong>
                 <p>{{ opinion.comentario }}</p>
-                <p><strong>Calificación:</strong> <span style="color: #f0ad4e;">⭐{{ opinion.calificacion }}</span></p>
+                <p>
+                    <strong>Likes:</strong> {{ opinion.likes }} 
+                    <strong>Dislikes:</strong> {{ opinion.dislikes }}
+                </p>
+                <form action="{% url 'like_opinion' opinion.id %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" style="background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Me gusta</button>
+                </form>
+                <form action="{% url 'dislike_opinion' opinion.id %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">No me gusta</button>
+                </form>
             </div>
         {% empty %}
             <p>No hay opiniones disponibles.</p>
@@ -120,8 +131,8 @@ Propiedad en detalle
     </div>
 
     <div class="back-link" style="text-align: center;">
-    <a href="{% url 'propiedades' %}" class="btn" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Volver a la lista de propiedades</a>
-</div>
+        <a href="{% url 'propiedades' %}" class="btn" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Volver a la lista de propiedades</a>
+    </div>
 </div>
 
 <script>

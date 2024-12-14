@@ -344,24 +344,20 @@ class ReservaPersona(models.Model):
 ##### 4. Modelo de Opiniones #####
 ###################################
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 
 class Opiniones(models.Model):
     id = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey('Propiedades', on_delete=models.CASCADE)
     usuario = models.ForeignKey('User', on_delete=models.CASCADE)
-    calificacion = models.DecimalField(
-        max_digits=3, 
-        decimal_places=1,
-        validators=[MinValueValidator(1), MaxValueValidator(5)]
-    )
+    likes = models.PositiveIntegerField(default=0)  # Campo para "me gustas"
+    dislikes = models.PositiveIntegerField(default=0)  # Campo para "no me gustas"
     comentario = models.TextField()
 
     def clean(self):
         # Impide que los propietarios dejen opiniones sobre sus propias propiedades
         if self.propiedad.propietario == self.usuario:
-            raise ValidationError("Un propietario no puede dejar una opinión sobre su propia propiedad.")
+            raise ValidationError("Un propietario no puede dejar una opinión sobre sus propias propiedades.")
         
         if len(self.comentario) < 10:
             raise ValidationError("El comentario debe tener al menos 10 caracteres.")
