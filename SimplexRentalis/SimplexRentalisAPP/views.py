@@ -235,6 +235,9 @@ def agregar_imagenes(request, propiedad_id):
 from django.views.generic.detail import DetailView
 from .models import Propiedades, Galeria
 
+from django.views.generic.detail import DetailView
+from .models import Propiedades, Galeria
+
 class DetallePropiedadView(DetailView):
     model = Propiedades
     template_name = 'SimplexRentalisAPP/propiedad_detallada.html'
@@ -242,8 +245,16 @@ class DetallePropiedadView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         propiedad = self.get_object()
+        
+        # Definimos la variable permite_opinar_sin_reserva
+        permite_opinar_sin_reserva = True  # Puedes cambiar a False para desactivar esta opción
+        user_has_reservation = False  # Aquí deberías añadir la lógica real para comprobar la reserva del usuario
+
         context['imagen_portada'] = Galeria.objects.filter(propiedad=propiedad, portada=True).first()
         context['imagenes'] = Galeria.objects.filter(propiedad=propiedad)
+        context['permite_opinar_sin_reserva'] = permite_opinar_sin_reserva
+        context['user_has_reservation'] = user_has_reservation
+        
         return context
 # Vista para eliminar la cuenta
 @login_required
@@ -551,3 +562,28 @@ def obtener_fechas_ocupadas(request, propiedad_id):
             inicio += timedelta(days=1)
 
     return JsonResponse(fechas_ocupadas, safe=False)
+##################################################################################
+##################################################################################
+##################################################################################
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import Propiedades, Opiniones
+from django.views.decorators.csrf import csrf_protect
+
+@csrf_protect
+def enviar_opinion(request, propiedad_id):
+    if request.method == 'POST':
+        propiedad = get_object_or_404(Propiedades, id=propiedad_id)
+        comentario = request.POST.get('comentario')
+        
+        if comentario:
+            opinion = Opiniones.objects.create(
+                propiedad=propiedad,
+                usuario=request.user,
+                comentario=comentario,
+            )
+            messages.success(request, 'Tu opinión ha sido enviada con éxito.')
+        else:
+            messages.error(request, 'Por favor, escribe un comentario.')
+
+    return redirect('propiedad_detallada', pk=propiedad_id)

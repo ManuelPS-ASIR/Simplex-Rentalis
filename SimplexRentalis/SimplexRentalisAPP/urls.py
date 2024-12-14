@@ -44,6 +44,8 @@ urlpatterns = [
     path('reserva_exitosa/', views.reserva_exitosa, name='reserva_exitosa'),
     path('completar_identidad/', views.completar_identidad_usuario, name='completar_identidad_usuario'),
     path('obtener_fechas_ocupadas/<int:propiedad_id>/', views.obtener_fechas_ocupadas, name='obtener_fechas_ocupadas'),
+    path('propiedad/<int:propiedad_id>/enviar_opinion/', views.enviar_opinion, name='enviar_opinion'),
+
 ]
 
 if settings.DEBUG:
