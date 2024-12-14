@@ -567,6 +567,7 @@ def obtener_fechas_ocupadas(request, propiedad_id):
 ##################################################################################
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
+from django.http import JsonResponse
 from .models import Propiedades, Opiniones, OpinionVote
 from django.views.decorators.csrf import csrf_protect
 
@@ -592,8 +593,7 @@ def enviar_opinion(request, propiedad_id):
 def like_opinion(request, opinion_id):
     opinion = get_object_or_404(Opiniones, id=opinion_id)
     if opinion.usuario == request.user:
-        messages.error(request, 'No puedes votar en tu propia opinión.')
-        return redirect('propiedad_detallada', pk=opinion.propiedad.id)
+        return JsonResponse({'error': 'No puedes votar en tu propia opinión.'}, status=400)
 
     existing_vote = OpinionVote.objects.filter(opinion=opinion, usuario=request.user).first()
     if existing_vote:
@@ -601,28 +601,25 @@ def like_opinion(request, opinion_id):
             existing_vote.delete()
             opinion.likes -= 1
             opinion.save()
-            messages.success(request, 'Has retirado tu "me gusta".')
+            return JsonResponse({'message': 'Has retirado tu "me gusta".', 'likes': opinion.likes, 'dislikes': opinion.dislikes})
         elif existing_vote.voto == 'dislike':
             existing_vote.voto = 'like'
             existing_vote.save()
             opinion.dislikes -= 1
             opinion.likes += 1
             opinion.save()
-            messages.success(request, 'Has cambiado tu voto a "me gusta".')
+            return JsonResponse({'message': 'Has cambiado tu voto a "me gusta".', 'likes': opinion.likes, 'dislikes': opinion.dislikes})
     else:
         OpinionVote.objects.create(opinion=opinion, usuario=request.user, voto='like')
         opinion.likes += 1
         opinion.save()
-        messages.success(request, 'Has votado "me gusta".')
-
-    return redirect('propiedad_detallada', pk=opinion.propiedad.id)
+        return JsonResponse({'message': 'Has votado "me gusta".', 'likes': opinion.likes, 'dislikes': opinion.dislikes})
 
 @csrf_protect
 def dislike_opinion(request, opinion_id):
     opinion = get_object_or_404(Opiniones, id=opinion_id)
     if opinion.usuario == request.user:
-        messages.error(request, 'No puedes votar en tu propia opinión.')
-        return redirect('propiedad_detallada', pk=opinion.propiedad.id)
+        return JsonResponse({'error': 'No puedes votar en tu propia opinión.'}, status=400)
 
     existing_vote = OpinionVote.objects.filter(opinion=opinion, usuario=request.user).first()
     if existing_vote:
@@ -630,18 +627,16 @@ def dislike_opinion(request, opinion_id):
             existing_vote.delete()
             opinion.dislikes -= 1
             opinion.save()
-            messages.success(request, 'Has retirado tu "no me gusta".')
+            return JsonResponse({'message': 'Has retirado tu "no me gusta".', 'likes': opinion.likes, 'dislikes': opinion.dislikes})
         elif existing_vote.voto == 'like':
             existing_vote.voto = 'dislike'
             existing_vote.save()
             opinion.likes -= 1
             opinion.dislikes += 1
             opinion.save()
-            messages.success(request, 'Has cambiado tu voto a "no me gusta".')
+            return JsonResponse({'message': 'Has cambiado tu voto a "no me gusta".', 'likes': opinion.likes, 'dislikes': opinion.dislikes})
     else:
         OpinionVote.objects.create(opinion=opinion, usuario=request.user, voto='dislike')
         opinion.dislikes += 1
         opinion.save()
-        messages.success(request, 'Has votado "no me gusta".')
-
-    return redirect('propiedad_detallada', pk=opinion.propiedad.id)
+        return JsonResponse({'message': 'Has votado "no me gusta".', 'likes': opinion.likes, 'dislikes': opinion.dislikes})
