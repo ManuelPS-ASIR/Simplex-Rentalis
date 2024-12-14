@@ -110,6 +110,13 @@ Editar Propiedad
     document.addEventListener('DOMContentLoaded', function() {
         var currentImageIndex = 0;
 
+        // Prellenar los campos con los valores actuales de la base de datos
+        document.getElementById('precio_noche').value = "{{ propiedad.precio_noche }}";
+        document.getElementById('direccion-autocomplete').value = "{{ propiedad.direccion }}";
+        document.getElementById('latitud').value = "{{ propiedad.latitud }}";
+        document.getElementById('longitud').value = "{{ propiedad.longitud }}";
+        document.getElementById('codigo_postal').value = "{{ propiedad.codigo_postal }}";
+
         function changeImage(imageUrl, thumbnailElement) {
             var mainImage = document.getElementById('main-image');
             mainImage.src = imageUrl;
@@ -173,7 +180,7 @@ Editar Propiedad
                             document.getElementById('direccion-autocomplete').value = this.dataset.fullAddress;
                             document.getElementById('latitud').value = this.dataset.latitud;
                             document.getElementById('longitud').value = this.dataset.longitud;
-                            document.getElementById('codigo_postal').value = this.dataset.codigoPostal;
+                            document.getElementById('codigo_postal').value = this.dataset.codigo_postal;
 
                             resultsContainer.style.display = 'none';
                         };
@@ -198,4 +205,5 @@ Editar Propiedad
         });
     });
 </script>
+
 {% endblock %}

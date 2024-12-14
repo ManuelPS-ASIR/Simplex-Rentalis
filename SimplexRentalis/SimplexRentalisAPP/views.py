@@ -284,11 +284,7 @@ def password_change_view(request):
         form = PasswordChangeForm(user=request.user)
 
     return render(request, 'SimplexRentalisAPP/password_change.html', {'form': form})
-from .forms import PropiedadForm
 
-from django.shortcuts import render, get_object_or_404, redirect
-from .forms import PropiedadForm
-from .models import Propiedades, Galeria  # Importamos Galeria en lugar de Imagen
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
@@ -384,7 +380,10 @@ def editar_propiedad(request, pk):
         'propiedad': propiedad,
         'imagenes': imagenes,
         'imagen_portada': imagen_portada,
+        'precio_noche': propiedad.precio_noche,
+        'direccion': propiedad.direccion,
     })
+
 
 
 from django.shortcuts import get_object_or_404, redirect
