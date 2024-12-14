@@ -21,21 +21,31 @@
                 <div class="propiedad-card-wrapper position-relative">
                     <!-- Enlace a la página de detalles de la propiedad -->
                     <a href="{% url 'propiedad_detallada' propiedad.pk %}" class="text-decoration-none">
-                        <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                        <div class="card shadow-sm border-0 rounded-3 overflow-hidden" style="height: 100%; display: flex; flex-direction: column;">
                             <!-- Imagen de la propiedad -->
-                            <div class="card-image">
+                            <div class="card-image" style="height: 200px; overflow: hidden;">
                                 {% if propiedad.portada %}
-                                    <img src="{{ propiedad.portada }}" class="img-fluid rounded-top" alt="Imagen de {{ propiedad.nombre }}">
+                                    <img src="{{ propiedad.portada }}" class="img-fluid rounded-top" alt="Imagen de {{ propiedad.nombre }}" style="width: 100%; height: 100%; object-fit: cover;">
                                 {% else %}
-                                    <div class="no-imagen d-flex justify-content-center align-items-center bg-light" style="height: 200px;">
+                                    <div class="no-imagen d-flex justify-content-center align-items-center bg-light" style="height: 100%;">
                                         <p class="text-muted">No hay imagen disponible.</p>
                                     </div>
                                 {% endif %}
                             </div>
-                            <div class="card-body p-4">
-                                <h5 class="card-title">{{ propiedad.nombre }} - <span class="text-primary">{{ propiedad.precio_noche }}€</span></h5>
-                                <p class="card-text text-muted">{{ propiedad.direccion }}</p>
-                                <p class="text-muted">Calificación: {{ propiedad.calificacion|default:"-" }}/5</p>
+                            <div class="card-body p-4" style="flex-grow: 1;">
+                                <h5 class="card-title text-truncate">{{ propiedad.nombre }} - <span class="text-primary">{{ propiedad.precio_noche }}€</span></h5>
+                                <p class="card-text text-muted text-truncate">{{ propiedad.direccion }}</p>
+                                <p class="text-muted">{{ propiedad.calificacion|default:"-" }}
+                                    <span class="stars">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= propiedad.calificacion %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </span>
+                                </p>
                             </div>
                         </div>
                     </a>
@@ -48,4 +58,20 @@
         {% endif %}
     </div>
 </div>
+
+<style>
+    .text-truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .stars {
+        color: #f0ad4e; /* Color de las estrellas */
+    }
+    .stars .fa-star,
+    .stars .fa-star-half-alt,
+    .stars .far.fa-star {
+        margin-right: 2px; /* Espacio entre estrellas */
+    }
+</style>
 {% endblock %}
