@@ -1,77 +1,94 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}
-Propiedad en detalle
+Editar Propiedad
 {% endblock %}
 
 {% block content %}
 <div id="main-content" style="max-width: 1200px; margin: auto; font-family: Arial, sans-serif; padding: 20px;">
-    <h1 class="propiedad-title" style="text-align: center; margin-bottom: 20px; font-size: 2.5em; color: #333;">{{ propiedad.nombre }}</h1>
+    <h1 class="propiedad-title" style="text-align: center; margin-bottom: 20px; font-size: 2.5em; color: #333;">Editar Propiedad</h1>
 
-    <div class="detalle-container" style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 40px;">
-        <div class="propiedad-image" style="flex: 3; position: relative;">
-            <div class="image-navigation" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); z-index: 10;">
-                <span class="arrow left-arrow" onclick="changeImageByArrow('prev')" style="cursor: pointer;">
-                    <img src="{% static 'defaults/flecha-izquierda.png' %}" alt="Flecha Izquierda" style="width: 50px; opacity: 0.7; filter: drop-shadow(2px 2px 4px #444);">
-                </span>
-            </div>
-
-            {% if imagen_portada %}
-                <img src="{{ imagen_portada.imagen.url }}" alt="Imagen de Portada" class="img-fluid main-image" id="main-image" 
-                     style="width: 100%; height: 400px; object-fit: cover; border-radius: 10px;">
-            {% else %}
-                <div class="no-imagen" style="text-align: center; font-size: 18px; color: gray; border: 1px solid #ccc; padding: 20px; border-radius: 10px;">
-                    No hay imagen de portada disponible.
+    <form method="post" action="{% url 'editar_propiedad' propiedad.pk %}">
+        {% csrf_token %}
+        <div class="detalle-container" style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 40px;">
+            <div class="propiedad-image" style="flex: 3; position: relative;">
+                <div class="image-navigation" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); z-index: 10;">
+                    <span class="arrow left-arrow" onclick="changeImageByArrow('prev')" style="cursor: pointer;">
+                        <img src="{% static 'defaults/flecha-izquierda.png' %}" alt="Flecha Izquierda" style="width: 50px; opacity: 0.7; filter: drop-shadow(2px 2px 4px #444);">
+                    </span>
                 </div>
-            {% endif %}
 
-            <div class="thumbnails-container" style="display: flex; gap: 10px; margin-top: 10px; overflow-x: auto;">
-                {% for imagen in imagenes %}
-                    <img src="{{ imagen.imagen.url }}" alt="{{ imagen.descripcion }}" class="thumbnail-image" 
-                         style="width: 100px; height: 60px; object-fit: cover; border-radius: 5px; cursor: pointer; border: 2px solid transparent;" 
-                         onclick="changeImage('{{ imagen.imagen.url }}', this)">
-                {% endfor %}
-            </div>
-
-            <div class="image-navigation" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); z-index: 10;">
-                <span class="arrow right-arrow" onclick="changeImageByArrow('next')" style="cursor: pointer;">
-                    <img src="{% static 'defaults/flecha-derecha.png' %}" alt="Flecha Derecha" style="width: 50px; opacity: 0.7; filter: drop-shadow(2px 2px 4px #444);">
-                </span>
-            </div>
-        </div>
-
-        <div class="propiedad-summary" style="flex: 2; background-color: #f9f9f9; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-            <h2 style="margin-top: 0; color: #333; font-size: 2em;">{{ propiedad.nombre }}</h2>
-            <p><strong>Precio por noche:</strong> <span style="color: #007bff; font-size: 1.5em; font-weight: bold;">{{ propiedad.precio_noche }} €</span></p>
-            <p><strong>Calificación:</strong> 
-                <span style="color: #f0ad4e; font-size: 1.5em;">⭐{{ propiedad.calificacion }}</span>
-            </p>
-            <p><strong>Dirección:</strong> {{ propiedad.direccion }}</p>
-            <p><strong>Capacidad máxima:</strong> {{ propiedad.capacidad_maxima }} personas</p>
-            <p><strong>Baños:</strong> {{ propiedad.cantidad_banos }}</p>
-            <p><strong>Dormitorios:</strong> {{ propiedad.cantidad_dormitorios }}</p>
-            <p><strong>Permite mascotas:</strong> {{ propiedad.permite_mascotas|yesno:"Sí,No" }}</p>
-
-            {% if request.user == propiedad.propietario %}
-                <p style="color: #6c757d;">Eres el propietario de esta propiedad.</p>
-            {% else %}
-                {% if not request.user.is_authenticated %}
-                    <p style="color: #dc3545;">Para alquilar esta propiedad, por favor inicia sesión.</p>
+                {% if imagen_portada %}
+                    <img src="{{ imagen_portada.imagen.url }}" alt="Imagen de Portada" class="img-fluid main-image" id="main-image" 
+                         style="width: 100%; height: 400px; object-fit: cover; border-radius: 10px;">
+                {% else %}
+                    <div class="no-imagen" style="text-align: center; font-size: 18px; color: gray; border: 1px solid #ccc; padding: 20px; border-radius: 10px;">
+                        No hay imagen de portada disponible.
+                    </div>
                 {% endif %}
-            {% endif %}
+
+                <div class="thumbnails-container" style="display: flex; gap: 10px; margin-top: 10px; overflow-x: auto;">
+                    {% for imagen in imagenes %}
+                        <img src="{{ imagen.imagen.url }}" alt="{{ imagen.descripcion }}" class="thumbnail-image" 
+                             style="width: 100px; height: 60px; object-fit: cover; border-radius: 5px; cursor: pointer; border: 2px solid transparent;" 
+                             onclick="changeImage('{{ imagen.imagen.url }}', this)">
+                    {% endfor %}
+                </div>
+
+                <div class="image-navigation" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); z-index: 10;">
+                    <span class="arrow right-arrow" onclick="changeImageByArrow('next')" style="cursor: pointer;">
+                        <img src="{% static 'defaults/flecha-derecha.png' %}" alt="Flecha Derecha" style="width: 50px; opacity: 0.7; filter: drop-shadow(2px 2px 4px #444);">
+                    </span>
+                </div>
+            </div>
+
+            <div class="propiedad-summary" style="flex: 2; background-color: #f9f9f9; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                <div>
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" value="{{ propiedad.nombre }}" class="form-control" required>
+                </div>
+                <div>
+                    <label for="precio_noche">Precio por noche:</label>
+                    <input type="number" id="precio_noche" name="precio_noche" value="{{ propiedad.precio_noche }}" class="form-control" required>
+                </div>
+                <p><strong>Calificación:</strong> 
+                    <span style="color: #f0ad4e; font-size: 1.5em;">⭐{{ propiedad.calificacion }}</span>
+                </p>
+                <div>
+                    <label for="direccion">Dirección:</label>
+                    <input type="text" id="direccion" name="direccion" value="{{ propiedad.direccion }}" class="form-control" required>
+                </div>
+                <div>
+                    <label for="capacidad_maxima">Capacidad máxima:</label>
+                    <input type="number" id="capacidad_maxima" name="capacidad_maxima" value="{{ propiedad.capacidad_maxima }}" class="form-control" required>
+                </div>
+                <div>
+                    <label for="cantidad_banos">Baños:</label>
+                    <input type="number" id="cantidad_banos" name="cantidad_banos" value="{{ propiedad.cantidad_banos }}" class="form-control" required>
+                </div>
+                <div>
+                    <label for="cantidad_dormitorios">Dormitorios:</label>
+                    <input type="number" id="cantidad_dormitorios" name="cantidad_dormitorios" value="{{ propiedad.cantidad_dormitorios }}" class="form-control" required>
+                </div>
+                <div>
+                    <label for="permite_mascotas">Permite mascotas:</label>
+                    <select id="permite_mascotas" name="permite_mascotas" class="form-control" required>
+                        <option value="True" {% if propiedad.permite_mascotas %}selected{% endif %}>Sí</option>
+                        <option value="False" {% if not propiedad.permite_mascotas %}selected{% endif %}>No</option>
+                    </select>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <div class="explore-button" id="explore-button" style="position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); z-index: 1000;">
-        <button onclick="scrollToDescription()" style="background-color: #28a745; color: white; border: none; padding: 10px 20px; font-size: 1em; cursor: pointer; border-radius: 5px;">
-            Descubre más detalles
-        </button>
-    </div>    
+        <div class="descripcion-container" id="descripcion" style="margin-bottom: 40px;">
+            <h3>Descripción</h3>
+            <textarea name="descripcion" class="form-control" rows="5" required>{{ propiedad.descripcion }}</textarea>
+        </div>
 
-    <div class="descripcion-container" id="descripcion" style="margin-bottom: 40px;">
-        <h3>Descripción</h3>
-        <p style="line-height: 1.6; font-size: 1.1em; color: #666;">{{ propiedad.descripcion }}</p>
-    </div>
+        <div class="text-center" style="margin-bottom: 40px;">
+            <button type="submit" class="btn btn-primary" style="padding: 10px 20px; font-size: 1em;">Guardar cambios</button>
+        </div>
+    </form>
 
     <div class="back-link" style="text-align: center;">
         <a href="{% url 'propiedades' %}" class="btn" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Volver a la lista de propiedades</a>
