@@ -22,18 +22,16 @@
                     <div class="carousel-card mx-2" data-id="{{ forloop.counter0 }}">
                         <a href="{% url 'propiedad_detallada' propiedad.pk %}" class="text-decoration-none">
                             <div class="card propiedad-card shadow-sm rounded-3 overflow-hidden">
-                                <div class="card-image" style="height: 180px; overflow: hidden;">
+                                <div class="card-image">
                                     {% if propiedad.portada and propiedad.portada.imagen %}
-                                        <img src="{{ propiedad.portada.imagen.url }}" class="d-block w-100 carousel-img" alt="Imagen de {{ propiedad.nombre }}">
-                                        <!-- Mostrar la URL de la imagen como texto para depuración -->
-                                        <p class="text-muted" style="font-size: 12px;">URL de la imagen: {{ propiedad.portada.imagen.url }}</p>
+                                        <img src="{{ propiedad.portada.imagen.url }}" class="d-block w-100" alt="Imagen de {{ propiedad.nombre }}">
                                     {% else %}
                                         <div class="no-imagen d-flex justify-content-center align-items-center bg-light" style="height: 100%;">
                                             <p class="text-muted">No hay imagen disponible.</p>
                                         </div>
                                     {% endif %}
                                 </div>
-                                <div class="card-body p-4">
+                                <div class="card-body p-4 d-flex flex-column">
                                     <h5 class="card-title text-truncate">{{ propiedad.nombre }} - <span class="text-primary">{{ propiedad.precio_noche }}€</span></h5>
                                     <p class="card-text text-muted text-truncate">{{ propiedad.direccion }}</p>
                                     <p class="text-muted">{{ propiedad.calificacion|default:"-" }}
@@ -128,40 +126,4 @@
             }, 7000);
         });
     </script>
-{% endblock %}
-
-{% block extra_style %}
-    <style>
-        .carousel-container {
-            position: relative;
-            width: 100%;
-            overflow: hidden;
-        }
-
-        .carousel-inner {
-            display: flex;
-            transition: transform 0.5s ease;
-        }
-
-        .carousel-card {
-            transition: transform 0.5s ease;
-            flex: 0 0 auto;
-            width: 250px; /* Tamaño fijo para todas las tarjetas */
-        }
-
-        .carousel-card.scale-up {
-            transform: scale(1.1);
-            z-index: 10;
-        }
-
-        .carousel-img {
-            object-fit: cover;
-            width: 100%;
-            height: 180px; /* Altura fija de las imágenes */
-        }
-
-        .carousel-inner {
-            overflow: hidden;
-        }
-    </style>
 {% endblock %}
