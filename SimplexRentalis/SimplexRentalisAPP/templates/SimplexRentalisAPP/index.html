@@ -6,11 +6,11 @@
 
 {% block content %}
     <!-- Sección de bienvenida -->
-    <div class="hero text-center">
-        <div>
-            <h1>¡Bienvenido a la página favorita para el alquiler de Hogares!</h1>
-            <p>Encuentra la casa de tus sueños para vacaciones con nosotros.</p>
-            <a href="{% url 'propiedades' %}" class="btn btn-primary btn-lg">Explora Propiedades</a>
+    <div class="hero text-center bg-primary text-white py-5">
+        <div class="container hero-content">
+            <h1 class="display-4">¡Bienvenido a SimplexRentalis!</h1>
+            <p class="lead">Encuentra la casa de tus sueños para tus vacaciones con nosotros.</p>
+            <a href="{% url 'propiedades' %}" class="btn btn-light btn-lg hero-btn">Explora nuestras propiedades</a>
         </div>
     </div>
 
@@ -21,26 +21,27 @@
                 {% for propiedad in propiedades_mejor_calificadas %}
                     <div class="carousel-card mx-2" data-id="{{ forloop.counter0 }}">
                         <a href="{% url 'propiedad_detallada' propiedad.pk %}" class="text-decoration-none">
-                            <div class="card propiedad-card shadow-sm rounded-3 overflow-hidden">
+                            <div class="card propiedad-card shadow-lg rounded-4 overflow-hidden">
                                 <div class="card-image">
                                     {% if propiedad.portada and propiedad.portada.imagen %}
                                         <img src="{{ propiedad.portada.imagen.url }}" class="d-block w-100" alt="Imagen de {{ propiedad.nombre }}">
                                     {% else %}
                                         <div class="no-imagen d-flex justify-content-center align-items-center bg-light" style="height: 100%;">
-                                            <p class="text-muted">No hay imagen disponible.</p>
+                                            <p class="text-muted">No hay imagen disponible</p>
                                         </div>
                                     {% endif %}
                                 </div>
                                 <div class="card-body p-4 d-flex flex-column">
-                                    <h5 class="card-title text-truncate">{{ propiedad.nombre }} - <span class="text-primary">{{ propiedad.precio_noche }}€</span></h5>
+                                    <h5 class="card-title">{{ propiedad.nombre }} - <span class="text-primary">{{ propiedad.precio_noche }}€</span></h5>
                                     <p class="card-text text-muted text-truncate">{{ propiedad.direccion }}</p>
-                                    <p class="text-muted">{{ propiedad.calificacion|default:"-" }}
+                                    <p class="text-muted">
+                                        {{ propiedad.calificacion|default:"-" }}
                                         <span class="stars">
                                             {% for i in "12345" %}
                                                 {% if forloop.counter <= propiedad.calificacion %}
-                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star text-warning"></i>
                                                 {% else %}
-                                                    <i class="far fa-star"></i>
+                                                    <i class="far fa-star text-warning"></i>
                                                 {% endif %}
                                             {% endfor %}
                                         </span>
@@ -53,7 +54,7 @@
             {% else %}
                 <div class="carousel-item active">
                     <div class="d-block w-100 text-center">
-                        <h5>No hay propiedades disponibles.</h5>
+                        <h5>No hay propiedades disponibles</h5>
                         <p>¡Regresa más tarde para ver nuevas opciones!</p>
                     </div>
                 </div>
@@ -68,22 +69,12 @@
             const cards = document.querySelectorAll('.carousel-card');
             let currentIndex = 0;
 
-            // Mostrar las URLs de las imágenes en la consola
-            cards.forEach((card) => {
-                const imgElement = card.querySelector('img');
-                if (imgElement) {
-                    console.log("URL de la imagen:", imgElement.src);
-                } else {
-                    console.log("No hay imagen disponible para esta propiedad.");
-                }
-            });
-
             // Función para escalar la tarjeta central
             function scaleCenterCard() {
                 cards.forEach((card, index) => {
-                    card.classList.remove('scale-up');
+                    card.classList.remove('carousel-card-center'); // Eliminar la escala de todas las tarjetas
                     if (index === currentIndex) {
-                        card.classList.add('scale-up');
+                        card.classList.add('carousel-card-center'); // Añadir la clase 'carousel-card-center' solo a la tarjeta central
                     }
                 });
             }

@@ -748,3 +748,97 @@ input[type="date"]:valid {
 .carousel-img {
     transition: transform 0.5s ease-in-out;
 }
+.carousel-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding-bottom: 40px;
+}
+
+.carousel-inner {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+/* Tamaño fijo para la tarjeta */
+.carousel-card {
+    transition: transform 0.5s ease;
+    flex: 0 0 auto;
+    width: 300px; /* Ancho fijo para todas las tarjetas */
+    height: 480px; /* Altura fija para todas las tarjetas */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box; /* Asegura que el padding no afecte al tamaño total */
+}
+
+/* Clase para hacer zoom en la tarjeta central */
+.carousel-card-center {
+    transform: scale(1.05); /* Aumenta ligeramente el tamaño de la tarjeta */
+    z-index: 10; /* Asegura que la tarjeta esté por encima de las otras */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2); /* Sombra para resaltar la tarjeta */
+}
+
+/* Ajustamos la altura de la imagen para que todas tengan el mismo tamaño */
+.card-image {
+    height: 250px; /* Altura fija para las imágenes */
+    overflow: hidden; /* Asegura que la imagen no sobresalga */
+    position: relative;
+    width: 100%; /* Asegura que la imagen ocupe todo el ancho disponible */
+}
+
+.card-image img {
+    width: 100%; /* Asegura que la imagen ocupe todo el contenedor */
+    height: 100%; /* Asegura que la imagen cubra todo el contenedor */
+    object-fit: cover; /* Hace que la imagen se recorte adecuadamente */
+}
+
+/* Asegura que el contenido de la tarjeta no se desborde */
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding: 0 15px; /* Asegura espacio alrededor del contenido */
+    box-sizing: border-box; /* Asegura que el padding no afecte el tamaño */
+}
+
+.card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.2; /* Asegura que el título se ajuste bien */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* Evita que el texto se desborde */
+}
+
+.card-text {
+    font-size: 1rem;
+    color: #666;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* Evita que el texto se desborde */
+}
+
+.stars i {
+    color: #f4b400;
+}
+
+/* Ajustes visuales para la hero */
+
+/* Estilo del botón */
+.btn-light {
+    background-color: #ffffff;
+    color: #007bff;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 30px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-light:hover {
+    background-color: #007bff;
+    color: #ffffff;
+}
