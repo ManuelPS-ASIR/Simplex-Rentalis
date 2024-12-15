@@ -8,11 +8,26 @@ from .models import Propiedades, User, Galeria
 from .forms import RegistroForm, ConfiguracionCuentaForm
 
 # Página de inicio
+from django.shortcuts import render
+from .models import Propiedades
+from random import sample
+
 def index(request):
-    propiedades_mas_visitadas = Propiedades.objects.all()[:5]
+    all_properties = Propiedades.objects.order_by('-calificacion')[:100]
+    propiedades_mejor_calificadas = sample(list(all_properties), 8)
+
+    for propiedad in propiedades_mejor_calificadas:
+        portada = propiedad.gallery_images.filter(portada=True).first()
+        if portada:
+            propiedad.portada = portada
+        else:
+            propiedad.portada = None  # O asignar una imagen predeterminada
+
     return render(request, 'SimplexRentalisAPP/index.html', {
-        'propiedades_mas_visitadas': propiedades_mas_visitadas
+        'propiedades_mejor_calificadas': propiedades_mejor_calificadas
     })
+
+
 from django.db.models import Case, When, Value
 
 def propiedades(request):

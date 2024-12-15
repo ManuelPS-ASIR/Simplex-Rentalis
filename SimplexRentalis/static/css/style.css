@@ -736,3 +736,15 @@ input[type="date"]:valid {
     transform: translateY(-50%); /* Centrado verticalmente */
     z-index: 10;
 }
+/* Agrega animación de escala */
+.carousel-item {
+    transition: transform 0.5s ease-in-out;
+}
+
+.carousel-item.scale-up {
+    transform: scale(1.1);
+}
+
+.carousel-img {
+    transition: transform 0.5s ease-in-out;
+}
