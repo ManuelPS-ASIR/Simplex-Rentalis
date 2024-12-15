@@ -9,10 +9,9 @@
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Enlace al archivo CSS dentro de la carpeta static -->
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="icon" href="{% static 'defaults/favicon.ico' %}">
-  <!-- HOLA, ESTO ES UNA MODIFICACIOŃ -->
 </head>
 <body>
   <!-- Bootstrap JS Bundle con Popper -->
@@ -47,7 +46,7 @@
               {% if user.avatar %}
                 <img src="{{ user.avatar.url }}" alt="Avatar" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
               {% else %}
-                <img src="/media/defaults/default_avatar.png" alt="Avatar" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
+                <img src="/defaults/default_avatar.png" alt="Avatar" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
               {% endif %}
               <span class="text-light">{{ user.username }}</span>
             </a>
@@ -56,8 +55,8 @@
               <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
             </ul>
           {% else %}
-            <!-- Si no está autenticado, mostramos el botón de Iniciar sesión -->
-            <button class="btn btn-outline-light btn-login" data-bs-toggle="modal" data-bs-target="#loginModal">Iniciar Sesión</button>
+            <!-- Si no está autenticado, redirigimos al usuario a la página de login -->
+            <a href="{% url 'login' %}" class="btn btn-outline-light btn-login">Iniciar Sesión</a>
           {% endif %}
         </div>
       </div>
@@ -70,278 +69,7 @@
     {% endblock %}
   </div>
 
-  <!-- Modal de inicio de sesión o registro -->
-  <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="loginModalLabel">Iniciar sesión</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body" id="modalContent">
-          <!-- Formulario de inicio de sesión -->
-          <form id="loginForm" method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-              <label for="username" class="form-label">Nombre de usuario</label>
-              <input type="text" class="form-control" id="username" name="username" required>
-              <div class="invalid-feedback">Nombre de usuario o contraseña incorrectos</div>
-            </div>
-            <div class="mb-3">
-              <label for="password" class="form-label">Contraseña</label>
-              <input type="password" class="form-control" id="password" name="password" required>
-              <div class="invalid-feedback">Nombre de usuario o contraseña incorrectos</div>
-            </div>
-            <button type="submit" class="btn btn-custom w-100">Iniciar sesión</button>
-          </form>                             
-          <p class="mt-3" id="registerPrompt">¿No tienes cuenta? <a href="#" id="showRegisterForm">Regístrate aquí</a></p>
+  <!-- Modal de inicio de sesión o registro removido -->
 
-          <!-- Formulario de registro (inicialmente oculto) -->
-          <form id="registerForm" method="post" style="display:none;">
-            {% csrf_token %}
-            <div class="mb-3">
-              <label for="register_username" class="form-label">Nombre de usuario</label>
-              <input type="text" class="form-control" id="register_username" name="username" required>
-              <div class="invalid-feedback"></div>
-            </div>
-            <div class="mb-3">
-              <label for="register_email" class="form-label">Correo</label>
-              <input type="email" class="form-control" id="register_email" name="email" required>
-              <div class="invalid-feedback"></div>
-            </div>
-            <div class="mb-3">
-              <label for="register_phone" class="form-label">Teléfono</label>
-              <div class="input-group">
-                  <span class="input-group-text">+34</span>
-                  <input type="text" class="form-control" id="register_phone" name="telefono" required maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
-                  <div class="invalid-feedback"></div>
-              </div>
-            </div>                   
-            <div class="mb-3">
-              <label for="register_password" class="form-label">Contraseña</label>
-              <input type="password" class="form-control" id="register_password" name="password1" required>
-              <div class="invalid-feedback"></div>
-            </div>
-            <div class="mb-3">
-              <label for="register_confirm_password" class="form-label">Repetir Contraseña</label>
-              <input type="password" class="form-control" id="register_confirm_password" name="password2" required>
-              <div class="invalid-feedback"></div>
-            </div>          
-            <div class="mb-3">
-              <label for="register_gender" class="form-label">Género</label>
-              <select class="form-control" id="register_gender" name="genero" required>
-                <option value="" selected>Seleccionar género</option>
-                <option value="masculino">Masculino</option>
-                <option value="femenino">Femenino</option>
-                <option value="otro">Otro</option>
-              </select>
-              <div class="invalid-feedback"></div>
-            </div>
-            <div class="mb-3">
-              <label for="register_birthday" class="form-label">Fecha de nacimiento</label>
-              <input type="date" class="form-control" id="register_birthday" name="fecha_nacimiento" required>
-              <div class="invalid-feedback"></div>
-            </div>
-            <div class="mb-3">
-              <label for="register_avatar" class="form-label">Imagen de Perfil (Opcional)</label>
-              <input type="file" class="form-control" id="register_avatar" name="avatar">
-              <div class="invalid-feedback"></div>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Registrar</button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Aquí va el código JavaScript -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Aquí va el código JavaScript -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-
-  <script>
-    // Función para mostrar errores de validación
-    function showErrors(form, errors) {
-      form.querySelectorAll('.is-invalid').forEach(function(element) {
-        element.classList.remove('is-invalid');
-      });
-
-      form.querySelectorAll('.invalid-feedback').forEach(function(element) {
-        element.textContent = ''; // Limpiar mensajes de error anteriores
-      });
-
-      for (const [field, message] of Object.entries(errors)) {
-        const input = form.querySelector(`[name=${field}]`);
-        if (input) {
-          input.classList.add('is-invalid');
-          input.nextElementSibling.textContent = message;
-        }
-      }
-    }
-
-    // Manejo de errores para el formulario de inicio de sesión
-    document.getElementById("loginForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-
-      const formData = new FormData(this);
-      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-      fetch("{% url 'login' %}", {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-CSRFToken': csrfToken
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          location.reload();
-        } else {
-          showErrors(this, data.error);
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
-    });
-
-    // Manejo de errores para el formulario de registro
-    document.getElementById("registerForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-
-      const formData = new FormData(this);
-      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-      fetch("{% url 'register' %}", {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-CSRFToken': csrfToken
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          location.reload();
-        } else {
-          showErrors(this, data.error);
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
-    });
-
-    // Mostrar el formulario de registro
-    document.getElementById("showRegisterForm").addEventListener("click", function(e) {
-      e.preventDefault();
-      document.getElementById("loginForm").style.display = "none";
-      document.getElementById("registerForm").style.display = "block";
-      document.getElementById("registerPrompt").style.display = "none";
-    });
-
-    // Al cerrar el modal, volver al formulario de inicio de sesión
-    const loginModalElement = document.getElementById('loginModal');
-    loginModalElement.addEventListener('hidden.bs.modal', function() {
-      document.getElementById("loginForm").style.display = "block";
-      document.getElementById("registerForm").style.display = "none";
-      document.getElementById("registerPrompt").style.display = "block";
-    });
-
-    // Función para validar el campo de la contraseña
-    function validatePassword(input) {
-      const password = input.value;
-      const errors = [];
-
-      if (password.length < 10) {
-        errors.push("La contraseña debe tener al menos 10 caracteres.");
-      }
-      if (!/[A-Z]/.test(password)) {
-        errors.push("La contraseña debe contener al menos una letra mayúscula.");
-      }
-      if (!/[!@#$%^&*(),.?\":{}|<>]/.test(password)) {
-        errors.push("La contraseña debe contener al menos un carácter especial.");
-      }
-      if (password.replace(/[^0-9]/g, "").length < 2) {
-        errors.push("La contraseña debe contener al menos dos números.");
-      }
-
-      const feedbackElement = input.nextElementSibling;
-
-      if (errors.length > 0) {
-        feedbackElement.textContent = errors.join(" ");
-        input.classList.add('is-invalid');
-      } else {
-        feedbackElement.textContent = "";
-        input.classList.remove('is-invalid');
-      }
-    }
-
-    const passwordInput = document.getElementById("register_password");
-    const confirmPasswordInput = document.getElementById("register_confirm_password");
-
-    // Validar el campo de la contraseña en cada cambio
-    passwordInput.addEventListener("input", function() {
-      validatePassword(passwordInput);
-    });
-
-    // Verificar que las contraseñas coincidan
-    confirmPasswordInput.addEventListener("input", function() {
-      if (confirmPasswordInput.value !== passwordInput.value) {
-        confirmPasswordInput.classList.add('is-invalid');
-        confirmPasswordInput.nextElementSibling.textContent = "Las contraseñas no coinciden.";
-      } else {
-        confirmPasswordInput.classList.remove('is-invalid');
-        confirmPasswordInput.nextElementSibling.textContent = "";
-      }
-    });
-
-    // Validación del campo de teléfono para permitir solo números y un máximo de 9 dígitos
-    const telefonoInput = document.getElementById("register_phone");
-    telefonoInput.addEventListener("input", function() {
-      this.value = this.value.replace(/[^0-9]/g, '');
-      if (this.value.length > 9) {
-        this.value = this.value.slice(0, 9);
-      }
-    });
-
-    // Validación de la fecha de nacimiento para asegurar que el usuario tenga al menos 18 años
-    const birthdayInput = document.getElementById("register_birthday");
-    birthdayInput.addEventListener("input", function() {
-      const birthDate = new Date(this.value);
-      const today = new Date();
-      const age = today.getFullYear() - birthDate.getFullYear();
-      const month = today.getMonth() - birthDate.getMonth();
-      const day = today.getDate() - birthDate.getDate();
-      const isValidAge = age > 18 || (age === 18 && (month > 0 || (month === 0 && day >= 0)));
-
-      if (!isValidAge) {
-        this.setCustomValidity("Debe tener al menos 18 años para registrarse.");
-        this.classList.add('is-invalid');
-        this.nextElementSibling.textContent = "Debe tener al menos 18 años para registrarse.";
-      } else {
-        this.setCustomValidity("");
-        this.classList.remove('is-invalid');
-        this.nextElementSibling.textContent = "";
-      }
-    });
-
-    // Validación del campo de correo electrónico
-    const emailInput = document.getElementById("register_email");
-    emailInput.addEventListener("input", function() {
-      const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-      if (!emailPattern.test(this.value)) {
-        this.setCustomValidity("Ingrese un correo electrónico válido.");
-        this.classList.add('is-invalid');
-        this.nextElementSibling.textContent = "Ingrese un correo electrónico válido.";
-      } else {
-        this.setCustomValidity("");
-        this.classList.remove('is-invalid');
-        this.nextElementSibling.textContent = "";
-      }
-    });
-</script>
+</body>
+</html>

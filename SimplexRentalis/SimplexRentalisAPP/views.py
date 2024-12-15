@@ -79,30 +79,67 @@ def register(request):
             return JsonResponse({'success': False, 'error': errors}, status=400)
 
     return render(request, 'registration/registro.html', {'form': RegistroForm()})
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+import json
+from django.http import JsonResponse
+from django.shortcuts import redirect  # Asegúrate de importar redirect
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import ensure_csrf_cookie
+@csrf_protect  # Asegura que la protección CSRF se aplique
+@ensure_csrf_cookie  # Asegura que el CSRF token esté presente en la respuesta
 def login_view(request):
+    # Si el usuario ya está autenticado, redirige a la página de inicio
     if request.user.is_authenticated:
         return redirect('index')
 
+    # Solo procesa solicitudes POST
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-
         try:
-            user = User.objects.get(username=username)
-            user_authenticated = authenticate(request, username=username, password=password)
+            # Leer el cuerpo de la solicitud y convertirlo de JSON a un diccionario
+            print("Cuerpo de la solicitud:", request.body.decode('utf-8'))  # Mensaje de depuración
+            data = json.loads(request.body.decode('utf-8'))
+            username = data.get('username')
+            password = data.get('password')
+            print("Datos recibidos:", {'username': username, 'password': password})  # Mensaje de depuración
+
+            # Verificar si el usuario existe
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                print("El nombre de usuario no existe:", username)  # Mensaje de depuración
+                return JsonResponse({'success': False, 'error': {'username': _('El nombre de usuario no existe')}})
+
+            # Verificar las credenciales
+            #user_authenticated = authenticate(request, username=username, password=password)
             if user_authenticated is not None:
-                login(request, user_authenticated)
+                # Si las credenciales son correctas, se autentica al usuario
+                login(username, password)
+                print("Inicio de sesión exitoso para:", username)  # Mensaje de depuración
                 return JsonResponse({
                     'success': True,
                     'username': user.username,
                     'avatar_url': user.profile.avatar.url if hasattr(user, 'profile') else '',
                 })
             else:
+                print("Contraseña incorrecta para:", username)  # Mensaje de depuración
                 return JsonResponse({'success': False, 'error': {'password': _('Contraseña incorrecta')}})
-        except User.DoesNotExist:
-            return JsonResponse({'success': False, 'error': {'username': _('El nombre de usuario no existe')}})
-    
+
+        except json.JSONDecodeError:
+            print("Error decodificando el JSON")  # Log de depuración
+            return JsonResponse({'success': False, 'error': {'message': _('Formato de solicitud incorrecto')}})
+
+    # Si no es un POST, devuelve un error 405 (Método no permitido)
+    print("Método no permitido")  # Mensaje de depuración
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
 def logout_view(request):
     logout(request)
     return redirect('index')
@@ -283,6 +320,7 @@ from django.shortcuts import render
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
+
 
 @login_required
 def password_change_view(request):

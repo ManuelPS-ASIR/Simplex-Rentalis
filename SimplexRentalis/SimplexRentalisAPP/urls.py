@@ -1,18 +1,17 @@
 from django.urls import path
 from . import views
-from django.contrib.auth import views as auth_views  # Importar vistas de autenticación
+from django.contrib.auth.views import LoginView, LogoutView  # Importar vistas de autenticación
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import DetallePropiedadView
 from .views import autocompletar_direcciones
 from django.contrib import admin
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),  # Esta línea debe estar presente
     # Rutas de autenticación
-    path('login/', views.login_view, name='login'),  # Usamos la vista personalizada de login
-    path('logout/', views.logout_view, name='logout'),  # Usamos nuestra vista personalizada de logout
+    path('login/', LoginView.as_view(template_name='registration/login.html'), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),  # Puedes usar LogoutView de Django
     path('registro/', views.register, name='register'),
     
     # Modificación en cuenta
@@ -45,6 +44,3 @@ urlpatterns = [
     path('opinion/<int:opinion_id>/like/', views.like_opinion, name='like_opinion'),  # Nueva ruta para "me gusta"
     path('opinion/<int:opinion_id>/dislike/', views.dislike_opinion, name='dislike_opinion'),  # Nueva ruta para "no me gusta"
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

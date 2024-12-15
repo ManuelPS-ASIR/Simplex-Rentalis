@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+import os
 from pathlib import Path
 from django.conf import settings
 import os
@@ -62,6 +63,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
 
 ROOT_URLCONF = 'SimplexRentalis.urls'
 
@@ -130,10 +133,19 @@ USE_I18N = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # Ajusta esto según tu estructura
-]# Default primary key field type
+    os.path.join(BASE_DIR, 'static'),
+]
+STATIC_URL = '/static/'
+STATIC_ROOT = '/home/ubuntu/Simplex-Rentalis/SimplexRentalis/static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/home/ubuntu/Simplex-Rentalis/SimplexRentalis/media/'
+
+
+# Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+CSRF_TRUSTED_ORIGINS = ['https://simplexrentalis.duckdns.org']
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True

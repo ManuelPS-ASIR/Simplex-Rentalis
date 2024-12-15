@@ -228,7 +228,7 @@ from django.db import models
 class Galeria(models.Model):
     id = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey('Propiedades', related_name='gallery_images', on_delete=models.CASCADE)
-    imagen = models.ImageField(upload_to='propiedades/', null=False, blank=False)
+    imagen = models.ImageField(upload_to='/propiedades/', null=False, blank=False)
     descripcion = models.CharField(max_length=255, blank=True, null=True)
     portada = models.BooleanField(default=False)  # Si es la imagen principal de la propiedad
 
