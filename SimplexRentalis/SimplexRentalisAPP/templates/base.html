@@ -22,7 +22,12 @@
     <div class="container-fluid d-flex justify-content-between align-items-center">
       <div class="d-flex align-items-center">
         <!-- Nombre de la aplicación -->
-        <a href="/" class="menu-item text-light me-3">SimplexRentalis</a>
+        <!-- Nombre de la aplicación con logo -->
+        <a href="/" class="menu-item text-light d-flex align-items-center me-3">
+          <img src="{% static 'defaults/logo.png' %}" alt="Logo" style="width: 30px; height: 30px; margin-right: 10px;">
+          SimplexRentalis
+        </a>
+
         <!-- Botón "Mis Propiedades" si el usuario es propietario -->
         {% if user.is_authenticated and user.es_propietario %}
           <a href="/mis_propiedades/" class="btn btn-outline-light me-3">Mis Propiedades</a>
@@ -86,7 +91,7 @@
               <input type="password" class="form-control" id="password" name="password" required>
               <div class="invalid-feedback">Nombre de usuario o contraseña incorrectos</div>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
+            <button type="submit" class="btn btn-custom w-100">Iniciar sesión</button>
           </form>                             
           <p class="mt-3" id="registerPrompt">¿No tienes cuenta? <a href="#" id="showRegisterForm">Regístrate aquí</a></p>
 
