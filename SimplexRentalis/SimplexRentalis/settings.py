@@ -129,11 +129,18 @@ USE_I18N = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+STATIC_URL = '/static/'  # URL base para acceder a los archivos estáticos
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STATIC_URL = '/static/'
+
+# Directorios adicionales donde guardas archivos estáticos personalizados
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # Ajusta esto según tu estructura
-]# Default primary key field type
+    BASE_DIR / 'static',  
+]
+
+# Directorio donde se recopilan todos los archivos estáticos al ejecutar collectstatic
+
+# Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

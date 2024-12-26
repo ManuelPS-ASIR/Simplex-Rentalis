@@ -9,7 +9,6 @@ from django.contrib import admin
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),  # Esta línea debe estar presente
     # Rutas de autenticación
     path('login/', views.login_view, name='login'),  # Usamos la vista personalizada de login
     path('logout/', views.logout_view, name='logout'),  # Usamos nuestra vista personalizada de logout
@@ -45,6 +44,3 @@ urlpatterns = [
     path('opinion/<int:opinion_id>/like/', views.like_opinion, name='like_opinion'),  # Nueva ruta para "me gusta"
     path('opinion/<int:opinion_id>/dislike/', views.dislike_opinion, name='dislike_opinion'),  # Nueva ruta para "no me gusta"
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
