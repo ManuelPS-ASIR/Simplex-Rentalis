@@ -79,6 +79,11 @@ def register(request):
             return JsonResponse({'success': False, 'error': errors}, status=400)
 
     return render(request, 'registration/registro.html', {'form': RegistroForm()})
+
+
+
+
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('index')
@@ -106,6 +111,15 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('index')
+
+
+
+
+
+
+
+
+    
 # Configuración de la cuenta
 @login_required
 def account_settings(request):
