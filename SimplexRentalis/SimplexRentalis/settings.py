@@ -129,8 +129,9 @@ USE_I18N = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+STATIC_ROOT = '/staticfiles/'
+
 STATIC_URL = '/static/'  # URL base para acceder a los archivos estáticos
-STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
 # Directorios adicionales donde guardas archivos estáticos personalizados
