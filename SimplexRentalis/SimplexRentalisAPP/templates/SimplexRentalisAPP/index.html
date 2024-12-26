@@ -24,7 +24,7 @@
                             <div class="card propiedad-card shadow-lg rounded-4 overflow-hidden">
                                 <div class="card-image">
                                     {% if propiedad.portada and propiedad.portada.imagen %}
-                                        <img src="{{ propiedad.portada.imagen.url }}" class="d-block w-100" alt="Imagen de {{ propiedad.nombre }}">
+                                        <img src="{{ MEDIA_URL }}{{ propiedad.portada.imagen.url }}" class="d-block w-100" alt="Imagen de {{ propiedad.nombre }}">
                                     {% else %}
                                         <div class="no-imagen d-flex justify-content-center align-items-center bg-light" style="height: 100%;">
                                             <p class="text-muted">No hay imagen disponible</p>
