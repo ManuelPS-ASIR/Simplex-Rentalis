@@ -188,9 +188,36 @@ Propiedad en detalle
         }
     });
 
-    document.querySelectorAll('.like-btn').forEach(function(button) {
-        button.addEventListener('click', function() {
-            var opinionId = this.closest('.opinion').getAttribute('data-opinion-id');
+// Función para manejar el clic en el botón de "like"
+document.querySelectorAll('.like-btn').forEach(function(button) {
+    button.addEventListener('click', function() {
+        var opinionId = this.closest('.opinion').getAttribute('data-opinion-id');
+        var currentImage = this.querySelector('img').src;
+
+        // Verificar si el botón de "like" ya está marcado (presionado)
+        if (currentImage.includes('like_pressed.png')) {
+            // Si ya está presionado, quitar el voto (resetear a "like.png")
+            fetch(`/opinion/${opinionId}/like/`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({})
+            }).then(response => response.json()).then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    var opinionElement = this.closest('.opinion');
+                    opinionElement.querySelector('.likes-count').innerText = data.likes;
+                    opinionElement.querySelector('.dislikes-count').innerText = data.dislikes;
+
+                    // Cambiar la imagen de "like" a la imagen original (no presionada)
+                    this.querySelector('img').src = '{% static "defaults/like.png" %}';
+                }
+            }).catch(error => console.log(error));
+        } else {
+            // Si no está marcado, hacer el "like"
             fetch(`/opinion/${opinionId}/like/`, {
                 method: 'POST',
                 headers: {
@@ -202,16 +229,54 @@ Propiedad en detalle
                 if (data.error) {
                     alert(data.error);
                 } else {
-                    this.closest('.opinion').querySelector('.likes-count').innerText = data.likes;
-                    this.closest('.opinion').querySelector('.dislikes-count').innerText = data.dislikes;
+                    var opinionElement = this.closest('.opinion');
+                    opinionElement.querySelector('.likes-count').innerText = data.likes;
+                    opinionElement.querySelector('.dislikes-count').innerText = data.dislikes;
+
+                    // Cambiar la imagen solo del botón presionado a 'like_pressed.png'
+                    this.querySelector('img').src = '{% static "defaults/like_pressed.png" %}';
+                    
+                    // Asegurar que el botón de "dislike" se resetee a su estado original si estaba seleccionado
+                    var dislikeButton = opinionElement.querySelector('.dislike-btn img');
+                    if (dislikeButton && dislikeButton.src.includes('like_pressed.png')) {
+                        dislikeButton.src = '{% static "defaults/like.png" %}'; // Restaurar el "dislike" a su estado original
+                    }
                 }
             }).catch(error => console.log(error));
-        });
+        }
     });
+});
 
-    document.querySelectorAll('.dislike-btn').forEach(function(button) {
-        button.addEventListener('click', function() {
-            var opinionId = this.closest('.opinion').getAttribute('data-opinion-id');
+// Función para manejar el clic en el botón de "dislike"
+document.querySelectorAll('.dislike-btn').forEach(function(button) {
+    button.addEventListener('click', function() {
+        var opinionId = this.closest('.opinion').getAttribute('data-opinion-id');
+        var currentImage = this.querySelector('img').src;
+
+        // Verificar si el botón de "dislike" ya está marcado (presionado)
+        if (currentImage.includes('like_pressed.png')) {
+            // Si ya está presionado, quitar el voto (resetear a "like.png")
+            fetch(`/opinion/${opinionId}/dislike/`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({})
+            }).then(response => response.json()).then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    var opinionElement = this.closest('.opinion');
+                    opinionElement.querySelector('.likes-count').innerText = data.likes;
+                    opinionElement.querySelector('.dislikes-count').innerText = data.dislikes;
+
+                    // Cambiar la imagen de "dislike" a la imagen original (no presionada)
+                    this.querySelector('img').src = '{% static "defaults/like.png" %}';
+                }
+            }).catch(error => console.log(error));
+        } else {
+            // Si no está marcado, hacer el "dislike"
             fetch(`/opinion/${opinionId}/dislike/`, {
                 method: 'POST',
                 headers: {
@@ -223,12 +288,24 @@ Propiedad en detalle
                 if (data.error) {
                     alert(data.error);
                 } else {
-                    this.closest('.opinion').querySelector('.likes-count').innerText = data.likes;
-                    this.closest('.opinion').querySelector('.dislikes-count').innerText = data.dislikes;
+                    var opinionElement = this.closest('.opinion');
+                    opinionElement.querySelector('.likes-count').innerText = data.likes;
+                    opinionElement.querySelector('.dislikes-count').innerText = data.dislikes;
+
+                    // Cambiar la imagen solo del botón presionado a 'like_pressed.png' (usando la misma imagen para "dislike")
+                    this.querySelector('img').src = '{% static "defaults/like_pressed.png" %}';
+                    
+                    // Asegurar que el botón de "like" se resetee a su estado original si estaba seleccionado
+                    var likeButton = opinionElement.querySelector('.like-btn img');
+                    if (likeButton && likeButton.src.includes('like_pressed.png')) {
+                        likeButton.src = '{% static "defaults/like.png" %}'; // Restaurar el "like" a su estado original
+                    }
                 }
             }).catch(error => console.log(error));
-        });
+        }
     });
+});
+
 </script>
 
 {% endblock %}
