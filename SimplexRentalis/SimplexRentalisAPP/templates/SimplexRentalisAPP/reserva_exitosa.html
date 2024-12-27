@@ -7,5 +7,11 @@ Reserva Exitosa
 <div id="main-content" style="max-width: 600px; margin: auto; font-family: Arial, sans-serif; padding: 20px;">
     <h1 class="propiedad-title" style="text-align: center; margin-bottom: 20px; font-size: 2.5em; color: #333;">Reserva Exitosa</h1>
     <p style="text-align: center; font-size: 1.2em; color: #666;">¡Gracias por su reserva! Hemos enviado una confirmación a su correo electrónico.</p>
+    
+    <div style="text-align: center; margin-top: 20px;">
+        <p style="font-size: 1.2em; color: #666;">Puedes volver a la <a href="{% url 'index' %}" style="color: #007bff; text-decoration: none;">página de inicio</a> o ir a <a href="{% url 'mis_reservas' %}" style="color: #007bff; text-decoration: none;">MIS RESERVAS</a> para revisar tus reservas.</p>
+        <a href="{% url 'index' %}" class="btn" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">Página de Inicio</a>
+        <a href="{% url 'mis_reservas' %}" class="btn" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">MIS RESERVAS</a>
+    </div>
 </div>
 {% endblock %}

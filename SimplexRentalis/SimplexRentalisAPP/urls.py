@@ -23,6 +23,7 @@ urlpatterns = [
     # Rutas para la aplicación
     path("", views.index, name="index"),
     path('propiedades/', views.propiedades, name='propiedades'),
+
     
     # Ruta correcta para "Mis Propiedades"
     path('mis_propiedades/', views.propiedades_usuario, name='propiedades_usuario'),
@@ -43,4 +44,9 @@ urlpatterns = [
     path('propiedad/<int:propiedad_id>/enviar_opinion/', views.enviar_opinion, name='enviar_opinion'),
     path('opinion/<int:opinion_id>/like/', views.like_opinion, name='like_opinion'),  # Nueva ruta para "me gusta"
     path('opinion/<int:opinion_id>/dislike/', views.dislike_opinion, name='dislike_opinion'),  # Nueva ruta para "no me gusta"
+
+    #Reservas
+    path('mis_reservas/', views.mis_reservas, name='mis_reservas'),
+    path('reservas/cancelar/<int:reserva_id>/', views.cancelar_reserva, name='cancelar_reserva'),
+
 ]

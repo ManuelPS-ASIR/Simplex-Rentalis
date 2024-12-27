@@ -742,3 +742,51 @@ def dislike_opinion(request, opinion_id):
         opinion.dislikes += 1
         opinion.save()
         return JsonResponse({'message': 'Has votado "no me gusta".', 'likes': opinion.likes, 'dislikes': opinion.dislikes})
+
+
+
+
+
+
+
+from django.utils.timezone import now
+from .models import Reservas
+
+@login_required
+def mis_reservas(request):
+    reservas = Reservas.objects.filter(usuario=request.user).select_related('propiedad').prefetch_related('propiedad__galeria__gallery_images')
+
+    # Asignar portada a cada propiedad de la reserva
+    for reserva in reservas:
+        propiedad = reserva.propiedad
+        portada = propiedad.gallery_images.filter(portada=True).first()
+        if portada:
+            propiedad.portada = portada
+        else:
+            propiedad.portada = None  # O asignar una imagen predeterminada
+    
+    return render(request, 'SimplexRentalisAPP/mis_reservas.html', {
+        'reservas': reservas,
+        'today': now()  # Pasar la fecha actual
+    })
+
+
+
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.contrib import messages
+from django.utils.timezone import now
+from .models import Reservas
+
+@login_required
+def cancelar_reserva(request, reserva_id):
+    if request.method == 'POST':
+        reserva = get_object_or_404(Reservas, id=reserva_id, usuario=request.user)
+
+        # Verificar si la reserva es cancelable
+        if reserva.fecha_inicio <= now().date():
+            return JsonResponse({'success': False, 'message': 'No puedes cancelar una reserva que ya ha comenzado o finalizado.'})
+
+        # Si todo está correcto, eliminar la reserva
+        reserva.delete()
+        return JsonResponse({'success': True, 'message': 'Tu reserva ha sido cancelada correctamente.'})

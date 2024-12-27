@@ -51,13 +51,13 @@ Propiedad en detalle
             <p><strong>Baños:</strong> {{ propiedades.cantidad_banos }}</p>
             <p><strong>Dormitorios:</strong> {{ propiedades.cantidad_dormitorios }}</p>
             <p><strong>Permite mascotas:</strong> {{ propiedades.permite_mascotas|yesno:"Sí,No" }}</p>
-
-            {% if request.user == propiedades.propietario %}
-                <p style="color: #6c757d;">Eres el propietario de esta propiedad.</p>
+            {% if not request.user.is_authenticated %}
+                <p style="color: #dc3545;">Para poder alquilar esta propiedad, inicie sesión.</p>
+                <button type="button" class="btn btn-primary alquilar-btn" disabled
+                        style="background-color: #007bff; color: white; border: none; padding: 10px 20px; font-size: 1.2em; cursor: not-allowed; border-radius: 5px; opacity: 0.5;">
+                    ALQUILAR
+                </button>
             {% else %}
-                {% if not request.user.is_authenticated %}
-                    <p style="color: #dc3545;">Para alquilar esta propiedad, por favor inicia sesión.</p>
-                {% endif %}
                 <form action="{% url 'alquilar_propiedad' propiedades.id %}" method="get" style="display: inline;">
                     <button type="submit" class="btn btn-primary alquilar-btn" 
                             style="background-color: #007bff; color: white; border: none; padding: 10px 20px; font-size: 1.2em; cursor: pointer; border-radius: 5px;">
@@ -65,6 +65,7 @@ Propiedad en detalle
                     </button>
                 </form>
             {% endif %}
+
         </div>
     </div>
 
