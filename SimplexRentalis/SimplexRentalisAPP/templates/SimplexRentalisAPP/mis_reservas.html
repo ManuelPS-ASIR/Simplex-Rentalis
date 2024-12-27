@@ -31,7 +31,11 @@
                             <strong>Fecha Fin:</strong> {{ reserva.fecha_fin|date:"d/m/Y" }}<br>
                             <strong>Costo Total:</strong> {{ reserva.costo_total }} {{ reserva.propiedad.precio_noche.currency }}
                         </p>
-                        <a href="{% url 'propiedad_detallada' reserva.propiedad.id %}" class="btn btn-primary btn-sm">Ver Detalle</a>
+                        <div class="d-flex">
+                            <a href="{% url 'propiedad_detallada' reserva.propiedad.id %}" class="btn btn-primary btn-sm me-2">Ver Propiedad</a>
+                            <!-- Botón para cancelar la reserva en rojo -->
+                            <button class="btn btn-danger btn-sm cancel-reserva" data-reserva-id="{{ reserva.id }}" style="background-color: #dc3545; color: white; border: none;">Cancelar Reserva</button>
+                        </div>
                     </div>
 
                     <!-- Estado de la reserva -->
@@ -59,4 +63,64 @@
         <p>No tienes reservas realizadas.</p>
     {% endif %}
 </div>
+
+<!-- Toast de confirmación -->
+<div id="toast-container" aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3">
+    <div id="toast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto" id="toast-title"></strong>
+            <small>Justo ahora</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-message">
+            <!-- Aquí irá el mensaje -->
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Configurar el botón para cancelar la reserva usando AJAX
+    document.querySelectorAll('.cancel-reserva').forEach(button => {
+        button.addEventListener('click', function() {
+            const reservaId = this.getAttribute('data-reserva-id');
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            // Realizar la petición AJAX
+            fetch(`/reservas/cancelar/${reservaId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ "id": reservaId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Mostrar el mensaje en el Toast
+                const toastTitle = document.getElementById('toast-title');
+                const toastMessage = document.getElementById('toast-message');
+                const toast = new bootstrap.Toast(document.getElementById('toast'));
+
+                if (data.success) {
+                    toastTitle.textContent = 'Reserva Cancelada';
+                    toastMessage.textContent = 'Tu reserva ha sido cancelada correctamente.';
+                    document.getElementById('toast').classList.remove('hide');
+                } else {
+                    toastTitle.textContent = 'Error';
+                    toastMessage.textContent = 'Hubo un problema al cancelar la reserva.';
+                    document.getElementById('toast').classList.remove('hide');
+                }
+
+                toast.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Hubo un problema al procesar la cancelación.');
+            });
+        });
+    });
+</script>
 {% endblock %}
