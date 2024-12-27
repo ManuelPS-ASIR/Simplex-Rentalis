@@ -772,21 +772,33 @@ def mis_reservas(request):
 
 
 
+
+
+
+
+
+
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.utils.timezone import now
 from .models import Reservas
 
 @login_required
 def cancelar_reserva(request, reserva_id):
     if request.method == 'POST':
+        # Obtener la reserva solo si el usuario está autenticado y es el propietario
         reserva = get_object_or_404(Reservas, id=reserva_id, usuario=request.user)
 
-        # Verificar si la reserva es cancelable
+        # Verificar si la reserva es cancelable: no se puede cancelar si la fecha de inicio es hoy o en el pasado
         if reserva.fecha_inicio <= now().date():
             return JsonResponse({'success': False, 'message': 'No puedes cancelar una reserva que ya ha comenzado o finalizado.'})
 
         # Si todo está correcto, eliminar la reserva
         reserva.delete()
+
+        # Respuesta exitosa
         return JsonResponse({'success': True, 'message': 'Tu reserva ha sido cancelada correctamente.'})
+
+    # Si el método no es POST, devolver error de método no permitido
+    return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)

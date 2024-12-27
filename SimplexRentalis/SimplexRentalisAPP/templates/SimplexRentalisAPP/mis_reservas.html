@@ -7,12 +7,12 @@
     {% if reservas %}
         <div class="list-group">
             {% for reserva in reservas %}
-                <div class="list-group-item mb-3 d-flex align-items-center shadow-sm reserva-card">
+                <div class="list-group-item mb-3 d-flex align-items-center shadow-sm reserva-card" data-reserva-id="{{ reserva.id }}">
                     <!-- Imagen de portada con tamaño fijo -->
                     <div class="img-container" style="width: 240px; height: 160px; overflow: hidden; flex-shrink: 0;">
                         {% if reserva.propiedad.portada %}
                             <img src="{{ reserva.propiedad.portada.imagen.url }}" 
-                                 alt="Imagen de {{ reserva.propiedad.nombre }}" 
+                                 alt="Portada de {{ reserva.propiedad.nombre }}" 
                                  class="img-fluid rounded" 
                                  style="width: 100%; height: 100%; object-fit: cover;">
                         {% else %}
@@ -80,56 +80,51 @@
     </div>
 </div>
 
-{% endblock %}
-
-{% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Configurar el botón para cancelar la reserva usando AJAX
-        document.querySelectorAll('.cancel-reserva').forEach(button => {
-            button.addEventListener('click', function(event) {
-                event.preventDefault();
-                const reservaId = this.getAttribute('data-reserva-id');
-                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+document.addEventListener("DOMContentLoaded", function () {
+    const toastContainer = document.getElementById("toast-container");
+    const toastElement = document.getElementById("toast");
+    const toastTitle = document.getElementById("toast-title");
+    const toastMessage = document.getElementById("toast-message");
 
-                // Mostrar confirmación antes de cancelar
-                if (confirm('¿Estás seguro de que deseas cancelar esta reserva?')) {
-                    // Realizar la petición AJAX para cancelar la reserva
-                    fetch(`/reservas/cancelar/${reservaId}/`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': csrfToken
-                        },
-                        body: JSON.stringify({ "id": reservaId })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        // Mostrar el mensaje en el Toast
-                        const toastTitle = document.getElementById('toast-title');
-                        const toastMessage = document.getElementById('toast-message');
-                        const toast = new bootstrap.Toast(document.getElementById('toast'));
+    document.querySelectorAll(".cancel-reserva").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const reservaId = this.getAttribute("data-reserva-id");
 
-                        if (data.success) {
-                            toastTitle.textContent = 'Reserva Cancelada';
-                            toastMessage.textContent = 'Tu reserva ha sido cancelada correctamente.';
-
-                            // Eliminar la tarjeta de la reserva
-                            this.closest('.list-group-item').remove();
-                        } else {
-                            toastTitle.textContent = 'Error';
-                            toastMessage.textContent = 'Hubo un problema al cancelar la reserva.';
-                        }
-
-                        toast.show();
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Hubo un problema al procesar la cancelación.');
-                    });
+            // Simulación de acción de cancelación con fetch
+            fetch(`/reservas/cancelar/${reservaId}/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                },
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    // Mostrar mensaje en el toast
+                    toastTitle.textContent = "Reserva Cancelada";
+                    toastMessage.textContent = data.message;
+                    
+                    // Mostrar el toast
+                    const toast = new bootstrap.Toast(toastElement);
+                    toast.show();
+                    
+                    // Opcional: Eliminar el elemento de la interfaz si la cancelación fue exitosa
+                    button.closest(".list-group-item").remove();
+                } else {
+                    throw new Error(data.message);
                 }
+            })
+            .catch((error) => {
+                // Mostrar mensaje de error en el toast
+                toastTitle.textContent = "Error";
+                toastMessage.textContent = error.message;
+                const toast = new bootstrap.Toast(toastElement);
+                toast.show();
             });
         });
     });
+});
 </script>
+
 {% endblock %}
