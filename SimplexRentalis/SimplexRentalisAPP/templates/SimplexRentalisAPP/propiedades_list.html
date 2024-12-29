@@ -244,7 +244,8 @@
 
         // Restaurar los valores predeterminados del rango de precios
         document.getElementById('minPrice').value = 0;
-        document.getElementById('maxPrice').value = 10000;
+        // Asumir que tienes el precio máximo almacenado en una variable 'precioMaximoBD'
+        document.getElementById('maxPrice').value = precioMaximoBD;
         updatePriceValues();
 
         // Eliminar los parámetros de la URL (filtros)
@@ -256,6 +257,14 @@
         window.location.reload();
     });
 
+    // Supongamos que tienes el precio máximo almacenado en una variable 'precioMaximoBD'
+    const precioMaximoBD = 10000; // Cambia este valor según el precio máximo en tu base de datos
+
+    // Establecer los valores predeterminados al cargar la página
+    document.getElementById('minPrice').value = 0;
+    document.getElementById('maxPrice').value = precioMaximoBD;
+    updatePriceValues();
 </script>
+
 
 {% endblock %}

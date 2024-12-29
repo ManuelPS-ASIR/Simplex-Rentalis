@@ -261,8 +261,6 @@ class ReservaForm(forms.ModelForm):
 
 
 
-# forms.py
-
 from django import forms
 
 class FiltroPropiedadesForm(forms.Form):
@@ -271,4 +269,6 @@ class FiltroPropiedadesForm(forms.Form):
     precio_max = forms.DecimalField(required=False, label="Precio Máximo", widget=forms.NumberInput(attrs={'class': 'form-control'}))
     calificacion = forms.ChoiceField(required=False, label="Calificación Mínima", choices=[('', 'Cualquiera'), ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5')], widget=forms.Select(attrs={'class': 'form-control'}))
     permite_mascotas = forms.ChoiceField(required=False, label="Permite Mascotas", choices=[('', 'Cualquiera'), ('True', 'Sí'), ('False', 'No')], widget=forms.Select(attrs={'class': 'form-control'}))
-    capacidad_max = forms.IntegerField(required=False, label="Capacidad Máxima", widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    
+    # Eliminar este campo
+    # capacidad_max = forms.IntegerField(required=False, label="Capacidad Máxima", widget=forms.NumberInput(attrs={'class': 'form-control'}))

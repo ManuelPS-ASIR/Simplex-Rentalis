@@ -77,11 +77,6 @@ def propiedades(request):
         if permite_mascotas:
             propiedades = propiedades.filter(permite_mascotas=(permite_mascotas == 'True'))
 
-        # Filtrar por capacidad máxima
-        capacidad_maxima = form.cleaned_data.get('capacidad_maxima')
-        if capacidad_maxima:
-            propiedades = propiedades.filter(capacidad_maxima__gte=capacidad_maxima)
-
     # Asignar la imagen de portada a cada propiedad
     for propiedad in propiedades:
         portada = propiedad.gallery_images.filter(portada=True).order_by('id').first()
@@ -94,10 +89,6 @@ def propiedades(request):
     # Pasar el precio máximo al formulario para establecerlo como valor predeterminado
     if 'precio_max' not in request.GET:
         form.fields['precio_max'].initial = precio_maximo  # Establecer el precio máximo por defecto
-
-    # Pasar la capacidad máxima predeterminada al formulario
-    if 'capacidad_maxima' not in request.GET:
-        form.fields['capacidad_maxima'].initial = 1  # Establecer la capacidad máxima por defecto
 
     return render(request, 'SimplexRentalisAPP/propiedades_list.html', {'propiedades': propiedades, 'form': form, 'precio_maximo': precio_maximo})
 
