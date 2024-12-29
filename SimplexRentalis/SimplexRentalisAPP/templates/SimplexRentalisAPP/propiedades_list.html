@@ -7,68 +7,58 @@
 
 {% block content %}
 <style>
-.no-animation {
-    opacity: 1; /* Asegúrate de que la card esté completamente visible sin animación */
-    transition: none !important; /* Desactiva todas las transiciones */
-}
-
-.no-animation:hover {
-    transform: none !important; /* Asegúrate de que no haya transformaciones al pasar el ratón */
-    transition: none !important; /* Desactiva las transiciones en el estado de hover */
-}
-
+/* Estilos específicos para la barra lateral y los filtros */
 .fixed-left {
     position: fixed;
     left: 0;
-    top: 60px; /* Ajusta la parte superior para que quede debajo del navbar si es necesario */
-    height: calc(100vh - 60px); /* Ajusta la altura para que no se superponga con el navbar */
-    z-index: 1000; /* Asegura que la tarjeta esté encima de otros elementos */
-    overflow-y: auto; /* Permite el desplazamiento vertical solo si es necesario */
-    background-color: #333; /* Color de fondo para que coincida con el navbar */
-    color: #fff; /* Color del texto para que coincida con el navbar */
-    padding: 20px; /* Ajustar el padding */
-    box-sizing: border-box; /* Incluye padding y border en el tamaño total */
+    top: 60px; /* Ajuste para no superponer con el navbar */
+    height: calc(100vh - 60px); /* Mantiene la altura dinámica */
+    z-index: 1000;
+    overflow-y: auto;
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 .fixed-left input[type="text"], 
 .fixed-left input[type="number"], 
 .fixed-left select {
-    width: 100%; /* Asegura que los campos ocupen todo el ancho de la tarjeta */
-    padding: 8px; /* Ajusta el padding */
-    margin: 10px 0; /* Ajusta el margen */
-    box-sizing: border-box; /* Incluye padding y border en el tamaño total */
-    background-color: #fff; /* Fondo blanco para los campos */
-    color: #333; /* Color del texto para los campos */
-    border: 1px solid #ccc; /* Añade un borde a los campos */
-    border-radius: 4px; /* Añade bordes redondeados a los campos */
+    width: 100%; /* Ocupa todo el ancho del contenedor */
+    padding: 8px;
+    margin: 10px 0;
+    box-sizing: border-box;
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
 .fixed-left label {
-    font-size: 14px; /* Ajusta el tamaño de fuente de las etiquetas */
-    margin-bottom: 5px; /* Añade margen inferior a las etiquetas */
-    display: block; /* Asegura que las etiquetas ocupen toda la línea */
+    font-size: 14px; /* Tamaño ajustado */
+    margin-bottom: 5px;
+    display: block;
 }
 
 .fixed-left button {
-    width: 100%; /* Asegura que el botón ocupe todo el ancho de la tarjeta */
-    padding: 10px; /* Ajusta el padding */
-    margin-top: 20px; /* Añade margen superior al botón */
-    background-color: #007bff; /* Color de fondo del botón */
-    color: #fff; /* Color del texto del botón */
-    border: none; /* Elimina el borde del botón */
-    border-radius: 4px; /* Añade bordes redondeados al botón */
-    cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 .fixed-left button:hover {
-    background-color: #0056b3; /* Color de fondo del botón al pasar el ratón */
+    background-color: #0056b3; /* Efecto hover */
 }
 
 /* CSS específico para la barra de filtro de precios */
 .slider-container {
-    width: 100%; /* Ocupa todo el ancho disponible */
-    margin: 20px 0; /* Margen superior e inferior */
-    position: relative;
+    width: 100%; /* Ocupa todo el ancho */
+    margin: 20px 0;
 }
 
 .range-slider {
@@ -83,10 +73,10 @@
     height: 8px;
     background: #ddd;
     outline: none;
-    opacity: 0.7;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
+    opacity: 0.8;
+    transition: opacity 0.2s;
 }
+
 .slider:hover {
     opacity: 1;
 }
@@ -94,37 +84,19 @@
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 25px;
-    height: 25px;
+    width: 20px;
+    height: 20px;
     background: #007bff;
+    border-radius: 50%; /* Pulgar redondo */
     cursor: pointer;
 }
 
 .slider::-moz-range-thumb {
-    width: 25px;
-    height: 25px;
+    width: 20px;
+    height: 20px;
     background: #007bff;
+    border-radius: 50%;
     cursor: pointer;
-}
-
-.slider::-webkit-slider-runnable-track {
-    height: 8px;
-    background: #ddd;
-}
-
-.slider::-moz-range-track {
-    height: 8px;
-    background: #ddd;
-}
-
-.range-slider input[type="range"]:nth-child(1) {
-    position: absolute;
-    z-index: 1;
-}
-
-.range-slider input[type="range"]:nth-child(2) {
-    position: absolute;
-    z-index: 2;
 }
 
 .price-range {
@@ -132,8 +104,9 @@
     justify-content: space-between;
     margin-top: 10px;
 }
+
 .price-range input {
-    width: 45%;
+    width: 45%; /* Distribución pareja */
     text-align: center;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -145,7 +118,7 @@
     <div class="row">
         <!-- Filtro de propiedades (columna izquierda) -->
         <div class="col-md-3 mb-4">
-            <div class="card shadow-sm rounded-3 p-3 no-animation fixed-left">
+            <div class="card shadow-sm rounded-3 p-3 fixed-left">
                 <h5 class="card-title">Filtros</h5>
                 <form method="get" action="{% url 'propiedades' %}">
                     <div class="mb-3">
@@ -186,7 +159,7 @@
             </div>
         </div>
         <!-- Contenedor de propiedades (columna derecha) -->
-        <div class="col-md-9 offset-md-3">
+        <div class="col-md-9">
             <div class="position-relative mb-4">
                 <h2 class="text-center m-0">Descubre tu próximo destino</h2>
             </div>
@@ -230,35 +203,14 @@
 </div>
 
 <script>
-// Función para actualizar los valores de los deslizadores y los inputs de texto
 function updatePriceValues() {
     const minPrice = document.getElementById('minPrice');
     const maxPrice = document.getElementById('maxPrice');
     const minPriceValue = document.getElementById('minPriceValue');
     const maxPriceValue = document.getElementById('maxPriceValue');
     
-    // Actualizar los valores de texto
     minPriceValue.value = `${minPrice.value}€`;
     maxPriceValue.value = `${maxPrice.value}€`;
-
-    // Ajustar el fondo del rango para que tenga un gradiente azul entre el mínimo y máximo
-    const gradient = `linear-gradient(to right, #007bff ${minPrice.value / 100}%, #ddd ${minPrice.value / 100}%, #ddd ${maxPrice.value / 100}%, #007bff ${maxPrice.value / 100}%)`;
-    minPrice.style.background = gradient;
-    maxPrice.style.background = gradient;
 }
-
-// Función para evitar que los deslizadores se muevan al hacer clic en cualquier parte de la barra
-document.getElementById('minPrice').addEventListener('mousedown', function(e) {
-    if (e.target !== this) {
-        e.preventDefault(); // Evitar que se mueva si no es el pulgar del slider
-    }
-});
-
-document.getElementById('maxPrice').addEventListener('mousedown', function(e) {
-    if (e.target !== this) {
-        e.preventDefault(); // Evitar que se mueva si no es el pulgar del slider
-    }
-});
 </script>
-
 {% endblock %}
