@@ -203,19 +203,36 @@
 
 <script>
     // Función para actualizar los valores de precio
+    // Función para actualizar los valores de precio
     function updatePriceValues() {
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
         const minPriceValue = document.getElementById('minPriceValue');
         const maxPriceValue = document.getElementById('maxPriceValue');
 
-        if (parseInt(minPrice.value) > parseInt(maxPrice.value)) {
-            minPrice.value = maxPrice.value;
-        }
-
+        // Actualizar los valores de los inputs
         minPriceValue.value = `${minPrice.value}€`;
         maxPriceValue.value = `${maxPrice.value}€`;
     }
+
+    // Agregar eventos a los sliders y asegurar que se mantienen dentro de sus límites
+    document.getElementById('minPrice').addEventListener('input', function() {
+        const minPrice = document.getElementById('minPrice');
+        const maxPrice = document.getElementById('maxPrice');
+        if (parseInt(minPrice.value) > parseInt(maxPrice.value)) {
+            minPrice.value = maxPrice.value;
+        }
+        updatePriceValues();
+    });
+
+    document.getElementById('maxPrice').addEventListener('input', function() {
+        const minPrice = document.getElementById('minPrice');
+        const maxPrice = document.getElementById('maxPrice');
+        if (parseInt(maxPrice.value) < parseInt(minPrice.value)) {
+            maxPrice.value = minPrice.value;
+        }
+        updatePriceValues();
+    });
 
     // Capturar el envío del formulario y registrar datos en la consola
     document.getElementById('filtroForm').addEventListener('submit', function(event) {
@@ -233,7 +250,8 @@
         this.submit();
     });
 
-    document.getElementById('minPrice').addEventListener('input', updatePriceValues);
-    document.getElementById('maxPrice').addEventListener('input', updatePriceValues);
+
 </script>
+
+
 {% endblock %}
