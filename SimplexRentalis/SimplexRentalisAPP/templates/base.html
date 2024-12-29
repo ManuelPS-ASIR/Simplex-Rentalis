@@ -46,23 +46,44 @@
 
         <!-- Modal de advertencia para usuarios no propietarios -->
         <div class="modal fade" id="propietarioModal" data-bs-backdrop="false" data-bs-keyboard="true" tabindex="-1" aria-labelledby="propietarioModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="propietarioModalLabel">Acceso Restringido</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <p>Para poder acceder a esta función, debe darse de alta como propietario.</p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-              <!-- Botón para redirigir al alta como propietario -->
-              <a href="/ruta_a_hacerse_propietario/" class="btn btn-primary">Hacerse Propietario</a>
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="propietarioModalLabel">Acceso Restringido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <!-- Mensaje que explica la restricción -->
+                <p style="color: #000000;">Para poder acceder a esta función, debe darse de alta como propietario.</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <!-- Botón para redirigir al alta como propietario -->
+                <a href="/settings/#finalChangeOwnerModal" class="btn btn-primary">Hacerse Propietario</a>
+              </div>
             </div>
           </div>
         </div>
-        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // Verifica si la URL contiene un hash (ancla)
+                if (window.location.hash) {
+                    var hash = window.location.hash.substring(1); // Eliminar el símbolo #
+                    var modal = document.getElementById(hash);
+                    if (modal) {
+                        // Desplazarse a la ubicación del modal
+                        modal.scrollIntoView({ behavior: "smooth", block: "start" });
+                        
+                        // Espera un momento y luego muestra el modal
+                        setTimeout(function() {
+                            var modalInstance = new bootstrap.Modal(modal);
+                            modalInstance.show();
+                        }, 300); // Ajusta el tiempo si es necesario
+                    }
+                }
+            });
+        </script>
 
 
 
