@@ -117,16 +117,18 @@ Propiedad en detalle
         <p>No hay opiniones disponibles.</p>
     {% endfor %}
 
-    {% if user_has_reservation or permite_opinar_sin_reserva %}
-    <form action="{% url 'enviar_opinion' propiedades.id %}" method="post">
-        {% csrf_token %}
-        <label for="comentario" style="font-weight: bold;">Tu opinión:</label>
-        <textarea name="comentario" id="comentario" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" placeholder="Escribe aquí tu experiencia..."></textarea>
+    {% if user == propiedades.propietario %}
+        <p style="color: #dc3545;">No puedes dejar una opinión porque eres el propietario de esta propiedad.</p>
+    {% elif user_has_reservation or permite_opinar_sin_reserva %}
+        <form action="{% url 'enviar_opinion' propiedades.id %}" method="post">
+            {% csrf_token %}
+            <label for="comentario" style="font-weight: bold;">Tu opinión:</label>
+            <textarea name="comentario" id="comentario" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" placeholder="Escribe aquí tu experiencia..."></textarea>
 
-        <button type="submit" style="background-color: #007bff; color: white; border: none; padding: 10px 20px; font-size: 1em; border-radius: 5px; cursor: pointer;">
-            Enviar Opinión
-        </button>
-    </form>
+            <button type="submit" style="background-color: #007bff; color: white; border: none; padding: 10px 20px; font-size: 1em; border-radius: 5px; cursor: pointer;">
+                Enviar Opinión
+            </button>
+        </form>
     {% else %}
         <p style="color: #6c757d; margin-top: 20px;">Para dejar una opinión, debes haber reservado esta propiedad y la fecha de inicio de tu estancia debe haber pasado.</p>
     {% endif %}
