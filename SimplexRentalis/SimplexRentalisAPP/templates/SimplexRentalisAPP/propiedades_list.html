@@ -203,14 +203,43 @@
 </div>
 
 <script>
-function updatePriceValues() {
-    const minPrice = document.getElementById('minPrice');
-    const maxPrice = document.getElementById('maxPrice');
-    const minPriceValue = document.getElementById('minPriceValue');
-    const maxPriceValue = document.getElementById('maxPriceValue');
-    
-    minPriceValue.value = `${minPrice.value}€`;
-    maxPriceValue.value = `${maxPrice.value}€`;
-}
+    function updatePriceValues() {
+        const minPrice = document.getElementById('minPrice');
+        const maxPrice = document.getElementById('maxPrice');
+        const minPriceValue = document.getElementById('minPriceValue');
+        const maxPriceValue = document.getElementById('maxPriceValue');
+
+        // Asegurarse de que el valor mínimo no supere el máximo
+        if (parseInt(minPrice.value) > parseInt(maxPrice.value)) {
+            minPrice.value = maxPrice.value;
+        }
+
+        // Actualizar los valores visibles
+        minPriceValue.value = `${minPrice.value}€`;
+        maxPriceValue.value = `${maxPrice.value}€`;
+
+        // Ajustar el fondo del rango para que tenga un gradiente
+        const gradient = `linear-gradient(to right, #007bff ${minPrice.value / 100}%, #ddd ${minPrice.value / 100}%, #ddd ${maxPrice.value / 100}%, #007bff ${maxPrice.value / 100}%)`;
+        minPrice.style.background = gradient;
+        maxPrice.style.background = gradient;
+    }
+
+    function updateMaxPrice() {
+        const minPrice = document.getElementById('minPrice');
+        const maxPrice = document.getElementById('maxPrice');
+
+        // Asegurarse de que el valor máximo no sea menor que el mínimo
+        if (parseInt(maxPrice.value) < parseInt(minPrice.value)) {
+            maxPrice.value = minPrice.value;
+        }
+
+        updatePriceValues();
+    }
+
+    // Vincular las funciones a los eventos de las barras deslizantes
+    document.getElementById('minPrice').addEventListener('input', updatePriceValues);
+    document.getElementById('maxPrice').addEventListener('input', updateMaxPrice);
 </script>
+
+
 {% endblock %}
