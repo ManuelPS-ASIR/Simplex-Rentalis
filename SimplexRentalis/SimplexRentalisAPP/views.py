@@ -317,11 +317,15 @@ def password_change_view(request):
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.http import HttpResponseForbidden
 from .forms import PropiedadForm
 from .models import Propiedades, Galeria
 
 def editar_propiedad(request, pk):
     propiedad = get_object_or_404(Propiedades, pk=pk)
+    # Verificación de propietario 
+    if propiedad.propietario != request.user: 
+        return render(request, 'SimplexRentalisAPP/403.html')
     imagenes = Galeria.objects.filter(propiedad=propiedad)
     imagen_portada = imagenes.filter(portada=True).first() if imagenes else None
 
