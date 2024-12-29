@@ -123,16 +123,16 @@
                 <form id="filtroForm" method="get" action="{% url 'propiedades' %}">
                     <div class="mb-3">
                         <label for="direccion" class="form-label">Dirección o lugar</label>
-                        <input type="text" class="form-control" id="direccion" name="direccion" placeholder="Ej: Madrid">
+                        <input type="text" class="form-control" id="direccion" name="direccion" placeholder="Ej: Madrid" value="{{ request.GET.direccion }}">
                     </div>
                     <div class="slider-container">
                         <label for="minPrice" class="form-label">Precio</label>
                         <div class="range-slider">
-                            <input type="range" id="minPrice" name="precio_min" min="0" max="10000" value="0" oninput="updatePriceValues()" class="slider">
-                            <input type="range" id="maxPrice" name="precio_max" min="0" max="10000" value="10000" oninput="updatePriceValues()" class="slider">
+                            <input type="range" id="minPrice" name="precio_min" min="0" max="{{ precio_maximo }}" value="{{ request.GET.precio_min|default:0 }}" oninput="updatePriceValues()" class="slider">
+                            <input type="range" id="maxPrice" name="precio_max" min="0" max="{{ precio_maximo }}" value="{{ request.GET.precio_max|default:10000 }}" oninput="updatePriceValues()" class="slider">
                             <div class="price-range">
-                                <input type="text" id="minPriceValue" value="0€" readonly>
-                                <input type="text" id="maxPriceValue" value="10000€" readonly>
+                                <input type="text" id="minPriceValue" value="{{ request.GET.precio_min|default:0 }}€" readonly>
+                                <input type="text" id="maxPriceValue" value="{{ request.GET.precio_max|default:10000 }}€" readonly>
                             </div>
                         </div>
                     </div>
@@ -141,17 +141,17 @@
                         <select class="form-control" id="calificacion" name="calificacion">
                             <option value="">Seleccionar</option>
                             {% for i in "12345" %}
-                                <option value="{{ i }}">{{ i }} estrellas</option>
+                                <option value="{{ i }}" {% if i == request.GET.calificacion %}selected{% endif %}>{{ i }} estrellas</option>
                             {% endfor %}
                         </select>
                     </div>
                     <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="permite_mascotas" name="permite_mascotas">
+                        <input type="checkbox" class="form-check-input" id="permite_mascotas" name="permite_mascotas" {% if request.GET.permite_mascotas %}checked{% endif %}>
                         <label class="form-check-label" for="permite_mascotas">Permite mascotas</label>
                     </div>
                     <div class="mb-3">
                         <label for="capacidad_maxima" class="form-label">Capacidad máxima</label>
-                        <input type="number" class="form-control" id="capacidad_maxima" name="capacidad_maxima" placeholder="0">
+                        <input type="number" class="form-control" id="capacidad_maxima" name="capacidad_maxima" placeholder="0" value="{{ request.GET.capacidad_maxima }}">
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Aplicar Filtros</button>
                     <!-- Botón Eliminar Filtros -->
