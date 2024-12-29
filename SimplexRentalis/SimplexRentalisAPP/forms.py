@@ -258,3 +258,17 @@ class ReservaForm(forms.ModelForm):
     class Meta:
         model = Reservas
         fields = ['fecha_inicio', 'fecha_fin', 'cantidad_personas', 'mascotas', 'tipo_mascota']
+
+
+
+# forms.py
+
+from django import forms
+
+class FiltroPropiedadesForm(forms.Form):
+    direccion = forms.CharField(required=False, label="Dirección o Lugar", widget=forms.TextInput(attrs={'class': 'form-control'}))
+    precio_min = forms.DecimalField(required=False, label="Precio Mínimo", widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    precio_max = forms.DecimalField(required=False, label="Precio Máximo", widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    calificacion = forms.ChoiceField(required=False, label="Calificación Mínima", choices=[('', 'Cualquiera'), ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5')], widget=forms.Select(attrs={'class': 'form-control'}))
+    permite_mascotas = forms.ChoiceField(required=False, label="Permite Mascotas", choices=[('', 'Cualquiera'), ('True', 'Sí'), ('False', 'No')], widget=forms.Select(attrs={'class': 'form-control'}))
+    capacidad_max = forms.IntegerField(required=False, label="Capacidad Máxima", widget=forms.NumberInput(attrs={'class': 'form-control'}))

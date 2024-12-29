@@ -29,12 +29,49 @@ def index(request):
 
 
 from django.db.models import Case, When, Value
+from django.shortcuts import render
+from .models import Propiedades
+from .forms import FiltroPropiedadesForm
 
 def propiedades(request):
+    # Inicializar el formulario de filtros con los parámetros GET
+    form = FiltroPropiedadesForm(request.GET)
+    
+    # Obtener las propiedades base
     propiedades = Propiedades.objects.prefetch_related('gallery_images').filter(en_mantenimiento=False)
 
+    # Filtrar por dirección
+    if form.is_valid():
+        direccion = form.cleaned_data.get('direccion')
+        if direccion:
+            propiedades = propiedades.filter(direccion__icontains=direccion)
+
+        # Filtrar por precio mínimo y máximo
+        precio_min = form.cleaned_data.get('precio_min')
+        if precio_min:
+            propiedades = propiedades.filter(precio_noche__gte=precio_min)
+
+        precio_max = form.cleaned_data.get('precio_max')
+        if precio_max:
+            propiedades = propiedades.filter(precio_noche__lte=precio_max)
+
+        # Filtrar por calificación mínima
+        calificacion = form.cleaned_data.get('calificacion')
+        if calificacion:
+            propiedades = propiedades.filter(calificacion__gte=calificacion)
+
+        # Filtrar por si permite mascotas
+        permite_mascotas = form.cleaned_data.get('permite_mascotas')
+        if permite_mascotas:
+            propiedades = propiedades.filter(permite_mascotas=permite_mascotas)
+
+        # Filtrar por capacidad máxima
+        capacidad_max = form.cleaned_data.get('capacidad_max')
+        if capacidad_max:
+            propiedades = propiedades.filter(capacidad_max__gte=capacidad_max)
+
+    # Asignar la imagen de portada a cada propiedad
     for propiedad in propiedades:
-        # Intentar obtener la imagen de portada o la primera imagen asociada
         portada = propiedad.gallery_images.filter(portada=True).order_by('id').first()
         if not portada:
             portada = propiedad.gallery_images.order_by('id').first()
@@ -42,7 +79,8 @@ def propiedades(request):
         # Si no hay imágenes, asignar una URL predeterminada
         propiedad.portada = portada.imagen.url if portada else "/static/images/default_property.jpg"
 
-    return render(request, 'SimplexRentalisAPP/propiedades_list.html', {'propiedades': propiedades})
+    return render(request, 'SimplexRentalisAPP/propiedades_list.html', {'propiedades': propiedades, 'form': form})
+
 @login_required
 def propiedades_usuario(request):
     propiedades = Propiedades.objects.filter(propietario=request.user)
@@ -832,3 +870,8 @@ def buscar_propiedades(request):
         resultados = Propiedades.objects.none()
 
     return render(request, 'SimplexRentalisAPP/resultados_busqueda.html', {'resultados': resultados})
+
+
+
+
+

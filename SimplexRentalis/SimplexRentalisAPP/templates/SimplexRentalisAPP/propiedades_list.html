@@ -2,60 +2,199 @@
 {% load static %}
 
 {% block title %}
-    Mis Propiedades
+    Lista de Propiedades
 {% endblock %}
 
 {% block content %}
+<style>
+    .no-animation {
+        opacity: 1; /* Asegúrate de que la card esté completamente visible sin animación */
+        transition: none !important; /* Desactiva todas las transiciones */
+    }
+    
+    .no-animation:hover {
+        transform: none !important; /* Asegúrate de que no haya transformaciones al pasar el ratón */
+        transition: none !important; /* Desactiva las transiciones en el estado de hover */
+    }
+    
+    .fixed-left {
+        position: fixed;
+        left: 0;
+        top: 60px; /* Ajusta la parte superior para que quede debajo del navbar si es necesario */
+        height: calc(100vh - 60px); /* Ajusta la altura para que no se superponga con el navbar */
+        z-index: 1000; /* Asegura que la tarjeta esté encima de otros elementos */
+        overflow-y: auto; /* Permite el desplazamiento vertical solo si es necesario */
+        background-color: #333; /* Color de fondo para que coincida con el navbar */
+        color: #fff; /* Color del texto para que coincida con el navbar */
+        padding: 20px; /* Ajustar el padding */
+        box-sizing: border-box; /* Incluye padding y border en el tamaño total */
+    }
+    
+    .fixed-left input[type="text"], 
+    .fixed-left input[type="number"], 
+    .fixed-left select {
+        width: 100%; /* Asegura que los campos ocupen todo el ancho de la tarjeta */
+        padding: 8px; /* Ajusta el padding */
+        margin: 10px 0; /* Ajusta el margen */
+        box-sizing: border-box; /* Incluye padding y border en el tamaño total */
+        background-color: #fff; /* Fondo blanco para los campos */
+        color: #333; /* Color del texto para los campos */
+        border: 1px solid #ccc; /* Añade un borde a los campos */
+        border-radius: 4px; /* Añade bordes redondeados a los campos */
+    }
+    
+    .fixed-left label {
+        font-size: 14px; /* Ajusta el tamaño de fuente de las etiquetas */
+        margin-bottom: 5px; /* Añade margen inferior a las etiquetas */
+        display: block; /* Asegura que las etiquetas ocupen toda la línea */
+    }
+    
+    .fixed-left button {
+        width: 100%; /* Asegura que el botón ocupe todo el ancho de la tarjeta */
+        padding: 10px; /* Ajusta el padding */
+        margin-top: 20px; /* Añade margen superior al botón */
+        background-color: #007bff; /* Color de fondo del botón */
+        color: #fff; /* Color del texto del botón */
+        border: none; /* Elimina el borde del botón */
+        border-radius: 4px; /* Añade bordes redondeados al botón */
+        cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
+    }
+    
+    .fixed-left button:hover {
+        background-color: #0056b3; /* Color de fondo del botón al pasar el ratón */
+    }
+    
+    /* CSS específico para la barra de filtro de precios */
+    .slider-container {
+        width: 100%; /* Ocupa todo el ancho disponible */
+        margin: 20px 0; /* Margen superior e inferior */
+    }
+    .slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 8px;
+        background: #ddd;
+        outline: none;
+        opacity: 0.7;
+        -webkit-transition: .2s;
+        transition: opacity .2s;
+    }
+    .slider:hover {
+        opacity: 1;
+    }
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 25px;
+        height: 25px;
+        background: #4CAF50;
+        cursor: pointer;
+    }
+    .slider::-moz-range-thumb {
+        width: 25px;
+        height: 25px;
+        background: #4CAF50;
+        cursor: pointer;
+    }
+    .price-range {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+    .price-range input {
+        width: 45%;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 5px;
+    }
+</style>
+    
 <div class="container mt-5">
-    <!-- Contenedor para Título -->
-    <div class="position-relative mb-4">
-        <!-- Título centrado -->
-        <h2 class="text-center m-0">Descubre tu próximo destino</h2>
-    </div>
-
-    <!-- Contenedor de tarjetas de propiedades -->
-    <div class="row justify-content-center">
-        {% if propiedades %}
-            {% for propiedad in propiedades %}
-            <div class="col-12 col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
-                <div class="propiedad-card-wrapper position-relative">
-                    <!-- Enlace a la página de detalles de la propiedad -->
-                    <a href="{% url 'propiedad_detallada' propiedad.pk %}" class="text-decoration-none">
-                        <div class="card propiedad-card shadow-sm rounded-3 overflow-hidden" style="height: 100%; display: flex; flex-direction: column;">
-                            <!-- Imagen de la propiedad -->
-                            <div class="card-image" style="height: 200px; overflow: hidden;">
-                                {% if propiedad.portada %}
-                                    <img src="{{ propiedad.portada }}" class="img-fluid rounded-top" alt="Imagen de {{ propiedad.nombre }}" style="width: 100%; height: 100%; object-fit: cover;">
-                                {% else %}
-                                    <div class="no-imagen d-flex justify-content-center align-items-center bg-light" style="height: 100%;">
-                                        <p class="text-muted">No hay imagen disponible.</p>
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="card-body p-4" style="flex-grow: 1;">
-                                <h5 class="card-title text-truncate">{{ propiedad.nombre }} - <span class="text-primary">{{ propiedad.precio_noche }}€</span></h5>
-                                <p class="card-text text-muted text-truncate">{{ propiedad.direccion }}</p>
-                                <p class="text-muted">{{ propiedad.calificacion|default:"-" }}
-                                    <span class="stars">
-                                        {% for i in "12345" %}
-                                            {% if forloop.counter <= propiedad.calificacion %}
-                                                <i class="fas fa-star"></i>
-                                            {% else %}
-                                                <i class="far fa-star"></i>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </span>
-                                </p>
-                            </div>
+    <div class="row">
+        <!-- Filtro de propiedades (columna izquierda) -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm rounded-3 p-3 no-animation fixed-left"> <!-- Añadir la clase no-animation y fixed-left -->
+                <h5 class="card-title">Filtros</h5>
+                <form method="get" action="{% url 'propiedades' %}">
+                    <div class="mb-3">
+                        <label for="filtro_direccion" class="form-label">Dirección o lugar</label>
+                        <input type="text" class="form-control" id="filtro_direccion" name="direccion" placeholder="Ej: Madrid">
+                    </div>
+                    <!-- Barra de filtro de precios -->
+                    <div class="slider-container">
+                        <label for="priceRange">Precio</label>
+                        <input type="range" min="0" max="10000" value="0" class="slider" id="minPrice">
+                        <input type="range" min="0" max="10000" value="10000" class="slider" id="maxPrice">
+                        <div class="price-range">
+                            <input type="text" id="minPriceValue" value="0€" readonly>
+                            <input type="text" id="maxPriceValue" value="10000€" readonly>
                         </div>
-                    </a>
-                </div>
-            </div>            
-            {% endfor %}
-        {% else %}
-            <!-- Mensaje cuando no hay propiedades registradas -->
-            <p class="text-center text-muted">No tienes propiedades registradas.</p>
-        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="filtro_calificacion" class="form-label">Calificación mínima</label>
+                        <select class="form-control" id="filtro_calificacion" name="calificacion">
+                            <option value="">Seleccionar</option>
+                            {% for i in "12345" %}
+                                <option value="{{ i }}">{{ i }} estrellas</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="filtro_permite_mascotas" name="permite_mascotas">
+                        <label class="form-check-label" for="filtro_permite_mascotas">Permite mascotas</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="filtro_capacidad" class="form-label">Capacidad máxima</label>
+                        <input type="number" class="form-control" id="filtro_capacidad" name="capacidad_max" placeholder="0">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Aplicar Filtros</button>
+                </form>
+            </div>
+        </div>
+        <!-- Contenedor de propiedades (columna derecha) -->
+        <div class="col-md-9 offset-md-3">
+            <div class="position-relative mb-4">
+                <h2 class="text-center m-0">Descubre tu próximo destino</h2>
+            </div>
+
+            <div class="row justify-content-center">
+                {% if propiedades %}
+                    {% for propiedad in propiedades %}
+                    <div class="col-12 col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
+                        <div class="propiedad-card-wrapper position-relative">
+                            <a href="{% url 'propiedad_detallada' propiedad.pk %}" class="text-decoration-none">
+                                <div class="card propiedad-card shadow-sm rounded-3 overflow-hidden" style="height: 100%; display: flex; flex-direction: column;">
+                                    <div class="card-image" style="height: 200px; overflow: hidden;">
+                                        <img src="{{ propiedad.portada }}" class="img-fluid rounded-top" alt="Imagen de {{ propiedad.nombre }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
+                                    <div class="card-body p-4" style="flex-grow: 1;">
+                                        <h5 class="card-title text-truncate">{{ propiedad.nombre }} - <span class="text-primary">{{ propiedad.precio_noche }}€</span></h5>
+                                        <p class="card-text text-muted text-truncate">{{ propiedad.direccion }}</p>
+                                        <p class="text-muted">{{ propiedad.calificacion|default:"-" }}
+                                            <span class="stars">
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= propiedad.calificacion %}
+                                                        <i class="fas fa-star"></i>
+                                                    {% else %}
+                                                        <i class="far fa-star"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-center text-muted">No hay propiedades que coincidan con los filtros.</p>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
+
 {% endblock %}
