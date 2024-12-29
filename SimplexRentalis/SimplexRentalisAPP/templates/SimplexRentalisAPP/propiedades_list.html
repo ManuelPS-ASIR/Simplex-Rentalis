@@ -113,24 +113,22 @@
     padding: 5px;
 }
 </style>
-
 <div class="container mt-5">
     <div class="row">
         <!-- Filtro de propiedades (columna izquierda) -->
         <div class="col-md-3 mb-4">
             <div class="card shadow-sm rounded-3 p-3 fixed-left">
                 <h5 class="card-title">Filtros</h5>
-                <form method="get" action="{% url 'propiedades' %}">
+                <form id="filtroForm" method="get" action="{% url 'propiedades' %}">
                     <div class="mb-3">
-                        <label for="filtro_direccion" class="form-label">Dirección o lugar</label>
-                        <input type="text" class="form-control" id="filtro_direccion" name="direccion" placeholder="Ej: Madrid">
+                        <label for="direccion" class="form-label">Dirección o lugar</label>
+                        <input type="text" class="form-control" id="direccion" name="direccion" placeholder="Ej: Madrid">
                     </div>
-                    <!-- Barra de filtro de precios -->
                     <div class="slider-container">
-                        <label for="priceRange">Precio</label>
+                        <label for="minPrice" class="form-label">Precio</label>
                         <div class="range-slider">
-                            <input type="range" id="minPrice" min="0" max="10000" value="0" oninput="updatePriceValues()" class="slider">
-                            <input type="range" id="maxPrice" min="0" max="10000" value="10000" oninput="updatePriceValues()" class="slider">
+                            <input type="range" id="minPrice" name="precio_min" min="0" max="10000" value="0" oninput="updatePriceValues()" class="slider">
+                            <input type="range" id="maxPrice" name="precio_max" min="0" max="10000" value="10000" oninput="updatePriceValues()" class="slider">
                             <div class="price-range">
                                 <input type="text" id="minPriceValue" value="0€" readonly>
                                 <input type="text" id="maxPriceValue" value="10000€" readonly>
@@ -138,8 +136,8 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="filtro_calificacion" class="form-label">Calificación mínima</label>
-                        <select class="form-control" id="filtro_calificacion" name="calificacion">
+                        <label for="calificacion" class="form-label">Calificación mínima</label>
+                        <select class="form-control" id="calificacion" name="calificacion">
                             <option value="">Seleccionar</option>
                             {% for i in "12345" %}
                                 <option value="{{ i }}">{{ i }} estrellas</option>
@@ -147,12 +145,12 @@
                         </select>
                     </div>
                     <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="filtro_permite_mascotas" name="permite_mascotas">
-                        <label class="form-check-label" for="filtro_permite_mascotas">Permite mascotas</label>
+                        <input type="checkbox" class="form-check-input" id="permite_mascotas" name="permite_mascotas">
+                        <label class="form-check-label" for="permite_mascotas">Permite mascotas</label>
                     </div>
                     <div class="mb-3">
-                        <label for="filtro_capacidad" class="form-label">Capacidad máxima</label>
-                        <input type="number" class="form-control" id="filtro_capacidad" name="capacidad_max" placeholder="0">
+                        <label for="capacidad_maxima" class="form-label">Capacidad máxima</label>
+                        <input type="number" class="form-control" id="capacidad_maxima" name="capacidad_maxima" placeholder="0">
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Aplicar Filtros</button>
                 </form>
@@ -177,7 +175,8 @@
                                     <div class="card-body p-4" style="flex-grow: 1;">
                                         <h5 class="card-title text-truncate">{{ propiedad.nombre }} - <span class="text-primary">{{ propiedad.precio_noche }}€</span></h5>
                                         <p class="card-text text-muted text-truncate">{{ propiedad.direccion }}</p>
-                                        <p class="text-muted">{{ propiedad.calificacion|default:"-" }}
+                                        <p class="text-muted">
+                                            {{ propiedad.calificacion|default:"-" }}
                                             <span class="stars">
                                                 {% for i in "12345" %}
                                                     {% if forloop.counter <= propiedad.calificacion %}
@@ -203,43 +202,38 @@
 </div>
 
 <script>
+    // Función para actualizar los valores de precio
     function updatePriceValues() {
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
         const minPriceValue = document.getElementById('minPriceValue');
         const maxPriceValue = document.getElementById('maxPriceValue');
 
-        // Asegurarse de que el valor mínimo no supere el máximo
         if (parseInt(minPrice.value) > parseInt(maxPrice.value)) {
             minPrice.value = maxPrice.value;
         }
 
-        // Actualizar los valores visibles
         minPriceValue.value = `${minPrice.value}€`;
         maxPriceValue.value = `${maxPrice.value}€`;
-
-        // Ajustar el fondo del rango para que tenga un gradiente
-        const gradient = `linear-gradient(to right, #007bff ${minPrice.value / 100}%, #ddd ${minPrice.value / 100}%, #ddd ${maxPrice.value / 100}%, #007bff ${maxPrice.value / 100}%)`;
-        minPrice.style.background = gradient;
-        maxPrice.style.background = gradient;
     }
 
-    function updateMaxPrice() {
-        const minPrice = document.getElementById('minPrice');
-        const maxPrice = document.getElementById('maxPrice');
+    // Capturar el envío del formulario y registrar datos en la consola
+    document.getElementById('filtroForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Evita el envío inmediato para mostrar los datos
 
-        // Asegurarse de que el valor máximo no sea menor que el mínimo
-        if (parseInt(maxPrice.value) < parseInt(minPrice.value)) {
-            maxPrice.value = minPrice.value;
-        }
+        const formData = new FormData(this);
+        const filterData = {};
+        formData.forEach((value, key) => {
+            filterData[key] = value;
+        });
 
-        updatePriceValues();
-    }
+        console.log("Datos enviados en el filtro:", filterData);
 
-    // Vincular las funciones a los eventos de las barras deslizantes
+        // Permite el envío del formulario después de registrar los datos
+        this.submit();
+    });
+
     document.getElementById('minPrice').addEventListener('input', updatePriceValues);
-    document.getElementById('maxPrice').addEventListener('input', updateMaxPrice);
+    document.getElementById('maxPrice').addEventListener('input', updatePriceValues);
 </script>
-
-
 {% endblock %}

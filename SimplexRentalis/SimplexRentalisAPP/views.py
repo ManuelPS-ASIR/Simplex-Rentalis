@@ -33,42 +33,51 @@ from django.shortcuts import render
 from .models import Propiedades
 from .forms import FiltroPropiedadesForm
 
+from django.db.models import Q  # Importar Q para consultas complejas
+from django.shortcuts import render
+from .models import Propiedades
+from .forms import FiltroPropiedadesForm
+
 def propiedades(request):
     # Inicializar el formulario de filtros con los parámetros GET
     form = FiltroPropiedadesForm(request.GET)
-    
+
     # Obtener las propiedades base
     propiedades = Propiedades.objects.prefetch_related('gallery_images').filter(en_mantenimiento=False)
 
-    # Filtrar por dirección
+    # Imprimir los datos enviados para depuración
+    print("Datos del filtro recibidos:", request.GET)
+
     if form.is_valid():
+        # Filtrar por dirección
         direccion = form.cleaned_data.get('direccion')
         if direccion:
             propiedades = propiedades.filter(direccion__icontains=direccion)
 
         # Filtrar por precio mínimo y máximo
         precio_min = form.cleaned_data.get('precio_min')
-        if precio_min:
-            propiedades = propiedades.filter(precio_noche__gte=precio_min)
-
         precio_max = form.cleaned_data.get('precio_max')
-        if precio_max:
+        if precio_min is not None and precio_max is not None:
+            propiedades = propiedades.filter(precio_noche__range=(precio_min, precio_max))
+        elif precio_min is not None:
+            propiedades = propiedades.filter(precio_noche__gte=precio_min)
+        elif precio_max is not None:
             propiedades = propiedades.filter(precio_noche__lte=precio_max)
 
         # Filtrar por calificación mínima
         calificacion = form.cleaned_data.get('calificacion')
         if calificacion:
-            propiedades = propiedades.filter(calificacion__gte=calificacion)
+            propiedades = propiedades.filter(calificacion__gte=int(calificacion))
 
         # Filtrar por si permite mascotas
         permite_mascotas = form.cleaned_data.get('permite_mascotas')
         if permite_mascotas:
-            propiedades = propiedades.filter(permite_mascotas=permite_mascotas)
+            propiedades = propiedades.filter(permite_mascotas=(permite_mascotas == 'True'))
 
-        # Filtrar por capacidad máxima
-        capacidad_max = form.cleaned_data.get('capacidad_max')
-        if capacidad_max:
-            propiedades = propiedades.filter(capacidad_max__gte=capacidad_max)
+        # Filtrar por capacidad máxima (corrigiendo el campo)
+        capacidad_maxima = form.cleaned_data.get('capacidad_maxima')
+        if capacidad_maxima:
+            propiedades = propiedades.filter(capacidad_maxima__gte=capacidad_maxima)
 
     # Asignar la imagen de portada a cada propiedad
     for propiedad in propiedades:
@@ -80,6 +89,7 @@ def propiedades(request):
         propiedad.portada = portada.imagen.url if portada else "/static/images/default_property.jpg"
 
     return render(request, 'SimplexRentalisAPP/propiedades_list.html', {'propiedades': propiedades, 'form': form})
+
 
 @login_required
 def propiedades_usuario(request):
@@ -93,6 +103,7 @@ def propiedades_usuario(request):
     return render(request, 'SimplexRentalisAPP/propiedades_usuario.html', {
         'propiedades': propiedades
     })
+
 def register(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST, request.FILES)
@@ -118,10 +129,6 @@ def register(request):
 
     return render(request, 'registration/registro.html', {'form': RegistroForm()})
 
-
-
-
-
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('index')
@@ -146,18 +153,11 @@ def login_view(request):
             return JsonResponse({'success': False, 'error': {'username': _('El nombre de usuario no existe')}})
     
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
+
 def logout_view(request):
     logout(request)
     return redirect('index')
-
-
-
-
-
-
-
-
-    
+ 
 # Configuración de la cuenta
 @login_required
 def account_settings(request):
@@ -190,6 +190,7 @@ def account_settings(request):
         form = ConfiguracionCuentaForm(instance=request.user)
 
     return render(request, 'SimplexRentalisAPP/settings.html', {'form': form})
+
 @login_required
 def agregar_propiedad(request):
     if request.method == 'POST':
@@ -272,8 +273,8 @@ def agregar_propiedad(request):
         return redirect('propiedades_usuario')  # Cambiar 'mis_propiedades' por el nombre correcto de tu vista de "Mis Propiedades"
 
     return render(request, 'SimplexRentalisAPP/agregar_propiedad.html')
-from django.db.models import Min
 
+from django.db.models import Min
 @login_required
 def agregar_imagenes(request, propiedad_id):
     propiedad = get_object_or_404(Propiedades, id=propiedad_id)
