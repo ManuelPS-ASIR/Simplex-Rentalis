@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Resultados de Búsqueda
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1>Resultados de Búsqueda</h1>
+        {% if resultados %}
+            <ul>
+                {% for propiedad in resultados %}
+                    <li>
+                        <a href="{% url 'propiedad_detallada' propiedad.pk %}">{{ propiedad.nombre }} - {{ propiedad.direccion }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No se encontraron propiedades que coincidan con tu búsqueda.</p>
+        {% endif %}
+    </div>
+{% endblock %}

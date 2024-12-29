@@ -806,3 +806,29 @@ def cancelar_reserva(request, reserva_id):
 
     # Si el método no es POST, devolver error de método no permitido
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
+
+
+
+
+
+
+
+
+#####################################################################################################################
+
+
+
+from django.shortcuts import render
+from django.db.models import Q
+from .models import Propiedades  # Asegúrate de importar el modelo correcto
+
+def buscar_propiedades(request):
+    query = request.GET.get('q')
+    if query:
+        resultados = Propiedades.objects.filter(
+            Q(nombre__icontains=query) | Q(direccion__icontains=query)
+        )
+    else:
+        resultados = Propiedades.objects.none()
+
+    return render(request, 'SimplexRentalisAPP/resultados_busqueda.html', {'resultados': resultados})
