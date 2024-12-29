@@ -30,9 +30,35 @@
         </a>
 
         <!-- Botón "Mis Propiedades" si el usuario es propietario -->
-        {% if user.is_authenticated and user.es_propietario %}
-          <a href="/mis_propiedades/" class="btn btn-outline-light me-3">Mis Propiedades</a>
+        {% if user.is_authenticated %}
+          {% if user.es_propietario %}
+            <a href="/mis_propiedades/" class="btn btn-outline-light me-3">Mis Propiedades</a>
+          {% else %}
+            <a href="#" class="btn btn-outline-light me-3" data-bs-toggle="modal" data-bs-target="#propietarioModal">Mis Propiedades</a>
+          {% endif %}
         {% endif %}
+
+        <!-- Modal de advertencia para usuarios no propietarios -->
+        <div class="modal fade" id="propietarioModal" data-bs-backdrop="false" data-bs-keyboard="true" tabindex="-1" aria-labelledby="propietarioModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="propietarioModalLabel">Acceso Restringido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p>Para poder acceder a esta función, debe darse de alta como propietario.</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <!-- Botón para redirigir al alta como propietario -->
+                <a href="/ruta_a_hacerse_propietario/" class="btn btn-primary">Hacerse Propietario</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
       </div>
       <div class="d-flex align-items-center">
         <!-- Botón "Mis Reservas" si el usuario está autenticado -->
