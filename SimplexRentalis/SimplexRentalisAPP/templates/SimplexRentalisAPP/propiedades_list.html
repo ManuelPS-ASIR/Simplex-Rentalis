@@ -68,7 +68,14 @@
 .slider-container {
     width: 100%; /* Ocupa todo el ancho disponible */
     margin: 20px 0; /* Margen superior e inferior */
+    position: relative;
 }
+
+.range-slider {
+    position: relative;
+    width: 100%;
+}
+
 .slider {
     -webkit-appearance: none;
     appearance: none;
@@ -83,20 +90,43 @@
 .slider:hover {
     opacity: 1;
 }
+
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 25px;
     height: 25px;
-    background: #4CAF50;
+    background: #007bff;
     cursor: pointer;
 }
+
 .slider::-moz-range-thumb {
     width: 25px;
     height: 25px;
-    background: #4CAF50;
+    background: #007bff;
     cursor: pointer;
 }
+
+.slider::-webkit-slider-runnable-track {
+    height: 8px;
+    background: #ddd;
+}
+
+.slider::-moz-range-track {
+    height: 8px;
+    background: #ddd;
+}
+
+.range-slider input[type="range"]:nth-child(1) {
+    position: absolute;
+    z-index: 1;
+}
+
+.range-slider input[type="range"]:nth-child(2) {
+    position: absolute;
+    z-index: 2;
+}
+
 .price-range {
     display: flex;
     justify-content: space-between;
@@ -111,13 +141,11 @@
 }
 </style>
 
-    
-    
 <div class="container mt-5">
     <div class="row">
         <!-- Filtro de propiedades (columna izquierda) -->
         <div class="col-md-3 mb-4">
-            <div class="card shadow-sm rounded-3 p-3 no-animation fixed-left"> <!-- Añadir la clase no-animation y fixed-left -->
+            <div class="card shadow-sm rounded-3 p-3 no-animation fixed-left">
                 <h5 class="card-title">Filtros</h5>
                 <form method="get" action="{% url 'propiedades' %}">
                     <div class="mb-3">
@@ -128,8 +156,8 @@
                     <div class="slider-container">
                         <label for="priceRange">Precio</label>
                         <div class="range-slider">
-                            <input type="range" id="minPrice" min="0" max="10000" value="0" oninput="updatePriceValues()">
-                            <input type="range" id="maxPrice" min="0" max="10000" value="10000" oninput="updatePriceValues()">
+                            <input type="range" id="minPrice" min="0" max="10000" value="0" oninput="updatePriceValues()" class="slider">
+                            <input type="range" id="maxPrice" min="0" max="10000" value="10000" oninput="updatePriceValues()" class="slider">
                             <div class="price-range">
                                 <input type="text" id="minPriceValue" value="0€" readonly>
                                 <input type="text" id="maxPriceValue" value="10000€" readonly>
@@ -202,23 +230,35 @@
 </div>
 
 <script>
+// Función para actualizar los valores de los deslizadores y los inputs de texto
 function updatePriceValues() {
     const minPrice = document.getElementById('minPrice');
     const maxPrice = document.getElementById('maxPrice');
     const minPriceValue = document.getElementById('minPriceValue');
     const maxPriceValue = document.getElementById('maxPriceValue');
     
-    const minValue = parseInt(minPrice.value);
-    const maxValue = parseInt(maxPrice.value);
-
-    if (minValue > maxValue) {
-        [minPrice.value, maxPrice.value] = [maxPrice.value, minPrice.value];
-    }
-    
+    // Actualizar los valores de texto
     minPriceValue.value = `${minPrice.value}€`;
     maxPriceValue.value = `${maxPrice.value}€`;
-}
-</script>
 
+    // Ajustar el fondo del rango para que tenga un gradiente azul entre el mínimo y máximo
+    const gradient = `linear-gradient(to right, #007bff ${minPrice.value / 100}%, #ddd ${minPrice.value / 100}%, #ddd ${maxPrice.value / 100}%, #007bff ${maxPrice.value / 100}%)`;
+    minPrice.style.background = gradient;
+    maxPrice.style.background = gradient;
+}
+
+// Función para evitar que los deslizadores se muevan al hacer clic en cualquier parte de la barra
+document.getElementById('minPrice').addEventListener('mousedown', function(e) {
+    if (e.target !== this) {
+        e.preventDefault(); // Evitar que se mueva si no es el pulgar del slider
+    }
+});
+
+document.getElementById('maxPrice').addEventListener('mousedown', function(e) {
+    if (e.target !== this) {
+        e.preventDefault(); // Evitar que se mueva si no es el pulgar del slider
+    }
+});
+</script>
 
 {% endblock %}
