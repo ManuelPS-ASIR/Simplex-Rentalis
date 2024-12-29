@@ -113,6 +113,7 @@
     padding: 5px;
 }
 </style>
+
 <div class="container mt-5">
     <div class="row">
         <!-- Filtro de propiedades (columna izquierda) -->
@@ -153,9 +154,12 @@
                         <input type="number" class="form-control" id="capacidad_maxima" name="capacidad_maxima" placeholder="0">
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Aplicar Filtros</button>
+                    <!-- Botón Eliminar Filtros -->
+                    <button type="button" class="btn btn-secondary w-100 mt-3" id="eliminarFiltrosBtn">Eliminar Filtros</button>
                 </form>
             </div>
         </div>
+
         <!-- Contenedor de propiedades (columna derecha) -->
         <div class="col-md-9">
             <div class="position-relative mb-4">
@@ -203,7 +207,6 @@
 
 <script>
     // Función para actualizar los valores de precio
-    // Función para actualizar los valores de precio
     function updatePriceValues() {
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
@@ -234,24 +237,25 @@
         updatePriceValues();
     });
 
-    // Capturar el envío del formulario y registrar datos en la consola
-    document.getElementById('filtroForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Evita el envío inmediato para mostrar los datos
+    // Capturar el clic en el botón "Eliminar Filtros" y restablecer los filtros
+    document.getElementById('eliminarFiltrosBtn').addEventListener('click', function() {
+        // Limpiar los valores del formulario
+        document.getElementById('filtroForm').reset();
 
-        const formData = new FormData(this);
-        const filterData = {};
-        formData.forEach((value, key) => {
-            filterData[key] = value;
-        });
+        // Restaurar los valores predeterminados del rango de precios
+        document.getElementById('minPrice').value = 0;
+        document.getElementById('maxPrice').value = 10000;
+        updatePriceValues();
 
-        console.log("Datos enviados en el filtro:", filterData);
+        // Eliminar los parámetros de la URL (filtros)
+        const url = new URL(window.location.href);
+        url.search = ""; // Elimina todos los parámetros de búsqueda
+        window.history.pushState({}, '', url); // Actualiza la URL sin recargar la página
 
-        // Permite el envío del formulario después de registrar los datos
-        this.submit();
+        // Recargar la página sin los filtros aplicados
+        window.location.reload();
     });
 
-
 </script>
-
 
 {% endblock %}
