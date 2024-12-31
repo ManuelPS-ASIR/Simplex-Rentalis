@@ -220,7 +220,9 @@
 </div>
 
 <script>
-    const gap = 0; // Espacio mínimo en unidades entre los sliders
+    const gap = 4; // Espacio mínimo en unidades entre los sliders
+    let typingTimer; // Timer para detectar cuando el usuario deja de escribir
+    const doneTypingInterval = 1000; // Intervalo de tiempo en milisegundos (1 segundo)
 
     // Función para actualizar los valores de los inputs con los valores actuales de los sliders
     function updatePriceValues() {
@@ -253,11 +255,10 @@
         const minPriceVal = parseInt(minPriceValue.value.replace('€', '').trim()) || precioMinimoBD;
         const maxPriceVal = parseInt(maxPriceValue.value.replace('€', '').trim()) || precioMaximoBD;
 
-        // Validar y ajustar los valores para evitar superposición
+        // Validar y ajustar los valores para evitar superposición y actualización en tiempo real
         if (minPriceVal + gap > maxPriceVal) {
             minPriceValue.value = `${maxPriceVal - gap}€`;
-        }
-        if (maxPriceVal - gap < minPriceVal) {
+        } else if (maxPriceVal - gap < minPriceVal) {
             maxPriceValue.value = `${minPriceVal + gap}€`;
         }
 
@@ -267,6 +268,11 @@
 
         // Asegurarse de que los sliders reflejan los valores actualizados
         updatePriceValues();
+    }
+
+    // Función para aplicar el gap después de que el usuario deje de escribir
+    function doneTyping() {
+        updateSlidersFromInputs();
     }
 
     // Eventos para los deslizadores
@@ -294,11 +300,29 @@
 
     // Eventos para las casillas de texto (entrada manual)
     document.getElementById('minPriceValue').addEventListener('input', function () {
-        updateSlidersFromInputs();
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(doneTyping, doneTypingInterval);
+
+        const minPriceValue = document.getElementById('minPriceValue');
+        const maxPriceValue = document.getElementById('maxPriceValue');
+
+        // Validar que el precio mínimo no sea superior al máximo
+        if (parseInt(minPriceValue.value.replace('€', '').trim()) > parseInt(maxPriceValue.value.replace('€', '').trim())) {
+            minPriceValue.value = `${maxPriceValue.value}€`;
+        }
     });
 
     document.getElementById('maxPriceValue').addEventListener('input', function () {
-        updateSlidersFromInputs();
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(doneTyping, doneTypingInterval);
+
+        const minPriceValue = document.getElementById('minPriceValue');
+        const maxPriceValue = document.getElementById('maxPriceValue');
+
+        // Validar que el precio máximo no sea inferior al mínimo
+        if (parseInt(maxPriceValue.value.replace('€', '').trim()) < parseInt(minPriceValue.value.replace('€', '').trim())) {
+            maxPriceValue.value = `${minPriceValue.value}€`;
+        }
     });
 
     // Capturar el clic en el botón "Eliminar Filtros" y restablecer los valores
