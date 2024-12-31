@@ -296,6 +296,7 @@
     // Eventos para los deslizadores
     document.getElementById('minPrice').addEventListener('input', function () {
         lastModifiedBy = 'sliders';
+        clearTimeout(typingTimer);
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
 
@@ -308,6 +309,7 @@
 
     document.getElementById('maxPrice').addEventListener('input', function () {
         lastModifiedBy = 'sliders';
+        clearTimeout(typingTimer);
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
 
@@ -357,5 +359,6 @@
     document.getElementById('maxPrice').value = precioMaximoBD;
     updatePriceValuesFromSliders();
 </script>
+
 
 {% endblock %}
