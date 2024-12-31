@@ -144,9 +144,9 @@
                             <input type="range" id="minPrice" name="precio_min" min="0" max="{{ precio_maximo }}" value="{{ request.GET.precio_min|default:0 }}" oninput="updatePriceValues()" class="slider thumb-lower">
                             <input type="range" id="maxPrice" name="precio_max" min="0" max="{{ precio_maximo }}" value="{{ request.GET.precio_max|default:10000 }}" oninput="updatePriceValues()" class="slider">
                             <div class="price-range">
-                                <input type="text" id="minPriceValue" value="{{ request.GET.precio_min|default:0 }}€" readonly>
-                                <input type="text" id="maxPriceValue" value="{{ request.GET.precio_max|default:10000 }}€" readonly>
-                            </div>
+                                <input type="text" id="minPriceValue" value="{{ request.GET.precio_min|default:0 }}€">
+                                <input type="text" id="maxPriceValue" value="{{ request.GET.precio_max|default:10000 }}€">
+                            </div>                            
                         </div>
                     </div>
                     <div class="mb-3">
@@ -226,16 +226,43 @@
         const minPriceValue = document.getElementById('minPriceValue');
         const maxPriceValue = document.getElementById('maxPriceValue');
 
-        // Actualizar los valores de los inputs
+        // Actualizar los valores de los inputs con los valores actuales de los sliders
         minPriceValue.value = `${minPrice.value}€`;
         maxPriceValue.value = `${maxPrice.value}€`;
     }
 
+    function updateSlidersFromInputs() {
+        const minPrice = document.getElementById('minPrice');
+        const maxPrice = document.getElementById('maxPrice');
+        const minPriceValue = document.getElementById('minPriceValue');
+        const maxPriceValue = document.getElementById('maxPriceValue');
+
+        // Convertir valores de las casillas de texto a números
+        const minPriceVal = parseInt(minPriceValue.value.replace('€', '').trim()) || 0;
+        const maxPriceVal = parseInt(maxPriceValue.value.replace('€', '').trim()) || precioMaximoBD;
+
+        // Validar y ajustar los valores para evitar superposición
+        if (minPriceVal + gap > maxPriceVal) {
+            minPriceValue.value = `${maxPriceVal - gap}€`;
+        }
+        if (maxPriceVal - gap < minPriceVal) {
+            maxPriceValue.value = `${minPriceVal + gap}€`;
+        }
+
+        // Actualizar los sliders con los valores validados de los inputs
+        minPrice.value = parseInt(minPriceValue.value.replace('€', '').trim()) || 0;
+        maxPrice.value = parseInt(maxPriceValue.value.replace('€', '').trim()) || precioMaximoBD;
+
+        // Asegurarse de que los sliders reflejan los valores actualizados
+        updatePriceValues();
+    }
+
+    // Eventos para los deslizadores
     document.getElementById('minPrice').addEventListener('input', function () {
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
-        
-        // Asegurar que no se superponen, con un espacio mínimo (gap)
+
+        // Validar que no haya superposición
         if (parseInt(minPrice.value) + gap > parseInt(maxPrice.value)) {
             minPrice.value = parseInt(maxPrice.value) - gap;
         }
@@ -245,38 +272,49 @@
     document.getElementById('maxPrice').addEventListener('input', function () {
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
-        
-        // Asegurar que no se superponen, con un espacio mínimo (gap)
+
+        // Validar que no haya superposición
         if (parseInt(maxPrice.value) - gap < parseInt(minPrice.value)) {
             maxPrice.value = parseInt(minPrice.value) + gap;
         }
         updatePriceValues();
     });
 
-    // Capturar el clic en el botón "Eliminar Filtros" y restablecer los filtros
+    // Eventos para las casillas de texto
+    document.getElementById('minPriceValue').addEventListener('input', function () {
+        updateSlidersFromInputs();
+    });
+
+    document.getElementById('maxPriceValue').addEventListener('input', function () {
+        updateSlidersFromInputs();
+    });
+
+    // Capturar el clic en el botón "Eliminar Filtros" y restablecer los valores
     document.getElementById('eliminarFiltrosBtn').addEventListener('click', function () {
-        // Limpiar los valores del formulario
+        // Restablecer los valores del formulario
         document.getElementById('filtroForm').reset();
 
-        // Restaurar los valores predeterminados del rango de precios
+        // Restaurar valores predeterminados del rango de precios
         document.getElementById('minPrice').value = 0;
         document.getElementById('maxPrice').value = precioMaximoBD;
         updatePriceValues();
 
-        // Eliminar los parámetros de la URL (filtros)
+        // Eliminar los parámetros de búsqueda de la URL
         const url = new URL(window.location.href);
-        url.search = ""; // Elimina todos los parámetros de búsqueda
-        window.history.pushState({}, '', url); // Actualiza la URL sin recargar la página
+        url.search = ""; // Quitar todos los parámetros
+        window.history.pushState({}, '', url); // Actualizar la URL sin recargar la página
 
-        // Recargar la página sin los filtros aplicados
+        // Recargar la página sin filtros aplicados
         window.location.reload();
     });
 
+    // Configuración inicial
     const precioMaximoBD = 10000; // Cambia este valor según el precio máximo en tu base de datos
     document.getElementById('minPrice').value = 0;
     document.getElementById('maxPrice').value = precioMaximoBD;
     updatePriceValues();
 </script>
+
 
 
 {% endblock %}
