@@ -64,39 +64,51 @@
 .range-slider {
     position: relative;
     width: 100%;
-}
-
-.slider {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
     height: 8px;
     background: #ddd;
-    outline: none;
-    opacity: 0.8;
-    transition: opacity 0.2s;
+    margin: 20px 0;
 }
 
-.slider:hover {
-    opacity: 1;
+.range-slider input[type="range"] {
+    position: absolute;
+    width: 100%;
+    height: 8px;
+    background: none;
+    pointer-events: none;
+    -webkit-appearance: none;
+    z-index: 2;
 }
 
-.slider::-webkit-slider-thumb {
+.range-slider input[type="range"]::-webkit-slider-thumb {
+    pointer-events: auto;
+    position: relative;
+    z-index: 3;
     -webkit-appearance: none;
     appearance: none;
-    width: 20px;
-    height: 20px;
-    background: #007bff;
-    border-radius: 50%; /* Pulgar redondo */
-    cursor: pointer;
-}
-
-.slider::-moz-range-thumb {
     width: 20px;
     height: 20px;
     background: #007bff;
     border-radius: 50%;
     cursor: pointer;
+}
+
+.range-slider input[type="range"]::-moz-range-thumb {
+    pointer-events: auto;
+    position: relative;
+    z-index: 3;
+    width: 20px;
+    height: 20px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.range-slider input[type="range"].thumb-lower::-webkit-slider-thumb {
+    z-index: 4;
+}
+
+.range-slider input[type="range"].thumb-lower::-moz-range-thumb {
+    z-index: 4;
 }
 
 .price-range {
@@ -112,6 +124,7 @@
     border-radius: 4px;
     padding: 5px;
 }
+
 </style>
 
 <div class="container mt-5">
@@ -126,9 +139,9 @@
                         <input type="text" class="form-control" id="direccion" name="direccion" placeholder="Ej: Madrid" value="{{ request.GET.direccion }}">
                     </div>
                     <div class="slider-container">
-                        <label for="minPrice" class="form-label">Precio</label>
+                        <label for="priceRange" class="form-label">Precio</label>
                         <div class="range-slider">
-                            <input type="range" id="minPrice" name="precio_min" min="0" max="{{ precio_maximo }}" value="{{ request.GET.precio_min|default:0 }}" oninput="updatePriceValues()" class="slider">
+                            <input type="range" id="minPrice" name="precio_min" min="0" max="{{ precio_maximo }}" value="{{ request.GET.precio_min|default:0 }}" oninput="updatePriceValues()" class="slider thumb-lower">
                             <input type="range" id="maxPrice" name="precio_max" min="0" max="{{ precio_maximo }}" value="{{ request.GET.precio_max|default:10000 }}" oninput="updatePriceValues()" class="slider">
                             <div class="price-range">
                                 <input type="text" id="minPriceValue" value="{{ request.GET.precio_min|default:0 }}€" readonly>
@@ -159,8 +172,7 @@
                 </form>
             </div>
         </div>
-
-        <!-- Contenedor de propiedades (columna derecha) -->
+<!-- Contenedor de propiedades (columna derecha) -->
         <div class="col-md-9">
             <div class="position-relative mb-4">
                 <h2 class="text-center m-0">Descubre tu próximo destino</h2>
@@ -265,6 +277,5 @@
     document.getElementById('maxPrice').value = precioMaximoBD;
     updatePriceValues();
 </script>
-
 
 {% endblock %}
