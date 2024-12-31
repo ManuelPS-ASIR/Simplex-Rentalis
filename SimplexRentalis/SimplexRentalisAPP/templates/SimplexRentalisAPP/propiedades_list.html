@@ -123,6 +123,16 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 5px;
+    position: relative; /* Añadido para contener el span */
+}
+
+.price-range span {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* El span no interferirá con la entrada de texto */
+    color: #000;
 }
 
 </style>
@@ -146,8 +156,14 @@
                             <input type="range" id="maxPrice" name="precio_max" min="{{ precio_minimo }}" max="{{ precio_maximo }}" 
                             value="{{ request.GET.precio_max|default:precio_maximo }}" oninput="updatePriceValues()" class="slider">
                             <div class="price-range">
-                                <input type="text" id="minPriceValue" value="{{ request.GET.precio_min|default:precio_minimo }}€">
-                                <input type="text" id="maxPriceValue" value="{{ request.GET.precio_max|default:precio_maximo }}€">
+                                <div style="position: relative; width: 45%;">
+                                    <input type="text" id="minPriceValue" value="{{ request.GET.precio_min|default:precio_minimo }}">
+                                    <span>€</span>
+                                </div>
+                                <div style="position: relative; width: 45%;">
+                                    <input type="text" id="maxPriceValue" value="{{ request.GET.precio_max|default:precio_maximo }}">
+                                    <span>€</span>
+                                </div>
                             </div>                                                        
                         </div>
                     </div>
@@ -174,7 +190,7 @@
                 </form>
             </div>
         </div>
-<!-- Contenedor de propiedades (columna derecha) -->
+                <!-- Contenedor de propiedades (columna derecha) -->
         <div class="col-md-9">
             <div class="position-relative mb-4">
                 <h2 class="text-center m-0">Descubre tu próximo destino</h2>
@@ -223,17 +239,18 @@
     const gap = 4; // Espacio mínimo en unidades entre los sliders
     let typingTimer; // Timer para detectar cuando el usuario deja de escribir
     const doneTypingInterval = 1000; // Intervalo de tiempo en milisegundos (1 segundo)
+    let lastModifiedBy = 'sliders'; // Variable para rastrear la última interacción del usuario
 
     // Función para actualizar los valores de los inputs con los valores actuales de los sliders
-    function updatePriceValues() {
+    function updatePriceValuesFromSliders() {
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
         const minPriceValue = document.getElementById('minPriceValue');
         const maxPriceValue = document.getElementById('maxPriceValue');
 
         // Actualizar los valores de los inputs con los valores actuales de los sliders
-        minPriceValue.value = `${minPrice.value}€`;
-        maxPriceValue.value = `${maxPrice.value}€`;
+        minPriceValue.value = minPrice.value;
+        maxPriceValue.value = maxPrice.value;
 
         // Calcular el porcentaje de posición del slider basado en el valor
         const minPricePercentage = ((minPrice.value - precioMinimoBD) / (precioMaximoBD - precioMinimoBD)) * 100;
@@ -244,7 +261,7 @@
         maxPrice.style.backgroundSize = `${maxPricePercentage}% 100%`;
     }
 
-    // Función para actualizar los sliders desde los inputs
+    // Función para actualizar los sliders desde los inputs después de que el usuario deja de escribir
     function updateSlidersFromInputs() {
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
@@ -252,31 +269,33 @@
         const maxPriceValue = document.getElementById('maxPriceValue');
 
         // Convertir valores de las casillas de texto a números
-        const minPriceVal = parseInt(minPriceValue.value.replace('€', '').trim()) || precioMinimoBD;
-        const maxPriceVal = parseInt(maxPriceValue.value.replace('€', '').trim()) || precioMaximoBD;
+        const minPriceVal = parseInt(minPriceValue.value.trim()) || precioMinimoBD;
+        const maxPriceVal = parseInt(maxPriceValue.value.trim()) || precioMaximoBD;
 
-        // Validar y ajustar los valores para evitar superposición y actualización en tiempo real
+        // Validar y ajustar los valores para evitar superposición
         if (minPriceVal + gap > maxPriceVal) {
-            minPriceValue.value = `${maxPriceVal - gap}€`;
+            minPrice.value = maxPriceVal - gap;
         } else if (maxPriceVal - gap < minPriceVal) {
-            maxPriceValue.value = `${minPriceVal + gap}€`;
+            maxPrice.value = minPriceVal + gap;
+        } else {
+            minPrice.value = minPriceVal;
+            maxPrice.value = maxPriceVal;
         }
 
-        // Actualizar los valores de los sliders con los valores validados de los inputs
-        minPrice.value = parseInt(minPriceValue.value.replace('€', '').trim()) || precioMinimoBD;
-        maxPrice.value = parseInt(maxPriceValue.value.replace('€', '').trim()) || precioMaximoBD;
-
         // Asegurarse de que los sliders reflejan los valores actualizados
-        updatePriceValues();
+        updatePriceValuesFromSliders();
     }
 
-    // Función para aplicar el gap después de que el usuario deje de escribir
+    // Función para aplicar las validaciones después de que el usuario deja de escribir
     function doneTyping() {
-        updateSlidersFromInputs();
+        if (lastModifiedBy === 'inputs') {
+            updateSlidersFromInputs();
+        }
     }
 
     // Eventos para los deslizadores
     document.getElementById('minPrice').addEventListener('input', function () {
+        lastModifiedBy = 'sliders';
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
 
@@ -284,10 +303,11 @@
         if (parseInt(minPrice.value) + gap > parseInt(maxPrice.value)) {
             minPrice.value = parseInt(maxPrice.value) - gap;
         }
-        updatePriceValues();
+        updatePriceValuesFromSliders();
     });
 
     document.getElementById('maxPrice').addEventListener('input', function () {
+        lastModifiedBy = 'sliders';
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
 
@@ -295,34 +315,20 @@
         if (parseInt(maxPrice.value) - gap < parseInt(minPrice.value)) {
             maxPrice.value = parseInt(minPrice.value) + gap;
         }
-        updatePriceValues();
+        updatePriceValuesFromSliders();
     });
 
     // Eventos para las casillas de texto (entrada manual)
     document.getElementById('minPriceValue').addEventListener('input', function () {
+        lastModifiedBy = 'inputs';
         clearTimeout(typingTimer);
         typingTimer = setTimeout(doneTyping, doneTypingInterval);
-
-        const minPriceValue = document.getElementById('minPriceValue');
-        const maxPriceValue = document.getElementById('maxPriceValue');
-
-        // Validar que el precio mínimo no sea superior al máximo
-        if (parseInt(minPriceValue.value.replace('€', '').trim()) > parseInt(maxPriceValue.value.replace('€', '').trim())) {
-            minPriceValue.value = `${maxPriceValue.value}€`;
-        }
     });
 
     document.getElementById('maxPriceValue').addEventListener('input', function () {
+        lastModifiedBy = 'inputs';
         clearTimeout(typingTimer);
         typingTimer = setTimeout(doneTyping, doneTypingInterval);
-
-        const minPriceValue = document.getElementById('minPriceValue');
-        const maxPriceValue = document.getElementById('maxPriceValue');
-
-        // Validar que el precio máximo no sea inferior al mínimo
-        if (parseInt(maxPriceValue.value.replace('€', '').trim()) < parseInt(minPriceValue.value.replace('€', '').trim())) {
-            maxPriceValue.value = `${minPriceValue.value}€`;
-        }
     });
 
     // Capturar el clic en el botón "Eliminar Filtros" y restablecer los valores
@@ -333,7 +339,7 @@
         // Restaurar valores predeterminados del rango de precios
         document.getElementById('minPrice').value = precioMinimoBD;
         document.getElementById('maxPrice').value = precioMaximoBD;
-        updatePriceValues();
+        updatePriceValuesFromSliders();
 
         // Eliminar los parámetros de búsqueda de la URL
         const url = new URL(window.location.href);
@@ -349,10 +355,7 @@
     const precioMinimoBD = 0; // Cambia este valor según el precio máximo en tu base de datos
     document.getElementById('minPrice').value = precioMinimoBD;
     document.getElementById('maxPrice').value = precioMaximoBD;
-    updatePriceValues();
+    updatePriceValuesFromSliders();
 </script>
-
-
-
 
 {% endblock %}
