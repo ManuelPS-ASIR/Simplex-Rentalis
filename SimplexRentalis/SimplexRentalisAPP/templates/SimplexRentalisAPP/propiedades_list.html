@@ -218,7 +218,8 @@
 </div>
 
 <script>
-    // Función para actualizar los valores de precio
+    const gap = 4; // Espacio mínimo en unidades entre los sliders
+
     function updatePriceValues() {
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
@@ -230,33 +231,35 @@
         maxPriceValue.value = `${maxPrice.value}€`;
     }
 
-    // Agregar eventos a los sliders y asegurar que se mantienen dentro de sus límites
-    document.getElementById('minPrice').addEventListener('input', function() {
+    document.getElementById('minPrice').addEventListener('input', function () {
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
-        if (parseInt(minPrice.value) > parseInt(maxPrice.value)) {
-            minPrice.value = maxPrice.value;
+        
+        // Asegurar que no se superponen, con un espacio mínimo (gap)
+        if (parseInt(minPrice.value) + gap > parseInt(maxPrice.value)) {
+            minPrice.value = parseInt(maxPrice.value) - gap;
         }
         updatePriceValues();
     });
 
-    document.getElementById('maxPrice').addEventListener('input', function() {
+    document.getElementById('maxPrice').addEventListener('input', function () {
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
-        if (parseInt(maxPrice.value) < parseInt(minPrice.value)) {
-            maxPrice.value = minPrice.value;
+        
+        // Asegurar que no se superponen, con un espacio mínimo (gap)
+        if (parseInt(maxPrice.value) - gap < parseInt(minPrice.value)) {
+            maxPrice.value = parseInt(minPrice.value) + gap;
         }
         updatePriceValues();
     });
 
     // Capturar el clic en el botón "Eliminar Filtros" y restablecer los filtros
-    document.getElementById('eliminarFiltrosBtn').addEventListener('click', function() {
+    document.getElementById('eliminarFiltrosBtn').addEventListener('click', function () {
         // Limpiar los valores del formulario
         document.getElementById('filtroForm').reset();
 
         // Restaurar los valores predeterminados del rango de precios
         document.getElementById('minPrice').value = 0;
-        // Asumir que tienes el precio máximo almacenado en una variable 'precioMaximoBD'
         document.getElementById('maxPrice').value = precioMaximoBD;
         updatePriceValues();
 
@@ -269,13 +272,11 @@
         window.location.reload();
     });
 
-    // Supongamos que tienes el precio máximo almacenado en una variable 'precioMaximoBD'
     const precioMaximoBD = 10000; // Cambia este valor según el precio máximo en tu base de datos
-
-    // Establecer los valores predeterminados al cargar la página
     document.getElementById('minPrice').value = 0;
     document.getElementById('maxPrice').value = precioMaximoBD;
     updatePriceValues();
 </script>
+
 
 {% endblock %}
