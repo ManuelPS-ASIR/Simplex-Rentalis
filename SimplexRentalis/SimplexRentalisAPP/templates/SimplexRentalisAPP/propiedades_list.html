@@ -9,16 +9,24 @@
 <style>
 /* Estilos específicos para la barra lateral y los filtros */
 .fixed-left {
+    width: 350px; /* Ajusta este valor al ancho que desees */
     position: fixed;
     left: 0;
-    top: 60px; /* Ajuste para no superponer con el navbar */
-    height: calc(100vh - 60px); /* Mantiene la altura dinámica */
+    top: 85px; /* Ajuste para no superponer con el navbar */
+    height: calc(100vh - 110px); /* Mantiene la altura dinámica */
     z-index: 1000;
     overflow-y: auto;
     background-color: #333;
     color: #fff;
     padding: 20px;
     box-sizing: border-box;
+    margin: 10px 20px 5px 25px;
+    /*
+      1º en la parte superior,
+      2º en la parte derecha,
+      3º en la parte inferior,
+      4º en la parte izquierda.
+    */
 }
 
 .fixed-left input[type="text"], 
@@ -160,9 +168,12 @@
                         <input type="text" class="form-control" id="direccion" name="direccion" placeholder="Ej: Madrid" value="{{ request.GET.direccion }}">
                     </div>
                     
+                    
                     <!-- Filtro de precio -->
+                    <!-- Filtro de precio -->
+                    <label for="minPrice" class="form-label">Precio</label>
                     <div class="slider-container">
-                        <label for="priceRange" class="form-label">Precio</label>
+                        <!-- Sliders de precio -->
                         <div class="range-slider">
                             <input type="range" id="minPrice" name="precio_min" min="{{ precio_minimo }}" max="{{ precio_maximo }}" 
                             value="{{ request.GET.precio_min|default:precio_minimo }}" oninput="updatePriceValues()" class="slider thumb-lower">
@@ -171,15 +182,18 @@
                         </div>
                         <div class="price-range">
                             <div style="position: relative; width: 45%;">
-                                <input type="text" id="minPriceValue" value="{{ request.GET.precio_min|default:precio_minimo }}" readonly>
+                                <input type="text" id="minPriceValue" value="{{ request.GET.precio_min|default:precio_minimo }}">
                                 <span>€</span>
                             </div>
                             <div style="position: relative; width: 45%;">
-                                <input type="text" id="maxPriceValue" value="{{ request.GET.precio_max|default:precio_maximo }}" readonly>
+                                <input type="text" id="maxPriceValue" value="{{ request.GET.precio_max|default:precio_maximo }}">
                                 <span>€</span>
                             </div>
                         </div>
                     </div>
+
+
+
 
                     <!-- Calificación mínima -->
                     <div class="mb-3">
@@ -263,7 +277,26 @@
     const gap = 4; // Espacio mínimo en unidades entre los sliders
     let typingTimer; // Timer para detectar cuando el usuario deja de escribir
     const doneTypingInterval = 1000; // Intervalo de tiempo en milisegundos (1 segundo)
-    let lastModifiedBy = 'sliders'; // Variable para rastrear la última interacción del usuario
+
+    // Función para actualizar los valores de los inputs con los valores actuales de los sliders
+    function updatePriceValues() {
+        const minPrice = document.getElementById('minPrice');
+        const maxPrice = document.getElementById('maxPrice');
+        const minPriceValue = document.getElementById('minPriceValue');
+        const maxPriceValue = document.getElementById('maxPriceValue');
+
+        // Actualizar los valores de los inputs con los valores actuales de los sliders
+        minPriceValue.value = `${minPrice.value}€`;
+        maxPriceValue.value = `${maxPrice.value}€`;
+
+        // Calcular el porcentaje de posición del slider basado en el valor
+        const minPricePercentage = ((minPrice.value - precioMinimoBD) / (precioMaximoBD - precioMinimoBD)) * 100;
+        const maxPricePercentage = ((maxPrice.value - precioMinimoBD) / (precioMaximoBD - precioMinimoBD)) * 100;
+
+        // Actualizar el fondo del slider para simular el movimiento de los "thumbs"
+        minPrice.style.backgroundSize = `${minPricePercentage}% 100%`;
+        maxPrice.style.backgroundSize = `${maxPricePercentage}% 100%`;
+    }
 
     // Función para actualizar los valores de los inputs con los valores actuales de los sliders
     function updatePriceValuesFromSliders() {
@@ -320,7 +353,6 @@
     // Eventos para los deslizadores
     document.getElementById('minPrice').addEventListener('input', function () {
         lastModifiedBy = 'sliders';
-        clearTimeout(typingTimer);
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
 
@@ -333,7 +365,6 @@
 
     document.getElementById('maxPrice').addEventListener('input', function () {
         lastModifiedBy = 'sliders';
-        clearTimeout(typingTimer);
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
 
@@ -378,7 +409,7 @@
 
     // Configuración inicial
     const precioMaximoBD = 10000; // Cambia este valor según el precio máximo en tu base de datos
-    const precioMinimoBD = 0; // Cambia este valor según el precio máximo en tu base de datos
+    const precioMinimoBD = 0; // Cambia este valor según el precio mínimo en tu base de datos
     document.getElementById('minPrice').value = precioMinimoBD;
     document.getElementById('maxPrice').value = precioMaximoBD;
     updatePriceValuesFromSliders();
