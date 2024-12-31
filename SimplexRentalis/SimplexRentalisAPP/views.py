@@ -33,15 +33,16 @@ from django.shortcuts import render
 from .models import Propiedades
 from .forms import FiltroPropiedadesForm
 
-from django.db.models import Q
+from django.db.models import Q, Min, Max
 from django.shortcuts import render
 from .models import Propiedades
 from .forms import FiltroPropiedadesForm
 
 def propiedades(request):
-    # Obtener el precio máximo de todas las propiedades
-    precio_maximo = Propiedades.objects.all().order_by('-precio_noche').first().precio_noche if Propiedades.objects.exists() else 10000
-    
+    # Obtener el precio mínimo y máximo de todas las propiedades
+    precio_minimo = Propiedades.objects.aggregate(Min('precio_noche'))['precio_noche__min'] or 0
+    precio_maximo = Propiedades.objects.aggregate(Max('precio_noche'))['precio_noche__max'] or 10000
+
     # Inicializar el formulario de filtros con los parámetros GET
     form = FiltroPropiedadesForm(request.GET)
 
@@ -86,11 +87,18 @@ def propiedades(request):
         # Si no hay imágenes, asignar una URL predeterminada
         propiedad.portada = portada.imagen.url if portada else "/static/images/default_property.jpg"
 
-    # Pasar el precio máximo al formulario para establecerlo como valor predeterminado
+    # Pasar los precios mínimo y máximo al formulario y al contexto
     if 'precio_max' not in request.GET:
         form.fields['precio_max'].initial = precio_maximo  # Establecer el precio máximo por defecto
+    if 'precio_min' not in request.GET:
+        form.fields['precio_min'].initial = precio_minimo  # Establecer el precio mínimo por defecto
 
-    return render(request, 'SimplexRentalisAPP/propiedades_list.html', {'propiedades': propiedades, 'form': form, 'precio_maximo': precio_maximo})
+    return render(request, 'SimplexRentalisAPP/propiedades_list.html', {
+        'propiedades': propiedades,
+        'form': form,
+        'precio_minimo': precio_minimo,
+        'precio_maximo': precio_maximo
+    })
 
 
 @login_required

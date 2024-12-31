@@ -141,12 +141,14 @@
                     <div class="slider-container">
                         <label for="priceRange" class="form-label">Precio</label>
                         <div class="range-slider">
-                            <input type="range" id="minPrice" name="precio_min" min="0" max="{{ precio_maximo }}" value="{{ request.GET.precio_min|default:0 }}" oninput="updatePriceValues()" class="slider thumb-lower">
-                            <input type="range" id="maxPrice" name="precio_max" min="0" max="{{ precio_maximo }}" value="{{ request.GET.precio_max|default:10000 }}" oninput="updatePriceValues()" class="slider">
+                            <input type="range" id="minPrice" name="precio_min" min="{{ precio_minimo }}" max="{{ precio_maximo }}" 
+                            value="{{ request.GET.precio_min|default:precio_minimo }}" oninput="updatePriceValues()" class="slider thumb-lower">
+                            <input type="range" id="maxPrice" name="precio_max" min="{{ precio_minimo }}" max="{{ precio_maximo }}" 
+                            value="{{ request.GET.precio_max|default:precio_maximo }}" oninput="updatePriceValues()" class="slider">
                             <div class="price-range">
-                                <input type="text" id="minPriceValue" value="{{ request.GET.precio_min|default:0 }}€">
-                                <input type="text" id="maxPriceValue" value="{{ request.GET.precio_max|default:10000 }}€">
-                            </div>                            
+                                <input type="text" id="minPriceValue" value="{{ request.GET.precio_min|default:precio_minimo }}€">
+                                <input type="text" id="maxPriceValue" value="{{ request.GET.precio_max|default:precio_maximo }}€">
+                            </div>                                                        
                         </div>
                     </div>
                     <div class="mb-3">
@@ -218,8 +220,9 @@
 </div>
 
 <script>
-    const gap = 4; // Espacio mínimo en unidades entre los sliders
+    const gap = 0; // Espacio mínimo en unidades entre los sliders
 
+    // Función para actualizar los valores de los inputs con los valores actuales de los sliders
     function updatePriceValues() {
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
@@ -229,8 +232,17 @@
         // Actualizar los valores de los inputs con los valores actuales de los sliders
         minPriceValue.value = `${minPrice.value}€`;
         maxPriceValue.value = `${maxPrice.value}€`;
+
+        // Calcular el porcentaje de posición del slider basado en el valor
+        const minPricePercentage = ((minPrice.value - precioMinimoBD) / (precioMaximoBD - precioMinimoBD)) * 100;
+        const maxPricePercentage = ((maxPrice.value - precioMinimoBD) / (precioMaximoBD - precioMinimoBD)) * 100;
+
+        // Actualizar el fondo del slider para simular el movimiento de los "thumbs"
+        minPrice.style.backgroundSize = `${minPricePercentage}% 100%`;
+        maxPrice.style.backgroundSize = `${maxPricePercentage}% 100%`;
     }
 
+    // Función para actualizar los sliders desde los inputs
     function updateSlidersFromInputs() {
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
@@ -238,7 +250,7 @@
         const maxPriceValue = document.getElementById('maxPriceValue');
 
         // Convertir valores de las casillas de texto a números
-        const minPriceVal = parseInt(minPriceValue.value.replace('€', '').trim()) || 0;
+        const minPriceVal = parseInt(minPriceValue.value.replace('€', '').trim()) || precioMinimoBD;
         const maxPriceVal = parseInt(maxPriceValue.value.replace('€', '').trim()) || precioMaximoBD;
 
         // Validar y ajustar los valores para evitar superposición
@@ -249,8 +261,8 @@
             maxPriceValue.value = `${minPriceVal + gap}€`;
         }
 
-        // Actualizar los sliders con los valores validados de los inputs
-        minPrice.value = parseInt(minPriceValue.value.replace('€', '').trim()) || 0;
+        // Actualizar los valores de los sliders con los valores validados de los inputs
+        minPrice.value = parseInt(minPriceValue.value.replace('€', '').trim()) || precioMinimoBD;
         maxPrice.value = parseInt(maxPriceValue.value.replace('€', '').trim()) || precioMaximoBD;
 
         // Asegurarse de que los sliders reflejan los valores actualizados
@@ -280,7 +292,7 @@
         updatePriceValues();
     });
 
-    // Eventos para las casillas de texto
+    // Eventos para las casillas de texto (entrada manual)
     document.getElementById('minPriceValue').addEventListener('input', function () {
         updateSlidersFromInputs();
     });
@@ -295,7 +307,7 @@
         document.getElementById('filtroForm').reset();
 
         // Restaurar valores predeterminados del rango de precios
-        document.getElementById('minPrice').value = 0;
+        document.getElementById('minPrice').value = precioMinimoBD;
         document.getElementById('maxPrice').value = precioMaximoBD;
         updatePriceValues();
 
@@ -310,10 +322,12 @@
 
     // Configuración inicial
     const precioMaximoBD = 10000; // Cambia este valor según el precio máximo en tu base de datos
-    document.getElementById('minPrice').value = 0;
+    const precioMinimoBD = 0; // Cambia este valor según el precio máximo en tu base de datos
+    document.getElementById('minPrice').value = precioMinimoBD;
     document.getElementById('maxPrice').value = precioMaximoBD;
     updatePriceValues();
 </script>
+
 
 
 
