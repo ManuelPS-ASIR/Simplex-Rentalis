@@ -28,29 +28,25 @@ def index(request):
     })
 
 
-from django.db.models import Case, When, Value
-from django.shortcuts import render
-from .models import Propiedades
-from .forms import FiltroPropiedadesForm
-
 from django.db.models import Q, Min, Max
 from django.shortcuts import render
 from .models import Propiedades
 from .forms import FiltroPropiedadesForm
 
 def propiedades(request):
-    # Obtener el precio mínimo y máximo de todas las propiedades
+    query = request.GET.get('q')
     precio_minimo = Propiedades.objects.aggregate(Min('precio_noche'))['precio_noche__min'] or 0
     precio_maximo = Propiedades.objects.aggregate(Max('precio_noche'))['precio_noche__max'] or 10000
 
-    # Inicializar el formulario de filtros con los parámetros GET
     form = FiltroPropiedadesForm(request.GET)
 
     # Obtener las propiedades base
     propiedades = Propiedades.objects.prefetch_related('gallery_images').filter(en_mantenimiento=False)
 
-    # Imprimir los datos enviados para depuración
-    print("Datos del filtro recibidos:", request.GET)
+    if query:
+        propiedades = propiedades.filter(
+            Q(nombre__icontains=query) | Q(direccion__icontains=query)
+        )
 
     if form.is_valid():
         # Filtrar por dirección
@@ -84,14 +80,13 @@ def propiedades(request):
         if not portada:
             portada = propiedad.gallery_images.order_by('id').first()
 
-        # Si no hay imágenes, asignar una URL predeterminada
         propiedad.portada = portada.imagen.url if portada else "/static/images/default_property.jpg"
 
     # Pasar los precios mínimo y máximo al formulario y al contexto
     if 'precio_max' not in request.GET:
-        form.fields['precio_max'].initial = precio_maximo  # Establecer el precio máximo por defecto
+        form.fields['precio_max'].initial = precio_maximo
     if 'precio_min' not in request.GET:
-        form.fields['precio_min'].initial = precio_minimo  # Establecer el precio mínimo por defecto
+        form.fields['precio_min'].initial = precio_minimo
 
     return render(request, 'SimplexRentalisAPP/propiedades_list.html', {
         'propiedades': propiedades,
@@ -100,6 +95,81 @@ def propiedades(request):
         'precio_maximo': precio_maximo
     })
 
+
+#####################################################################################################################
+#####################################################################################################################
+#####################################################################################################################
+#####################################################################################################################
+
+
+from django.shortcuts import render
+from django.db.models import Q, Min, Max
+from .models import Propiedades
+
+def buscar_propiedades(request):
+    query = request.GET.get('q')
+    direccion = request.GET.get('direccion')
+    precio_min = request.GET.get('precio_min')
+    precio_max = request.GET.get('precio_max')
+    calificacion = request.GET.get('calificacion')
+    permite_mascotas = request.GET.get('permite_mascotas')
+    capacidad_maxima = request.GET.get('capacidad_maxima')
+
+    # Iniciar con un queryset vacío
+    resultados = Propiedades.objects.none()
+
+    if query:
+        # Filtrar propiedades por nombre o dirección que contenga la query
+        resultados = Propiedades.objects.filter(
+            Q(nombre__icontains=query) | Q(direccion__icontains=query)
+        )
+
+        # Aplicar filtros adicionales si existen
+        if direccion:
+            resultados = resultados.filter(direccion__icontains=direccion)
+        if precio_min:
+            resultados = resultados.filter(precio_noche__gte=precio_min)
+        if precio_max:
+            resultados = resultados.filter(precio_noche__lte=precio_max)
+        if calificacion:
+            resultados = resultados.filter(calificacion__gte=calificacion)
+        if permite_mascotas:
+            resultados = resultados.filter(permite_mascotas=permite_mascotas)
+        if capacidad_maxima:
+            resultados = resultados.filter(capacidad__lte=capacidad_maxima)
+
+    # Obtener el precio mínimo y máximo de las propiedades disponibles
+    precio_minimo = Propiedades.objects.aggregate(min_precio=Min('precio_noche'))['min_precio']
+    precio_maximo = Propiedades.objects.aggregate(max_precio=Max('precio_noche'))['max_precio']
+
+    # Si no existen propiedades, se asignan valores predeterminados
+    if precio_minimo is None:
+        precio_minimo = 0
+    if precio_maximo is None:
+        precio_maximo = 10000  # O cualquier valor predeterminado que desees
+
+    # Asignar la imagen de portada a cada propiedad
+    for propiedad in resultados:
+        portada = propiedad.gallery_images.filter(portada=True).order_by('id').first()
+        if not portada:
+            portada = propiedad.gallery_images.order_by('id').first()
+
+        # Si no hay imágenes, asignar una URL predeterminada
+        propiedad.portada = portada.imagen.url if portada else "/static/images/default_property.jpg"
+
+    # Pasar los valores de precio al contexto
+    context = {
+        'resultados': resultados,
+        'precio_minimo': precio_minimo,
+        'precio_maximo': precio_maximo,
+    }
+
+    return render(request, 'SimplexRentalisAPP/resultados_busqueda.html', context)
+
+#####################################################################################################################
+#####################################################################################################################
+#####################################################################################################################
+#####################################################################################################################
 
 @login_required
 def propiedades_usuario(request):
@@ -863,24 +933,9 @@ def cancelar_reserva(request, reserva_id):
 
 
 
-#####################################################################################################################
 
 
 
-from django.shortcuts import render
-from django.db.models import Q
-from .models import Propiedades  # Asegúrate de importar el modelo correcto
-
-def buscar_propiedades(request):
-    query = request.GET.get('q')
-    if query:
-        resultados = Propiedades.objects.filter(
-            Q(nombre__icontains=query) | Q(direccion__icontains=query)
-        )
-    else:
-        resultados = Propiedades.objects.none()
-
-    return render(request, 'SimplexRentalisAPP/resultados_busqueda.html', {'resultados': resultados})
 
 
 
