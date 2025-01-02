@@ -88,12 +88,15 @@ def propiedades(request):
     if 'precio_min' not in request.GET:
         form.fields['precio_min'].initial = precio_minimo
 
-    return render(request, 'SimplexRentalisAPP/propiedades_list.html', {
+    context = {
         'propiedades': propiedades,
         'form': form,
         'precio_minimo': precio_minimo,
-        'precio_maximo': precio_maximo
-    })
+        'precio_maximo': precio_maximo,
+        'query': query  # Añadir el parámetro `q` al contexto
+    }
+
+    return render(request, 'SimplexRentalisAPP/propiedades_list.html', context)
 
 
 #####################################################################################################################

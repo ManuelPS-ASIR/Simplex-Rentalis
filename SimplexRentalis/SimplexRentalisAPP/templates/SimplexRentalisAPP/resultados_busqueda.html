@@ -261,7 +261,7 @@
         // Recargar la página con el parámetro 'q' mantenido
         window.location.href = newUrl;
     });
-    
+
     document.getElementById('filtroForm').addEventListener('submit', function (e) {
         e.preventDefault(); // Prevenir el comportamiento predeterminado del formulario
         const url = new URL(window.location.href);
@@ -312,6 +312,7 @@
         // Enviar el formulario después de ajustar los filtros
         this.submit();
     });
+
 
     // Configuración inicial
     const precioMaximoBD = 10000; // Cambia este valor según el precio máximo en tu base de datos
