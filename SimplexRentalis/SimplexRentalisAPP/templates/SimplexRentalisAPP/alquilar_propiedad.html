@@ -93,7 +93,7 @@
                     mode: "range",
                     dateFormat: "Y-m-d",
                     locale: "es",
-                    minDate: "today", // No permitir fechas anteriores al día actual
+                    minDate: new Date().fp_incr(1), // Ajustar la fecha mínima para que sea el día siguiente
                     disable: fechasOcupadas, // Desactivar las fechas ocupadas
                     onChange: function(selectedDates, dateStr, instance) {
                         if (selectedDates.length === 2) {
