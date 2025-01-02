@@ -167,7 +167,7 @@
             maxPrice.value = maxPriceVal;
         }
 
-        updatePriceValuesFromSliders();
+        updatePriceValues();
     }
 
     function doneTyping() {
@@ -184,7 +184,7 @@
         if (parseFloat(minPrice.value) + gap > parseFloat(maxPrice.value)) {
             minPrice.value = parseFloat(maxPrice.value) - gap;
         }
-        updatePriceValuesFromSliders();
+        updatePriceValues();
     });
 
     document.getElementById('maxPrice').addEventListener('input', function () {
@@ -195,7 +195,7 @@
         if (parseFloat(maxPrice.value) - gap < parseFloat(minPrice.value)) {
             maxPrice.value = parseFloat(minPrice.value) + gap;
         }
-        updatePriceValuesFromSliders();
+        updatePriceValues();
     });
 
     document.getElementById('minPriceValue').addEventListener('input', function () {
@@ -214,69 +214,71 @@
         document.getElementById('filtroForm').reset();
         document.getElementById('minPrice').value = precioMinimoBD;
         document.getElementById('maxPrice').value = precioMaximoBD;
-        updatePriceValuesFromSliders();
+        updatePriceValues();
 
         const url = new URL(window.location.href);
         const queryParam = url.searchParams.get('q');
 
-        const newSearch = queryParam ? `?q=${encodeURIComponent(queryParam)}` : '';
-        const newUrl = `${window.location.origin}${window.location.pathname}${newSearch}`;
+        // Crear una nueva URL sin ningún parámetro de búsqueda
+        const newUrl = `${window.location.origin}${window.location.pathname}`;
         window.history.pushState({}, '', newUrl);
 
+        // Recargar la página sin el parámetro 'q'
         window.location.href = newUrl;
     });
 
     document.getElementById('filtroForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const url = new URL(window.location.href);
-    const queryParam = url.searchParams.get('q');
+        e.preventDefault();
+        const url = new URL(window.location.href);
+        const queryParam = url.searchParams.get('q');
 
-    if (queryParam) {
-        const existingInput = this.querySelector('input[name="q"]');
-        if (existingInput) {
-            existingInput.remove();
+        if (queryParam) {
+            const existingInput = this.querySelector('input[name="q"]');
+            if (existingInput) {
+                existingInput.remove();
+            }
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'q';
+            input.value = queryParam;
+            this.appendChild(input);
         }
 
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'q';
-        input.value = queryParam;
-        this.appendChild(input);
-    }
+        const direccion = document.getElementById('direccion').value.trim();
+        const minPriceValue = document.getElementById('minPriceValue').value.trim();
+        const maxPriceValue = document.getElementById('maxPriceValue').value.trim();
 
-    const direccion = document.getElementById('direccion').value.trim();
-    const minPriceValue = document.getElementById('minPriceValue').value.trim();
-    const maxPriceValue = document.getElementById('maxPriceValue').value.trim();
-
-    if (!direccion) {
-        const inputDireccion = this.querySelector('input[name="direccion"]');
-        if (inputDireccion) {
-            inputDireccion.remove();
+        if (!direccion) {
+            const inputDireccion = this.querySelector('input[name="direccion"]');
+            if (inputDireccion) {
+                inputDireccion.remove();
+            }
         }
-    }
 
-    if (!minPriceValue || parseFloat(minPriceValue) === precioMinimoBD) {
-        const inputMinPrice = this.querySelector('input[name="precio_min"]');
-        if (inputMinPrice) {
-            inputMinPrice.remove();
+        if (!minPriceValue || parseFloat(minPriceValue) === precioMinimoBD) {
+            const inputMinPrice = this.querySelector('input[name="precio_min"]');
+            if (inputMinPrice) {
+                inputMinPrice.remove();
+            }
         }
-    }
 
-    if (!maxPriceValue || parseFloat(maxPriceValue) === precioMaximoBD) {
-        const inputMaxPrice = this.querySelector('input[name="precio_max"]');
-        if (inputMaxPrice) {
-            inputMaxPrice.remove();
+        if (!maxPriceValue || parseFloat(maxPriceValue) === precioMaximoBD) {
+            const inputMaxPrice = this.querySelector('input[name="precio_max"]');
+            if (inputMaxPrice) {
+                inputMaxPrice.remove();
+            }
         }
-    }
 
-    this.submit();
-});
+        this.submit();
+    });
 
-const precioMaximoBD = 10000; // Cambia este valor según el precio máximo en tu base de datos
-const precioMinimoBD = 0; // Cambia este valor según el precio mínimo en tu base de datos
-document.getElementById('minPrice').value = '{{ request.GET.precio_min|default:precio_minimo }}';
-document.getElementById('maxPrice').value = '{{ request.GET.precio_max|default:precio_maximo }}';
-updatePriceValuesFromSliders();
-
+    const precioMaximoBD = 10000; // Cambia este valor según el precio máximo en tu base de datos
+    const precioMinimoBD = 0; // Cambia este valor según el precio mínimo en tu base de datos
+    document.getElementById('minPrice').value = '{{ request.GET.precio_min|default:precio_minimo }}';
+    document.getElementById('maxPrice').value = '{{ request.GET.precio_max|default:precio_maximo }}';
+    updatePriceValues();
 </script>
+
+
 {% endblock %}
