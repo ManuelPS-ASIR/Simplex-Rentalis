@@ -13,14 +13,14 @@
             <div class="card shadow-sm rounded-3 p-3 fixed-left no-animation">
                 <h5 class="card-title">Filtros</h5>
                 <form id="filtroForm" method="get" action="{% url 'propiedades' %}">
+                    <input type="hidden" name="q" value="{{ query }}">
+                    
                     <!-- Dirección o lugar -->
                     <div class="mb-3">
                         <label for="direccion" class="form-label">Dirección o lugar</label>
                         <input type="text" class="form-control" id="direccion" name="direccion" placeholder="Ej: Madrid" value="{{ request.GET.direccion }}">
                     </div>
                     
-                    
-                    <!-- Filtro de precio -->
                     <!-- Filtro de precio -->
                     <label for="minPrice" class="form-label">Precio</label>
                     <div class="slider-container">
@@ -42,10 +42,7 @@
                             </div>
                         </div>
                     </div>
-
-
-
-
+                    
                     <!-- Calificación mínima -->
                     <div class="mb-3">
                         <label for="calificacion" class="form-label">Calificación mínima</label>
@@ -56,23 +53,23 @@
                             {% endfor %}
                         </select>
                     </div>
-
+                
                     <!-- Permite mascotas -->
                     <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" id="permite_mascotas" name="permite_mascotas" {% if request.GET.permite_mascotas %}checked{% endif %}>
                         <label class="form-check-label" for="permite_mascotas">Permite mascotas</label>
                     </div>
-
+                
                     <!-- Capacidad máxima -->
                     <div class="mb-3">
                         <label for="capacidad_maxima" class="form-label">Capacidad máxima</label>
                         <input type="number" class="form-control" id="capacidad_maxima" name="capacidad_maxima" placeholder="0" value="{{ request.GET.capacidad_maxima }}">
                     </div>
-
+                
                     <!-- Botones de filtros -->
                     <button type="submit" class="btn btn-primary w-100">Aplicar Filtros</button>
                     <button type="button" class="btn btn-secondary w-100 mt-3" id="eliminarFiltrosBtn">Eliminar Filtros</button>
-                </form>
+                </form>                                
             </div>
         </div>
         
@@ -139,26 +136,6 @@
         const maxPriceValue = document.getElementById('maxPriceValue');
 
         // Actualizar los valores de los inputs con los valores actuales de los sliders
-        minPriceValue.value = `${minPrice.value}€`;
-        maxPriceValue.value = `${maxPrice.value}€`;
-
-        // Calcular el porcentaje de posición del slider basado en el valor
-        const minPricePercentage = ((minPrice.value - precioMinimoBD) / (precioMaximoBD - precioMinimoBD)) * 100;
-        const maxPricePercentage = ((maxPrice.value - precioMinimoBD) / (precioMaximoBD - precioMinimoBD)) * 100;
-
-        // Actualizar el fondo del slider para simular el movimiento de los "thumbs"
-        minPrice.style.backgroundSize = `${minPricePercentage}% 100%`;
-        maxPrice.style.backgroundSize = `${maxPricePercentage}% 100%`;
-    }
-
-    // Función para actualizar los valores de los inputs con los valores actuales de los sliders
-    function updatePriceValuesFromSliders() {
-        const minPrice = document.getElementById('minPrice');
-        const maxPrice = document.getElementById('maxPrice');
-        const minPriceValue = document.getElementById('minPriceValue');
-        const maxPriceValue = document.getElementById('maxPriceValue');
-
-        // Actualizar los valores de los inputs con los valores actuales de los sliders
         minPriceValue.value = minPrice.value;
         maxPriceValue.value = maxPrice.value;
 
@@ -178,11 +155,9 @@
         const minPriceValue = document.getElementById('minPriceValue');
         const maxPriceValue = document.getElementById('maxPriceValue');
 
-        // Convertir valores de las casillas de texto a números
         const minPriceVal = parseFloat(minPriceValue.value.trim()) || precioMinimoBD;
         const maxPriceVal = parseFloat(maxPriceValue.value.trim()) || precioMaximoBD;
 
-        // Validar y ajustar los valores para evitar superposición
         if (minPriceVal + gap > maxPriceVal) {
             minPrice.value = maxPriceVal - gap;
         } else if (maxPriceVal - gap < minPriceVal) {
@@ -192,24 +167,20 @@
             maxPrice.value = maxPriceVal;
         }
 
-        // Asegurarse de que los sliders reflejan los valores actualizados
         updatePriceValuesFromSliders();
     }
 
-    // Función para aplicar las validaciones después de que el usuario deja de escribir
     function doneTyping() {
         if (lastModifiedBy === 'inputs') {
             updateSlidersFromInputs();
         }
     }
 
-    // Eventos para los deslizadores
     document.getElementById('minPrice').addEventListener('input', function () {
         lastModifiedBy = 'sliders';
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
 
-        // Validar que no haya superposición
         if (parseFloat(minPrice.value) + gap > parseFloat(maxPrice.value)) {
             minPrice.value = parseFloat(maxPrice.value) - gap;
         }
@@ -221,14 +192,12 @@
         const minPrice = document.getElementById('minPrice');
         const maxPrice = document.getElementById('maxPrice');
 
-        // Validar que no haya superposición
         if (parseFloat(maxPrice.value) - gap < parseFloat(minPrice.value)) {
             maxPrice.value = parseFloat(minPrice.value) + gap;
         }
         updatePriceValuesFromSliders();
     });
 
-    // Eventos para las casillas de texto (entrada manual)
     document.getElementById('minPriceValue').addEventListener('input', function () {
         lastModifiedBy = 'inputs';
         clearTimeout(typingTimer);
@@ -241,87 +210,73 @@
         typingTimer = setTimeout(doneTyping, doneTypingInterval);
     });
 
-    // Capturar el clic en el botón "Eliminar Filtros" y restablecer los valores
     document.getElementById('eliminarFiltrosBtn').addEventListener('click', function () {
-        // Restablecer los valores del formulario
         document.getElementById('filtroForm').reset();
-
-        // Restaurar valores predeterminados del rango de precios
         document.getElementById('minPrice').value = precioMinimoBD;
         document.getElementById('maxPrice').value = precioMaximoBD;
         updatePriceValuesFromSliders();
 
-        // Mantener el parámetro 'q' en la URL si existe
         const url = new URL(window.location.href);
         const queryParam = url.searchParams.get('q');
 
-        // Crear una nueva URL con sólo el parámetro 'q', si existe
         const newSearch = queryParam ? `?q=${encodeURIComponent(queryParam)}` : '';
         const newUrl = `${window.location.origin}${window.location.pathname}${newSearch}`;
-        window.history.pushState({}, '', newUrl); // Actualizar la URL sin recargar la página
+        window.history.pushState({}, '', newUrl);
 
-        // Recargar la página con el parámetro 'q' mantenido
         window.location.href = newUrl;
     });
 
     document.getElementById('filtroForm').addEventListener('submit', function (e) {
-        e.preventDefault(); // Prevenir el comportamiento predeterminado del formulario
-        const url = new URL(window.location.href);
-        const queryParam = url.searchParams.get('q');
+    e.preventDefault();
+    const url = new URL(window.location.href);
+    const queryParam = url.searchParams.get('q');
 
-        // Si existe el parámetro 'q', buscar si ya está en el formulario y eliminar duplicados
-        if (queryParam) {
-            const existingInput = this.querySelector('input[name="q"]');
-            if (existingInput) {
-                existingInput.remove();
-            }
-
-            // Añadir el parámetro 'q' al formulario
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'q';
-            input.value = queryParam;
-            this.appendChild(input);
+    if (queryParam) {
+        const existingInput = this.querySelector('input[name="q"]');
+        if (existingInput) {
+            existingInput.remove();
         }
 
-        // Añadir solo los filtros aplicados
-        const direccion = document.getElementById('direccion').value.trim();
-        const minPriceValue = document.getElementById('minPriceValue').value.trim();
-        const maxPriceValue = document.getElementById('maxPriceValue').value.trim();
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'q';
+        input.value = queryParam;
+        this.appendChild(input);
+    }
 
-        // Remover filtros de la URL si están vacíos
-        if (!direccion) {
-            const inputDireccion = this.querySelector('input[name="direccion"]');
-            if (inputDireccion) {
-                inputDireccion.remove();
-            }
+    const direccion = document.getElementById('direccion').value.trim();
+    const minPriceValue = document.getElementById('minPriceValue').value.trim();
+    const maxPriceValue = document.getElementById('maxPriceValue').value.trim();
+
+    if (!direccion) {
+        const inputDireccion = this.querySelector('input[name="direccion"]');
+        if (inputDireccion) {
+            inputDireccion.remove();
         }
+    }
 
-        if (!minPriceValue || parseFloat(minPriceValue) === precioMinimoBD) {
-            const inputMinPrice = this.querySelector('input[name="precio_min"]');
-            if (inputMinPrice) {
-                inputMinPrice.remove();
-            }
+    if (!minPriceValue || parseFloat(minPriceValue) === precioMinimoBD) {
+        const inputMinPrice = this.querySelector('input[name="precio_min"]');
+        if (inputMinPrice) {
+            inputMinPrice.remove();
         }
+    }
 
-        if (!maxPriceValue || parseFloat(maxPriceValue) === precioMaximoBD) {
-            const inputMaxPrice = this.querySelector('input[name="precio_max"]');
-            if (inputMaxPrice) {
-                inputMaxPrice.remove();
-            }
+    if (!maxPriceValue || parseFloat(maxPriceValue) === precioMaximoBD) {
+        const inputMaxPrice = this.querySelector('input[name="precio_max"]');
+        if (inputMaxPrice) {
+            inputMaxPrice.remove();
         }
+    }
 
-        // Enviar el formulario después de ajustar los filtros
-        this.submit();
-    });
+    this.submit();
+});
 
+const precioMaximoBD = 10000; // Cambia este valor según el precio máximo en tu base de datos
+const precioMinimoBD = 0; // Cambia este valor según el precio mínimo en tu base de datos
+document.getElementById('minPrice').value = '{{ request.GET.precio_min|default:precio_minimo }}';
+document.getElementById('maxPrice').value = '{{ request.GET.precio_max|default:precio_maximo }}';
+updatePriceValuesFromSliders();
 
-    // Configuración inicial
-    const precioMaximoBD = 10000; // Cambia este valor según el precio máximo en tu base de datos
-    const precioMinimoBD = 0; // Cambia este valor según el precio mínimo en tu base de datos
-    document.getElementById('minPrice').value = precioMinimoBD;
-    document.getElementById('maxPrice').value = precioMaximoBD;
-    updatePriceValuesFromSliders();
 </script>
-
 {% endblock %}

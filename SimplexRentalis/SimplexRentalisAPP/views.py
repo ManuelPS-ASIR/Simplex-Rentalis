@@ -65,7 +65,7 @@ def propiedades(request):
         if permite_mascotas:
             propiedades = propiedades.filter(permite_mascotas=(permite_mascotas == 'True'))
         if capacidad_maxima:
-            propiedades = propiedades.filter(capacidad__lte=capacidad_maxima)
+            propiedades = propiedades.filter(capacidad_maxima__lte=capacidad_maxima)  # Corregido aquí
 
     for propiedad in propiedades:
         portada = propiedad.gallery_images.filter(portada=True).order_by('id').first()
@@ -87,6 +87,7 @@ def propiedades(request):
     }
 
     return render(request, 'SimplexRentalisAPP/propiedades_list.html', context)
+
 
 
 #####################################################################################################################
