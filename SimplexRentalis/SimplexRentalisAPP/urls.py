@@ -7,7 +7,6 @@ from .views import DetallePropiedadView
 from .views import autocompletar_direcciones
 from django.contrib import admin
 
-
 urlpatterns = [
     # Rutas de autenticación
     path('login/', views.login_view, name='login'),  # Usamos la vista personalizada de login
@@ -24,7 +23,6 @@ urlpatterns = [
     path("", views.index, name="index"),
     path('propiedades/', views.propiedades, name='propiedades'),
 
-    
     # Ruta correcta para "Mis Propiedades"
     path('mis_propiedades/', views.propiedades_usuario, name='propiedades_usuario'),
     path('editar_propiedad/<int:pk>/', views.editar_propiedad, name='editar_propiedad'),
@@ -45,10 +43,10 @@ urlpatterns = [
     path('opinion/<int:opinion_id>/like/', views.like_opinion, name='like_opinion'),  # Nueva ruta para "me gusta"
     path('opinion/<int:opinion_id>/dislike/', views.dislike_opinion, name='dislike_opinion'),  # Nueva ruta para "no me gusta"
 
-    #Reservas
+    # Reservas
     path('mis_reservas/', views.mis_reservas, name='mis_reservas'),
     path('reservas/cancelar/<int:reserva_id>/', views.cancelar_reserva, name='cancelar_reserva'),
 
-    path('buscar/', views.buscar_propiedades, name='buscar_propiedades'),
-
+    # Eliminar la ruta 'buscar/' ya que ahora todo se maneja con 'propiedades/'
+    # path('buscar/', views.buscar_propiedades, name='buscar_propiedades'),
 ]

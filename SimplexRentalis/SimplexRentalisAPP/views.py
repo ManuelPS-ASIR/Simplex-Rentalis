@@ -35,12 +35,17 @@ from .forms import FiltroPropiedadesForm
 
 def propiedades(request):
     query = request.GET.get('q')
-    precio_minimo = Propiedades.objects.aggregate(Min('precio_noche'))['precio_noche__min'] or 0
-    precio_maximo = Propiedades.objects.aggregate(Max('precio_noche'))['precio_noche__max'] or 10000
+    direccion = request.GET.get('direccion')
+    precio_min = request.GET.get('precio_min')
+    precio_max = request.GET.get('precio_max')
+    calificacion = request.GET.get('calificacion')
+    permite_mascotas = request.GET.get('permite_mascotas')
+    capacidad_maxima = request.GET.get('capacidad_maxima')
+
+    precio_minimo = Propiedades.objects.aggregate(min_precio=Min('precio_noche'))['min_precio'] or 0
+    precio_maximo = Propiedades.objects.aggregate(max_precio=Max('precio_noche'))['max_precio'] or 10000
 
     form = FiltroPropiedadesForm(request.GET)
-
-    # Obtener las propiedades base
     propiedades = Propiedades.objects.prefetch_related('gallery_images').filter(en_mantenimiento=False)
 
     if query:
@@ -49,40 +54,25 @@ def propiedades(request):
         )
 
     if form.is_valid():
-        # Filtrar por dirección
-        direccion = form.cleaned_data.get('direccion')
         if direccion:
             propiedades = propiedades.filter(direccion__icontains=direccion)
-
-        # Filtrar por precio mínimo y máximo
-        precio_min = form.cleaned_data.get('precio_min')
-        precio_max = form.cleaned_data.get('precio_max')
-        if precio_min is not None and precio_max is not None:
-            propiedades = propiedades.filter(precio_noche__range=(precio_min, precio_max))
-        elif precio_min is not None:
+        if precio_min:
             propiedades = propiedades.filter(precio_noche__gte=precio_min)
-        elif precio_max is not None:
+        if precio_max:
             propiedades = propiedades.filter(precio_noche__lte=precio_max)
-
-        # Filtrar por calificación mínima
-        calificacion = form.cleaned_data.get('calificacion')
         if calificacion:
             propiedades = propiedades.filter(calificacion__gte=int(calificacion))
-
-        # Filtrar por si permite mascotas
-        permite_mascotas = form.cleaned_data.get('permite_mascotas')
         if permite_mascotas:
             propiedades = propiedades.filter(permite_mascotas=(permite_mascotas == 'True'))
+        if capacidad_maxima:
+            propiedades = propiedades.filter(capacidad__lte=capacidad_maxima)
 
-    # Asignar la imagen de portada a cada propiedad
     for propiedad in propiedades:
         portada = propiedad.gallery_images.filter(portada=True).order_by('id').first()
         if not portada:
             portada = propiedad.gallery_images.order_by('id').first()
-
         propiedad.portada = portada.imagen.url if portada else "/static/images/default_property.jpg"
 
-    # Pasar los precios mínimo y máximo al formulario y al contexto
     if 'precio_max' not in request.GET:
         form.fields['precio_max'].initial = precio_maximo
     if 'precio_min' not in request.GET:
@@ -93,81 +83,11 @@ def propiedades(request):
         'form': form,
         'precio_minimo': precio_minimo,
         'precio_maximo': precio_maximo,
-        'query': query  # Añadir el parámetro `q` al contexto
+        'query': query
     }
 
     return render(request, 'SimplexRentalisAPP/propiedades_list.html', context)
 
-
-#####################################################################################################################
-#####################################################################################################################
-#####################################################################################################################
-#####################################################################################################################
-
-
-from django.shortcuts import render
-from django.db.models import Q, Min, Max
-from .models import Propiedades
-
-def buscar_propiedades(request):
-    query = request.GET.get('q')
-    direccion = request.GET.get('direccion')
-    precio_min = request.GET.get('precio_min')
-    precio_max = request.GET.get('precio_max')
-    calificacion = request.GET.get('calificacion')
-    permite_mascotas = request.GET.get('permite_mascotas')
-    capacidad_maxima = request.GET.get('capacidad_maxima')
-
-    # Iniciar con un queryset vacío
-    resultados = Propiedades.objects.none()
-
-    if query:
-        # Filtrar propiedades por nombre o dirección que contenga la query
-        resultados = Propiedades.objects.filter(
-            Q(nombre__icontains=query) | Q(direccion__icontains=query)
-        )
-
-        # Aplicar filtros adicionales si existen
-        if direccion:
-            resultados = resultados.filter(direccion__icontains=direccion)
-        if precio_min:
-            resultados = resultados.filter(precio_noche__gte=precio_min)
-        if precio_max:
-            resultados = resultados.filter(precio_noche__lte=precio_max)
-        if calificacion:
-            resultados = resultados.filter(calificacion__gte=calificacion)
-        if permite_mascotas:
-            resultados = resultados.filter(permite_mascotas=permite_mascotas)
-        if capacidad_maxima:
-            resultados = resultados.filter(capacidad__lte=capacidad_maxima)
-
-    # Obtener el precio mínimo y máximo de las propiedades disponibles
-    precio_minimo = Propiedades.objects.aggregate(min_precio=Min('precio_noche'))['min_precio']
-    precio_maximo = Propiedades.objects.aggregate(max_precio=Max('precio_noche'))['max_precio']
-
-    # Si no existen propiedades, se asignan valores predeterminados
-    if precio_minimo is None:
-        precio_minimo = 0
-    if precio_maximo is None:
-        precio_maximo = 10000  # O cualquier valor predeterminado que desees
-
-    # Asignar la imagen de portada a cada propiedad
-    for propiedad in resultados:
-        portada = propiedad.gallery_images.filter(portada=True).order_by('id').first()
-        if not portada:
-            portada = propiedad.gallery_images.order_by('id').first()
-
-        # Si no hay imágenes, asignar una URL predeterminada
-        propiedad.portada = portada.imagen.url if portada else "/static/images/default_property.jpg"
-
-    # Pasar los valores de precio al contexto
-    context = {
-        'resultados': resultados,
-        'precio_minimo': precio_minimo,
-        'precio_maximo': precio_maximo,
-    }
-
-    return render(request, 'SimplexRentalisAPP/resultados_busqueda.html', context)
 
 #####################################################################################################################
 #####################################################################################################################

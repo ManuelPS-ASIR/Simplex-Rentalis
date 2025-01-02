@@ -79,7 +79,8 @@
         <!-- Contenedor de propiedades (columna derecha) -->
         <div class="col-md-9">
             <div class="position-relative mb-4">
-                <h2 class="text-center m-0">Descubre tu próximo destino</h2>
+                <h1 class="text-center m-0">{% if query %}Resultados de Búsqueda{% else %}Lista de Propiedades{% endif %}</h1>
+                <h2 class="text-center m-0">{% if query %}Tu próximo destino segun tus indicaciones{% else %}Descubre tu próximo destino{% endif %}</h2>
             </div>
 
             <div class="row justify-content-center">
@@ -123,7 +124,6 @@
         </div>
     </div>
 </div>
-
 
 <script>
     const gap = 4; // Espacio mínimo en unidades entre los sliders
