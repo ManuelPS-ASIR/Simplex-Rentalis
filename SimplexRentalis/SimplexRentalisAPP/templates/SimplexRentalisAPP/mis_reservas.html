@@ -66,6 +66,25 @@
     {% endif %}
 </div>
 
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmCancelLabel">Confirmar Cancelación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas cancelar esta reserva?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmCancelButton">Sí, cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Toast de confirmación -->
 <div id="toast-container" aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="pointer-events: none; z-index: 1050;">
     <div id="toast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
@@ -82,17 +101,23 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const toastContainer = document.getElementById("toast-container");
     const toastElement = document.getElementById("toast");
     const toastTitle = document.getElementById("toast-title");
     const toastMessage = document.getElementById("toast-message");
+    const confirmCancelModal = new bootstrap.Modal(document.getElementById("confirmCancelModal"));
+    const confirmCancelButton = document.getElementById("confirmCancelButton");
+    let selectedReservaId = null;
 
     document.querySelectorAll(".cancel-reserva").forEach(function (button) {
         button.addEventListener("click", function () {
-            const reservaId = this.getAttribute("data-reserva-id");
+            selectedReservaId = this.getAttribute("data-reserva-id");
+            confirmCancelModal.show();
+        });
+    });
 
-            // Simulación de acción de cancelación con fetch
-            fetch(`/reservas/cancelar/${reservaId}/`, {
+    confirmCancelButton.addEventListener("click", function () {
+        if (selectedReservaId) {
+            fetch(`/reservas/cancelar/${selectedReservaId}/`, {
                 method: "POST",
                 headers: {
                     "X-CSRFToken": "{{ csrf_token }}",
@@ -101,28 +126,27 @@ document.addEventListener("DOMContentLoaded", function () {
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
-                    // Mostrar mensaje en el toast
                     toastTitle.textContent = "Reserva Cancelada";
                     toastMessage.textContent = data.message;
-                    
-                    // Mostrar el toast
                     const toast = new bootstrap.Toast(toastElement);
                     toast.show();
-                    
-                    // Opcional: Eliminar el elemento de la interfaz si la cancelación fue exitosa
-                    button.closest(".list-group-item").remove();
+
+                    document.querySelector(`[data-reserva-id="${selectedReservaId}"]`).remove();
                 } else {
                     throw new Error(data.message);
                 }
             })
             .catch((error) => {
-                // Mostrar mensaje de error en el toast
                 toastTitle.textContent = "Error";
                 toastMessage.textContent = error.message;
                 const toast = new bootstrap.Toast(toastElement);
                 toast.show();
+            })
+            .finally(() => {
+                confirmCancelModal.hide();
+                selectedReservaId = null;
             });
-        });
+        }
     });
 });
 </script>
