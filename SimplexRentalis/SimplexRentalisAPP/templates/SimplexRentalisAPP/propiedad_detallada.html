@@ -57,6 +57,8 @@ Propiedad en detalle
                         style="background-color: #007bff; color: white; border: none; padding: 10px 20px; font-size: 1.2em; cursor: not-allowed; border-radius: 5px; opacity: 0.5;">
                     ALQUILAR
                 </button>
+            {% elif request.user == propiedades.propietario %}
+                <p style="color: #dc3545;">No puedes alquilar esta propiedad porque eres el propietario.</p>
             {% else %}
                 <form action="{% url 'alquilar_propiedad' propiedades.id %}" method="get" style="display: inline;">
                     <button type="submit" class="btn btn-primary alquilar-btn" 
@@ -82,62 +84,63 @@ Propiedad en detalle
 
     <div class="contacto-container" style="background-color: #f1f1f1; padding: 20px; border-radius: 10px; margin-bottom: 40px;">
         <h3>Contacto</h3>
-<div style="display: flex; align-items: center;">
-    <img src="{% if propiedades.propietario.avatar %}{{ propiedades.propietario.avatar.url }}{% else %}/media/defaults/default_avatar.png{% endif %}" alt="Avatar" style="width: 60px; height: 60px; border-radius: 50%; margin-right: 20px;">
-    <div>
-        <p><strong>Dueño:</strong> {{ propiedades.propietario.username }}</p>
-        <p><strong>Teléfono:</strong> {{ propiedades.propietario.telefono }}</p>
-        <p><strong>Correo electrónico:</strong> {{ propiedades.propietario.email }}</p>
-    </div>
-</div>
-</div>
-
-<div class="opiniones-container" style="margin-bottom: 40px;">
-    <h3>Opiniones</h3>
-    {% for opinion in propiedades.opiniones_set.all %}
-        <div class="opinion" style="background-color: #f9f9f9; padding: 10px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);" data-opinion-id="{{ opinion.id }}">
-            <strong>{{ opinion.usuario }}:</strong>
-            <p>{{ opinion.comentario }}</p>
-            <div style="display: flex; align-items: center;">
-                <div style="display: flex; align-items: center; margin-right: 10px;">
-                    <span class="likes-count" style="font-size: 20px;">{{ opinion.likes }}</span>
-                    <button type="button" class="like-btn" style="background: none; border: none; cursor: pointer;">
-                        <img src="{% static 'defaults/like.png' %}" alt="Me gusta" style="width: 20px; height: 20px;">
-                    </button>
-                </div>
-                <div style="display: flex; align-items: center;">
-                    <span class="dislikes-count" style="font-size: 20px;">{{ opinion.dislikes }}</span>
-                    <button type="button" class="dislike-btn" style="background: none; border: none; cursor: pointer;">
-                        <img src="{% static 'defaults/like.png' %}" alt="No me gusta" style="width: 20px; height: 20px; transform: rotate(180deg);">
-                    </button>
-                </div>
+        <div style="display: flex; align-items: center;">
+            <img src="{% if propiedades.propietario.avatar %}{{ propiedades.propietario.avatar.url }}{% else %}/media/defaults/default_avatar.png{% endif %}" alt="Avatar" style="width: 60px; height: 60px; border-radius: 50%; margin-right: 20px;">
+            <div>
+                <p><strong>Dueño:</strong> {{ propiedades.propietario.username }}</p>
+                <p><strong>Teléfono:</strong> {{ propiedades.propietario.telefono }}</p>
+                <p><strong>Correo electrónico:</strong> {{ propiedades.propietario.email }}</p>
             </div>
         </div>
-    {% empty %}
-        <p>No hay opiniones disponibles.</p>
-    {% endfor %}
+    </div>
 
-    {% if user == propiedades.propietario %}
-        <p style="color: #dc3545;">No puedes dejar una opinión porque eres el propietario de esta propiedad.</p>
-    {% elif user_has_reservation or permite_opinar_sin_reserva %}
-        <form action="{% url 'enviar_opinion' propiedades.id %}" method="post">
-            {% csrf_token %}
-            <label for="comentario" style="font-weight: bold;">Tu opinión:</label>
-            <textarea name="comentario" id="comentario" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" placeholder="Escribe aquí tu experiencia..."></textarea>
+    <div class="opiniones-container" style="margin-bottom: 40px;">
+        <h3>Opiniones</h3>
+                {% for opinion in propiedades.opiniones_set.all %}
+            <div class="opinion" style="background-color: #f9f9f9; padding: 10px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);" data-opinion-id="{{ opinion.id }}">
+                <strong>{{ opinion.usuario }}:</strong>
+                <p>{{ opinion.comentario }}</p>
+                <div style="display: flex; align-items: center;">
+                    <div style="display: flex; align-items: center; margin-right: 10px;">
+                        <span class="likes-count" style="font-size: 20px;">{{ opinion.likes }}</span>
+                        <button type="button" class="like-btn" style="background: none; border: none; cursor: pointer;">
+                            <img src="{% static 'defaults/like.png' %}" alt="Me gusta" style="width: 20px; height: 20px;">
+                        </button>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <span class="dislikes-count" style="font-size: 20px;">{{ opinion.dislikes }}</span>
+                        <button type="button" class="dislike-btn" style="background: none; border: none; cursor: pointer;">
+                            <img src="{% static 'defaults/like.png' %}" alt="No me gusta" style="width: 20px; height: 20px; transform: rotate(180deg);">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>No hay opiniones disponibles.</p>
+        {% endfor %}
 
-            <button type="submit" style="background-color: #007bff; color: white; border: none; padding: 10px 20px; font-size: 1em; border-radius: 5px; cursor: pointer;">
-                Enviar Opinión
-            </button>
-        </form>
-    {% else %}
-        <p style="color: #6c757d; margin-top: 20px;">Para dejar una opinión, debes haber reservado esta propiedad y la fecha de inicio de tu estancia debe haber pasado.</p>
-    {% endif %}
+        {% if user == propiedades.propietario %}
+            <p style="color: #dc3545;">No puedes dejar una opinión porque eres el propietario de esta propiedad.</p>
+        {% elif user_has_reservation or permite_opinar_sin_reserva %}
+            <form action="{% url 'enviar_opinion' propiedades.id %}" method="post">
+                {% csrf_token %}
+                <label for="comentario" style="font-weight: bold;">Tu opinión:</label>
+                <textarea name="comentario" id="comentario" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" placeholder="Escribe aquí tu experiencia..."></textarea>
+
+                <button type="submit" style="background-color: #007bff; color: white; border: none; padding: 10px 20px; font-size: 1em; border-radius: 5px; cursor: pointer;">
+                    Enviar Opinión
+                </button>
+            </form>
+        {% else %}
+            <p style="color: #6c757d; margin-top: 20px;">Para dejar una opinión, debes haber reservado esta propiedad y la fecha de inicio de tu estancia debe haber pasado.</p>
+        {% endif %}
+    </div>
+
+    <div class="back-link" style="text-align: center;">
+        <a href="{% url 'propiedades' %}" class="btn" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Volver a la lista de propiedades</a>
+    </div>
 </div>
 
-<div class="back-link" style="text-align: center;">
-    <a href="{% url 'propiedades' %}" class="btn" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Volver a la lista de propiedades</a>
-</div>
-</div>
 
 <script>
     var currentImageIndex = 0; // Índice de la imagen actual
