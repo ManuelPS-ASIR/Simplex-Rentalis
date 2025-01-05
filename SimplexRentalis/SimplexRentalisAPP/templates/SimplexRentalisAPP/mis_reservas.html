@@ -1,9 +1,62 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    .leyenda-card {
+        background-color: #2d2d2d;
+        border: 4px solid #007bff;
+        border-radius: 10px;
+        padding: 15px; /* Espaciado interno */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        
+        /* Dimensiones personalizadas */
+        width: 100%; /* Ancho completo (puedes cambiar a '400px', '50%', etc.) */
+        height: 150px; /* Altura fija de 200px */
+        /*max-width: 600px; /* Limita el ancho máximo */
+        /*height: auto; /* Ajuste dinámico según el contenido (puedes usar '200px', '300px', etc.) */
+        margin: 0 auto; /* Centra la tarjeta horizontalmente */
+    }
+    .leyenda-card p {
+        color: #ffffff; /* Color del texto */
+        font-weight: bold; /* Texto destacado */
+        margin-bottom: 10px; /* Separación con el listado */
+    }
+    .leyenda-card ul {
+        padding-left: 20px; /* Espaciado del listado */
+    }
+    .leyenda-card li {
+        margin-bottom: 8px; /* Espaciado entre elementos */
+        color: #d1d1d1; /* Color del texto del listado */
+        font-size: 16px; /* Tamaño del texto legible */
+    }
+    .leyenda-card li span {
+        font-weight: bold; /* Resalta los estados */
+    }
+    .leyenda-card .text-success {
+        color: #4CAF50; /* Verde moderno */
+    }
+    .leyenda-card .text-warning {
+        color: #FFC107; /* Amarillo vibrante */
+    }
+    .leyenda-card .text-danger {
+        color: #F44336; /* Rojo intenso */
+    }
+</style>
+
 <div class="container">
     <h1 class="mt-4">Mis Reservas</h1>
     <hr>
+
+    <!-- Leyenda de estados de reserva -->
+    <div class="leyenda-card">
+        <p>Estados de las Reservas:</p>
+        <ul class="list-unstyled">
+            <li><span class="text-success">&#x2714; Próxima</span> - La reserva está programada para una fecha futura.</li>
+            <li><span class="text-warning">&#x23F3; En Proceso</span> - La reserva está activa actualmente.</li>
+            <li><span class="text-danger">&#x2717; Finalizada</span> - La reserva ya ha concluido.</li>
+        </ul>
+    </div>
+
     {% if reservas %}
         <div class="list-group">
             {% for reserva in reservas %}
@@ -98,6 +151,7 @@
         </div>
     </div>
 </div>
+
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
