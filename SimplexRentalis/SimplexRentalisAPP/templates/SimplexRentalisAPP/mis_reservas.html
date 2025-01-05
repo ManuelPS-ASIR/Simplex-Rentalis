@@ -1,19 +1,108 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container">
+    <h1 class="mt-4">Mis Reservas</h1>
+    <hr>
+
+    <!-- Leyenda de estados de reserva -->
+    <div class="leyenda-card">
+        <p>Estados de las Reservas:</p>
+        <ul class="list-unstyled">
+            <li><span class="text-success">&#x2714; Próxima</span> - La reserva está programada para una fecha futura.</li>
+            <li><span class="text-warning">&#x23F3; En Proceso</span> - La reserva está activa actualmente.</li>
+            <li><span class="text-danger">&#x2717; Finalizada</span> - La reserva ya ha concluido.</li>
+        </ul>
+    </div>
+
+    {% if reservas %}
+        <div class="list-group">
+            {% for reserva in reservas %}
+                <div class="list-group-item mb-3 d-flex align-items-center shadow-sm reserva-card 
+                    {% if reserva.estado == 'finalizada' %}
+                        bg-soft-danger
+                    {% elif reserva.estado == 'en_proceso' %}
+                        bg-soft-warning
+                    {% else %}
+                        bg-soft-success
+                    {% endif %}
+                " data-reserva-id="{{ reserva.id }}">
+                    <!-- Imagen de portada con tamaño fijo -->
+                    <div class="img-container" style="width: 240px; height: 160px; overflow: hidden; flex-shrink: 0;">
+                        {% if reserva.propiedad.portada %}
+                            <img src="{{ reserva.propiedad.portada.imagen.url }}" 
+                                 alt="Portada de {{ reserva.propiedad.nombre }}" 
+                                 class="img-fluid rounded" 
+                                 style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            <div class="d-flex justify-content-center align-items-center bg-light" style="width: 100%; height: 100%;">
+                                <p class="text-muted m-0">Sin imagen</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Detalles de la reserva -->
+                    <div class="ms-3 flex-grow-1">
+                        <h5 class="mb-2">{{ reserva.propiedad.nombre }}</h5>
+                        <p class="mb-1">
+                            <strong>Dirección:</strong> {{ reserva.propiedad.direccion }}<br>
+                            <strong>Fecha Inicio:</strong> {{ reserva.fecha_inicio|date:"d/m/Y" }}<br>
+                            <strong>Fecha Fin:</strong> {{ reserva.fecha_fin|date:"d/m/Y" }}<br>
+                            <strong>Costo Total:</strong> {{ reserva.costo_total }} {{ reserva.propiedad.precio_noche.currency }}
+                        </p>
+                        <div class="d-flex">
+                            <a href="{% url 'propiedad_detallada' reserva.propiedad.id %}" class="btn btn-primary btn-sm me-2">Ver Propiedad</a>
+                            <!-- Mostrar botón de cancelar sólo si la reserva no está en proceso ni finalizada -->
+                            {% if reserva.estado != 'en_proceso' and reserva.estado != 'finalizada' %}
+                                <button class="btn btn-danger btn-sm cancel-reserva" 
+                                        data-reserva-id="{{ reserva.id }}" 
+                                        style="background-color: #dc3545; color: white; border: none;">Cancelar Reserva</button>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Estado de la reserva -->
+                    <div class="ms-3 text-center">
+                        {% if reserva.estado == 'finalizada' %}
+                            <span class="text-danger">&#x2717; Finalizada</span>
+                        {% elif reserva.estado == 'en_proceso' %}
+                            <span class="text-warning">&#x23F3; En Proceso</span>
+                        {% else %}
+                            <span class="text-success">&#x2714; Próxima</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No tienes reservas realizadas.</p>
+    {% endif %}
+</div>
+
+
+
 <style>
-    /* Estilo para la leyenda-card (sin animación hover) */
+    /* Estilo para los fondos suaves según el estado */
+    .bg-soft-success {
+        background-color: rgba(76, 175, 80, 0.1); /* Verde claro */
+    }
+    .bg-soft-warning {
+        background-color: rgba(255, 193, 7, 0.1); /* Amarillo claro */
+    }
+    .bg-soft-danger {
+        background-color: rgba(244, 67, 54, 0.1); /* Rojo claro */
+    }
+
+    /* Estilo para la leyenda-card */
     .leyenda-card {
         background-color: #2d2d2d;
         border: 4px solid #007bff;
         border-radius: 10px;
-        padding: 15px; /* Espaciado interno */
+        padding: 15px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-
-        /* Dimensiones personalizadas */
         width: 100%;
-        height: 150px;
-        margin: 0 auto; /* Centra la tarjeta horizontalmente */
+        height: auto;
+        margin: 0 auto;
     }
     .leyenda-card p {
         color: #ffffff;
@@ -43,94 +132,17 @@
 
     /* Estilo base para las reservas */
     .reserva-card {
-        margin-bottom: 20px; /* Separación entre tarjetas */
-        transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animación suave */
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra inicial */
+        margin-bottom: 20px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
     /* Animación al pasar el ratón */
     .reserva-card:hover {
-        transform: scale(1.03); /* Aumenta ligeramente el tamaño */
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3); /* Sombra más prominente */
+        transform: scale(1.03);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
     }
 </style>
-
-
-<div class="container">
-    <h1 class="mt-4">Mis Reservas</h1>
-    <hr>
-
-    <!-- Leyenda de estados de reserva -->
-    <div class="leyenda-card">
-        <p>Estados de las Reservas:</p>
-        <ul class="list-unstyled">
-            <li><span class="text-success">&#x2714; Próxima</span> - La reserva está programada para una fecha futura.</li>
-            <li><span class="text-warning">&#x23F3; En Proceso</span> - La reserva está activa actualmente.</li>
-            <li><span class="text-danger">&#x2717; Finalizada</span> - La reserva ya ha concluido.</li>
-        </ul>
-    </div>
-
-    {% if reservas %}
-        <div class="list-group">
-            {% for reserva in reservas %}
-                <div class="list-group-item mb-3 d-flex align-items-center shadow-sm reserva-card" data-reserva-id="{{ reserva.id }}">
-                    <!-- Imagen de portada con tamaño fijo -->
-                    <div class="img-container" style="width: 240px; height: 160px; overflow: hidden; flex-shrink: 0;">
-                        {% if reserva.propiedad.portada %}
-                            <img src="{{ reserva.propiedad.portada.imagen.url }}" 
-                                 alt="Portada de {{ reserva.propiedad.nombre }}" 
-                                 class="img-fluid rounded" 
-                                 style="width: 100%; height: 100%; object-fit: cover;">
-                        {% else %}
-                            <div class="d-flex justify-content-center align-items-center bg-light" style="width: 100%; height: 100%;">
-                                <p class="text-muted m-0">Sin imagen</p>
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Detalles de la reserva -->
-                    <div class="ms-3 flex-grow-1">
-                        <h5 class="mb-2">{{ reserva.propiedad.nombre }}</h5>
-                        <p class="mb-1">
-                            <strong>Dirección:</strong> {{ reserva.propiedad.direccion }}<br>
-                            <strong>Fecha Inicio:</strong> {{ reserva.fecha_inicio|date:"d/m/Y" }}<br>
-                            <strong>Fecha Fin:</strong> {{ reserva.fecha_fin|date:"d/m/Y" }}<br>
-                            <strong>Costo Total:</strong> {{ reserva.costo_total }} {{ reserva.propiedad.precio_noche.currency }}
-                        </p>
-                        <div class="d-flex">
-                            <a href="{% url 'propiedad_detallada' reserva.propiedad.id %}" class="btn btn-primary btn-sm me-2">Ver Propiedad</a>
-                            <!-- Botón para cancelar la reserva en rojo -->
-                            <button class="btn btn-danger btn-sm cancel-reserva" 
-                                    data-reserva-id="{{ reserva.id }}" 
-                                    style="background-color: #dc3545; color: white; border: none;">Cancelar Reserva</button>
-                        </div>
-                    </div>
-
-                    <!-- Estado de la reserva -->
-                    <div class="ms-3 text-center">
-                        {% with today|date:"Y-m-d" as current_date %}
-                            {% if reserva.fecha_fin|date:"Y-m-d" < current_date %}
-                                <span class="text-danger">
-                                    &#x2717; Finalizada
-                                </span>
-                            {% elif reserva.fecha_inicio|date:"Y-m-d" <= current_date <= reserva.fecha_fin|date:"Y-m-d" %}
-                                <span class="text-warning">
-                                    &#x23F3; En Proceso
-                                </span>
-                            {% else %}
-                                <span class="text-success">
-                                    &#x2714; Próxima
-                                </span>
-                            {% endif %}
-                        {% endwith %}
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>No tienes reservas realizadas.</p>
-    {% endif %}
-</div>
 
 <!-- Modal de Confirmación -->
 <div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelLabel" aria-hidden="true">

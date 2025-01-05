@@ -800,9 +800,11 @@ def dislike_opinion(request, opinion_id):
 
 from django.utils.timezone import now
 from .models import Reservas
+from datetime import date
 
 @login_required
 def mis_reservas(request):
+    # Obtener las reservas del usuario
     reservas = Reservas.objects.filter(usuario=request.user).select_related('propiedad').prefetch_related('propiedad__galeria__gallery_images')
 
     # Asignar portada a cada propiedad de la reserva
@@ -814,11 +816,22 @@ def mis_reservas(request):
         else:
             propiedad.portada = None  # O asignar una imagen predeterminada
     
+        # Determinar el estado de la reserva
+        today = date.today()  # Fecha actual
+        fecha_inicio = reserva.fecha_inicio
+        fecha_fin = reserva.fecha_fin
+
+        if fecha_fin < today:
+            reserva.estado = 'finalizada'  # Ya finalizó
+        elif fecha_inicio <= today <= fecha_fin:
+            reserva.estado = 'en_proceso'  # En proceso
+        else:
+            reserva.estado = 'proxima'  # Próxima
+
     return render(request, 'SimplexRentalisAPP/mis_reservas.html', {
         'reservas': reservas,
-        'today': now()  # Pasar la fecha actual
+        'today': today  # Pasar la fecha actual
     })
-
 
 
 
