@@ -93,12 +93,17 @@
                     mode: "range",
                     dateFormat: "Y-m-d",
                     locale: "es",
-                    minDate: new Date().fp_incr(1), // Ajustar la fecha mínima para que sea el día siguiente
-                    disable: fechasOcupadas, // Desactivar las fechas ocupadas
+                    minDate: new Date().fp_incr(1),  // Ajustar la fecha mínima para que sea el día siguiente
+                    disable: fechasOcupadas,  // Desactivar las fechas ocupadas
                     onChange: function(selectedDates, dateStr, instance) {
                         if (selectedDates.length === 2) {
-                            fechaInicioInput.value = selectedDates[0].toISOString().split('T')[0];
-                            fechaFinInput.value = selectedDates[1].toISOString().split('T')[0];
+                            const timezoneOffset = new Date().getTimezoneOffset() * 60000; // Offset en milisegundos
+                            const startDate = new Date(selectedDates[0].getTime() - timezoneOffset).toISOString().split('T')[0];
+                            const endDate = new Date(selectedDates[1].getTime() - timezoneOffset).toISOString().split('T')[0];
+                            fechaInicioInput.value = startDate;
+                            fechaFinInput.value = endDate;
+                            console.log("Fecha de inicio seleccionada:", startDate); // Mostrar en la consola
+                            console.log("Fecha de fin seleccionada:", endDate);     // Mostrar en la consola
                         }
                     }
                 });

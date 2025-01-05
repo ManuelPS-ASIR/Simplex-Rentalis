@@ -291,11 +291,11 @@ class Reservas(models.Model):
     def clean(self):
         if not hasattr(self, 'propiedad') or self.propiedad is None:
             raise ValidationError("La propiedad debe estar asignada antes de la validación.")
-        
+
         hoy = timezone.localdate()
 
-        if self.fecha_inicio <= hoy:
-            raise ValidationError("La fecha de inicio debe ser posterior a la fecha actual.")
+        if self.fecha_inicio < hoy:
+            raise ValidationError("La fecha de inicio no puede ser anterior a la fecha actual.")
         
         if self.fecha_inicio >= self.fecha_fin:
             raise ValidationError("La fecha de inicio debe ser anterior a la de fin.")
@@ -315,6 +315,7 @@ class Reservas(models.Model):
         
         if self.mascotas and not self.tipo_mascota:
             raise ValidationError("Debe especificar el tipo de mascota si se ha marcado la opción de mascotas.")
+
 
     def save(self, *args, **kwargs):
         self.full_clean()  # Realizar la validación completa antes de guardar

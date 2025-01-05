@@ -619,8 +619,9 @@ def alquilar_propiedad(request, propiedad_id):
             reserva = form_reserva.save(commit=False)
             reserva.usuario = request.user  # Relacionar la reserva con el usuario autenticado
             reserva.propiedad = propiedad
-            reserva.fecha_inicio = datetime.combine(reserva.fecha_inicio, datetime.min.time()) + timedelta(hours=12)
-            reserva.fecha_fin = datetime.combine(reserva.fecha_fin, datetime.min.time()) + timedelta(hours=11, minutes=59)
+            reserva.fecha_inicio = datetime.combine(reserva.fecha_inicio, datetime.min.time())
+            reserva.fecha_fin = datetime.combine(reserva.fecha_fin, datetime.min.time())
+
 
             # Verificar si hay reservas existentes en el mismo rango de fechas
             reservas_existentes = Reservas.objects.filter(
