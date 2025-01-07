@@ -1,0 +1,117 @@
+[33m3cab789[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: checkout: moving from main to 3cab789
+[33me4e1070[m[33m ([m[1;32mmain[m[33m)[m HEAD@{1}: reset: moving to HEAD~1
+[33m2b6f697[m HEAD@{2}: reset: moving to HEAD~1
+[33m3cab789[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{3}: reset: moving to HEAD
+[33m3cab789[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{4}: commit: + - funcional
+[33m2b6f697[m HEAD@{5}: reset: moving to HEAD
+[33m2b6f697[m HEAD@{6}: commit: comando propiedades OK
+[33me4e1070[m[33m ([m[1;32mmain[m[33m)[m HEAD@{7}: commit: +3
+[33m77a8b7c[m HEAD@{8}: commit: +2
+[33m84630bb[m HEAD@{9}: commit: +1
+[33m1fbe0f5[m HEAD@{10}: commit: base comando propiedades
+[33me623b9f[m HEAD@{11}: commit: base para poblar casas, arreglar modelo de propiedades, fallo dirección
+[33m1674e68[m HEAD@{12}: commit: comando borrar identidades OK
+[33m8868876[m HEAD@{13}: commit: comando identidades OK
+[33m177519f[m HEAD@{14}: reset: moving to HEAD
+[33m177519f[m HEAD@{15}: commit: base comando administración
+[33md3e43f3[m HEAD@{16}: commit: +3
+[33m2a1daf9[m HEAD@{17}: commit: +2
+[33m15ffcbe[m HEAD@{18}: commit: +1
+[33mf5823b0[m HEAD@{19}: commit: mejorando plantilla mis_reservas
+[33m4b0ce3d[m HEAD@{20}: commit: fechas de reservas bien
+[33me6eed3d[m HEAD@{21}: commit: dueño no puede alquilar su propia casa
+[33md771e64[m HEAD@{22}: commit: cancelación de reservas bien
+[33m738e17d[m HEAD@{23}: reset: moving to HEAD
+[33m738e17d[m HEAD@{24}: reset: moving to HEAD
+[33m738e17d[m HEAD@{25}: reset: moving to HEAD
+[33m738e17d[m HEAD@{26}: reset: moving to HEAD
+[33m738e17d[m HEAD@{27}: commit: cosas de calendarios al alquilar
+[33m6aea98b[m HEAD@{28}: commit: filtros al 100%
+[33m422b91c[m HEAD@{29}: commit: capacidad max arreglada en filtro
+[33m4728043[m HEAD@{30}: commit: filtros y barra des busqueda OK
+[33m02bc55e[m HEAD@{31}: commit: fusion de 2 templates de propiedades
+[33mb0afef6[m HEAD@{32}: commit: funcional pero con duplicación de codigo
+[33mdd23802[m HEAD@{33}: commit: filtros con bug, si hay 2 busquedas no aplica q
+[33m489097e[m HEAD@{34}: reset: moving to HEAD
+[33m489097e[m HEAD@{35}: commit: visual ok pero no filtra
+[33m0cd7ac4[m HEAD@{36}: reset: moving to HEAD
+[33m0cd7ac4[m HEAD@{37}: commit: visual OK
+[33mcad7150[m HEAD@{38}: commit: +5
+[33me20b516[m HEAD@{39}: commit: +4
+[33m43ca316[m HEAD@{40}: commit: +3
+[33mb06c6ee[m HEAD@{41}: commit: +2
+[33m5630a3e[m HEAD@{42}: commit: +1
+[33m301b5b8[m HEAD@{43}: commit: +1
+[33mcefa913[m HEAD@{44}: reset: moving to HEAD
+[33mcefa913[m HEAD@{45}: reset: moving to HEAD
+[33mcefa913[m HEAD@{46}: reset: moving to HEAD
+[33mcefa913[m HEAD@{47}: reset: moving to HEAD
+[33mcefa913[m HEAD@{48}: reset: moving to HEAD
+[33mcefa913[m HEAD@{49}: reset: moving to HEAD
+[33mcefa913[m HEAD@{50}: commit: posibilidad, si no volver atras
+[33mb01b5ae[m HEAD@{51}: reset: moving to HEAD
+[33mb01b5ae[m HEAD@{52}: commit: +6
+[33m8d73626[m HEAD@{53}: reset: moving to HEAD
+[33m8d73626[m HEAD@{54}: reset: moving to HEAD
+[33m8d73626[m HEAD@{55}: commit: +5
+[33m44c7c48[m HEAD@{56}: commit: eliminación de filtros ok
+[33m470178e[m HEAD@{57}: commit: barras fijas
+[33m4ba08e2[m HEAD@{58}: commit: Filtros funcionales, hacer + bonicos
+[33m54cc9c0[m HEAD@{59}: pull: Fast-forward
+[33mf295978[m HEAD@{60}: checkout: moving from main to main
+[33mf295978[m HEAD@{61}: reset: moving to HEAD
+[33mf295978[m HEAD@{62}: checkout: moving from main to main
+[33mf295978[m HEAD@{63}: reset: moving to HEAD~1
+[33mb962a90[m HEAD@{64}: reset: moving to HEAD~3
+[33m54cc9c0[m HEAD@{65}: commit: +4
+[33mdfaa620[m HEAD@{66}: commit: +3
+[33m57b1809[m HEAD@{67}: commit: +2
+[33mb962a90[m HEAD@{68}: commit: +1
+[33mf295978[m HEAD@{69}: commit: Base para filtros
+[33m3ba566a[m HEAD@{70}: commit: +1
+[33m4e8df85[m HEAD@{71}: commit: Base de barra de busqueda
+[33md6dd6dc[m HEAD@{72}: commit: No puede eliminar o modificar sin ser propietario
+[33m8e37811[m HEAD@{73}: commit: visual en alquilar
+[33ma5b2cc2[m HEAD@{74}: commit: Denegar opiniones al dueño
+[33m9431843[m HEAD@{75}: commit: mis propiedades no propietario OK
+[33m32231a6[m HEAD@{76}: reset: moving to HEAD
+[33m32231a6[m HEAD@{77}: reset: moving to HEAD
+[33m32231a6[m HEAD@{78}: commit: +2
+[33m06ad5e4[m HEAD@{79}: commit: +1, aun no
+[33m8354693[m HEAD@{80}: commit: sugerencia mis propiedades
+[33m54c3c74[m HEAD@{81}: reset: moving to HEAD
+[33m54c3c74[m HEAD@{82}: reset: moving to HEAD~1
+[33ma5f8846[m HEAD@{83}: reset: moving to HEAD~1
+[33ma20690f[m HEAD@{84}: reset: moving to HEAD
+[33ma20690f[m HEAD@{85}: commit: leyenda estados de reserva mal colocada pero existente
+[33ma5f8846[m HEAD@{86}: commit: Base valoraciones reservas
+[33m54c3c74[m HEAD@{87}: commit: ajuste primera linea css
+[33m0b79995[m HEAD@{88}: commit: colores like ok
+[33ma6b5225[m HEAD@{89}: commit: colores de like, casi
+[33me2c2af7[m HEAD@{90}: reset: moving to HEAD
+[33me2c2af7[m HEAD@{91}: commit: Cancelar reservas OK
+[33mb1476ec[m HEAD@{92}: reset: moving to HEAD
+[33mb1476ec[m HEAD@{93}: commit: +1
+[33m0b13499[m HEAD@{94}: commit: boton en rojo, pero no funciona
+[33m00795cc[m HEAD@{95}: commit: mis reservas BASE
+[33m8ece7d7[m HEAD@{96}: commit: media, funcional
+[33mfdae18f[m HEAD@{97}: commit: Funciona el login????
+[33m0296415[m HEAD@{98}: reset: moving to HEAD
+[33m0296415[m HEAD@{99}: reset: moving to HEAD
+[33m0296415[m HEAD@{100}: reset: moving to 0296415
+[33m7feb7be[m HEAD@{101}: reset: moving to HEAD~1
+[33m5a9b871[m HEAD@{102}: reset: moving to HEAD~1
+[33m0296415[m HEAD@{103}: reset: moving to 0296415
+[33m7feb7be[m HEAD@{104}: reset: moving to HEAD~1
+[33m5a9b871[m HEAD@{105}: reset: moving to HEAD~1
+[33m0296415[m HEAD@{106}: reset: moving to 0296415
+[33m7feb7be[m HEAD@{107}: reset: moving to HEAD
+[33m7feb7be[m HEAD@{108}: reset: moving to HEAD~1
+[33m5a9b871[m HEAD@{109}: reset: moving to HEAD~1
+[33m0296415[m HEAD@{110}: commit: arreglando rutas
+[33m5a9b871[m HEAD@{111}: commit: imagenes movidas, reprar rutas, ajax working
+[33m7feb7be[m HEAD@{112}: reset: moving to HEAD~1
+[33m42f1d4f[m HEAD@{113}: commit: Iniciar sesion posible
+[33m7feb7be[m HEAD@{114}: commit: +1
+[33mb88f4b7[m HEAD@{115}: commit: prueba
+[33m9db50e5[m HEAD@{116}: clone: from https://github.com/ManuelPS-ASIR/Simplex-Rentalis
