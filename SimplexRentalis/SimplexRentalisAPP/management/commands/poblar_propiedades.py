@@ -31,68 +31,76 @@ class Command(BaseCommand):
                     return
 
                 for row in reader:
-                    # Buscar el usuario propietario
-                    propietario = User.objects.filter(username=row['Propietario']).first()
-                    if not propietario:
-                        self.stdout.write(self.style.ERROR(f'Propietario {row["Propietario"]} no encontrado. Omitiendo propiedad {row["Nombre"]}.'))
-                        continue
-                    
-                    # Dividir la dirección
-                    direccion_completa = row['Direccion'].split(',')
-                    if len(direccion_completa) != 6:
-                        self.stdout.write(self.style.ERROR(f'Dirección mal formada para la propiedad {row["Nombre"]}. Omitiendo. Dirección: {row["Direccion"]}'))
-                        continue
-                    
-                    calle, numero_casa, codigo_postal, ciudad, co_autonoma, provincia = [part.strip() for part in direccion_completa]
-
-                    # Crear la dirección
                     try:
-                        direccion_instance = Direcciones.objects.create(
-                            calle=calle,
-                            numero_casa=numero_casa,
-                            codigo_postal=codigo_postal,
-                            ciudad=ciudad,
-                            co_autonoma=co_autonoma,
-                            provincia=provincia,
-                            pais="España"  # Asumiendo que el país siempre es España para este contexto
-                        )
-                    except ValidationError as e:
-                        self.stdout.write(self.style.ERROR(f'Error al crear la dirección para la propiedad {row["Nombre"]}: {e.messages}. Dirección: {row["Direccion"]}. Omitiendo.'))
-                        continue
+                        # Buscar el usuario propietario
+                        propietario = User.objects.filter(username=row['Propietario']).first()
+                        if not propietario:
+                            self.stdout.write(self.style.ERROR(f'Propietario {row["Propietario"]} no encontrado. Omitiendo propiedad {row["Nombre"]}.'))
+                            continue
+                        
+                        # Dividir la dirección
+                        direccion_completa = row['Direccion'].split(',')
+                        if len(direccion_completa) != 6:
+                            self.stdout.write(self.style.ERROR(f'Dirección mal formada para la propiedad {row["Nombre"]}. Omitiendo. Dirección: {row["Direccion"]}'))
+                            continue
+                        
+                        calle, numero_casa, codigo_postal, ciudad, co_autonoma, provincia = [part.strip() for part in direccion_completa]
 
-                    # Crear la propiedad
-                    try:
-                        propiedad = Propiedades.objects.create(
-                            nombre=row['Nombre'],
-                            descripcion=row['Descripcion'],
-                            direccion=f"{direccion_instance.calle}, {direccion_instance.numero_casa}, {direccion_instance.ciudad}",
-                            precio_noche=float(row['Precio']),
-                            propietario=propietario,
-                            calificacion=float(row['Calificacion']),
-                            permite_mascotas=row['Pets'].strip().lower() == 'true',
-                            en_mantenimiento=row['Mantenimiento'].strip().lower() == 'true',
-                            capacidad_maxima=int(row['Huespedes']),
-                            cantidad_banos=int(row['Banos']),
-                            cantidad_dormitorios=int(row['Dormitorios']),
-                        )
-                    except Exception as e:
-                        self.stdout.write(self.style.ERROR(f'Error al crear la propiedad {row["Nombre"]}: {e}. Datos: {row}. Omitiendo.'))
-                        continue
-
-                    # Asociar imágenes a la propiedad y marcar la primera como portada
-                    galeria_prefix = row['Imagenes']
-                    primera_imagen = True
-                    for filename in os.listdir(images_folder):
-                        if filename.startswith(galeria_prefix):
-                            image_path = os.path.join(images_folder, filename)
-                            Galeria.objects.create(
-                                propiedad=propiedad,
-                                imagen=image_path,
-                                portada=primera_imagen
+                        # Crear la dirección
+                        try:
+                            direccion_instance = Direcciones.objects.create(
+                                calle=calle,
+                                numero_casa=numero_casa,
+                                codigo_postal=codigo_postal,
+                                ciudad=ciudad,
+                                co_autonoma=co_autonoma,
+                                provincia=provincia,
+                                pais="España"  # Asumiendo que el país siempre es España para este contexto
                             )
-                            primera_imagen = False
+                        except ValidationError as e:
+                            self.stdout.write(self.style.ERROR(f'Error al crear la dirección para la propiedad {row["Nombre"]}: {e.messages}. Dirección: {row["Direccion"]}. Omitiendo.'))
+                            continue
 
-                    self.stdout.write(self.style.SUCCESS(f'Propiedad {propiedad.nombre} creada con éxito.'))
+                        # Verificar si ya existe una propiedad con la misma dirección y propietario
+                        if Propiedades.objects.filter(direccion=direccion_instance, propietario=propietario).exists():
+                            self.stdout.write(self.style.ERROR(f'Propiedad con dirección {direccion_instance} y propietario {propietario} ya existe. Omitiendo {row["Nombre"]}.'))
+                            continue
+
+                        # Crear la propiedad
+                        try:
+                            propiedad = Propiedades.objects.create(
+                                nombre=row['Nombre'],
+                                descripcion=row['Descripcion'],
+                                direccion=f"{direccion_instance.calle}, {direccion_instance.numero_casa}, {direccion_instance.ciudad}",
+                                precio_noche=float(row['Precio']),
+                                propietario=propietario,
+                                calificacion=float(row['Calificacion']),
+                                permite_mascotas=row['Pets'].strip().lower() == 'true',
+                                en_mantenimiento=row['Mantenimiento'].strip().lower() == 'true',
+                                capacidad_maxima=int(row['Huespedes']),
+                                cantidad_banos=int(row['Banos']),
+                                cantidad_dormitorios=int(row['Dormitorios']),
+                            )
+                        except Exception as e:
+                            self.stdout.write(self.style.ERROR(f'Error al crear la propiedad {row["Nombre"]}: {e}. Datos: {row}. Omitiendo.'))
+                            continue
+
+                        # Asociar imágenes a la propiedad y marcar la primera como portada
+                        galeria_prefix = row['Imagenes']
+                        primera_imagen = True
+                        for filename in os.listdir(images_folder):
+                            if filename.startswith(galeria_prefix):
+                                image_path = os.path.join(images_folder, filename)
+                                Galeria.objects.create(
+                                    propiedad=propiedad,
+                                    imagen=image_path,
+                                    portada=primera_imagen
+                                )
+                                primera_imagen = False
+
+                        self.stdout.write(self.style.SUCCESS(f'Propiedad {propiedad.nombre} creada con éxito con ID {propiedad.id}.'))
+                    except Exception as e:
+                        self.stdout.write(self.style.ERROR(f'Error procesando la propiedad {row["Nombre"]}: {e}. Datos: {row}. Omitiendo.'))
         except FileNotFoundError:
             self.stdout.write(self.style.ERROR(f"El archivo {csv_file} no se encontró. Verifica la ruta."))
         except Exception as e:
