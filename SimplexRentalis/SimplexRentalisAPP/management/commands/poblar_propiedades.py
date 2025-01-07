@@ -26,7 +26,7 @@ class Command(BaseCommand):
                 ]
                 if reader.fieldnames != expected_columns:
                     self.stdout.write(self.style.ERROR(
-                        f"Las columnas del CSV no coinciden con las esperadas: {expected_columns}."
+                        f"Las columnas del CSV no coinciden con las esperadas: {expected_columns}. Actual: {reader.fieldnames}."
                     ))
                     return
 
@@ -34,16 +34,16 @@ class Command(BaseCommand):
                     # Buscar el usuario propietario
                     propietario = User.objects.filter(username=row['Propietario']).first()
                     if not propietario:
-                        self.stdout.write(self.style.ERROR(f'Propietario {row["Propietario"]} no encontrado. Omitiendo.'))
+                        self.stdout.write(self.style.ERROR(f'Propietario {row["Propietario"]} no encontrado. Omitiendo propiedad {row["Nombre"]}.'))
                         continue
                     
                     # Dividir la dirección
-                    direccion_completa = row['Direccion'].split('-')
-                    if len(direccion_completa) != 7:
-                        self.stdout.write(self.style.ERROR(f'Dirección mal formada para la propiedad {row["Nombre"]}. Omitiendo.'))
+                    direccion_completa = row['Direccion'].split(',')
+                    if len(direccion_completa) != 6:
+                        self.stdout.write(self.style.ERROR(f'Dirección mal formada para la propiedad {row["Nombre"]}. Omitiendo. Dirección: {row["Direccion"]}'))
                         continue
                     
-                    calle, numero_casa, codigo_postal, ciudad, co_autonoma, provincia, pais = direccion_completa
+                    calle, numero_casa, codigo_postal, ciudad, co_autonoma, provincia = [part.strip() for part in direccion_completa]
 
                     # Crear la dirección
                     try:
@@ -54,10 +54,10 @@ class Command(BaseCommand):
                             ciudad=ciudad,
                             co_autonoma=co_autonoma,
                             provincia=provincia,
-                            pais=pais
+                            pais="España"  # Asumiendo que el país siempre es España para este contexto
                         )
                     except ValidationError as e:
-                        self.stdout.write(self.style.ERROR(f'Error al crear la dirección para la propiedad {row["Nombre"]}: {e.messages}. Omitiendo.'))
+                        self.stdout.write(self.style.ERROR(f'Error al crear la dirección para la propiedad {row["Nombre"]}: {e.messages}. Dirección: {row["Direccion"]}. Omitiendo.'))
                         continue
 
                     # Crear la propiedad
@@ -76,7 +76,7 @@ class Command(BaseCommand):
                             cantidad_dormitorios=int(row['Dormitorios']),
                         )
                     except Exception as e:
-                        self.stdout.write(self.style.ERROR(f'Error al crear la propiedad {row["Nombre"]}: {e}. Omitiendo.'))
+                        self.stdout.write(self.style.ERROR(f'Error al crear la propiedad {row["Nombre"]}: {e}. Datos: {row}. Omitiendo.'))
                         continue
 
                     # Asociar imágenes a la propiedad y marcar la primera como portada
