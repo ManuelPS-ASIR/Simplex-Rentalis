@@ -2,6 +2,7 @@ import os
 import csv
 from django.core.management.base import BaseCommand
 from SimplexRentalisAPP.models import User, IdentidadUsuario
+from django.conf import settings
 
 class Command(BaseCommand):
     help = 'Borrar las identidades de usuarios de prueba desde un archivo CSV'
@@ -13,7 +14,7 @@ class Command(BaseCommand):
         csv_file = kwargs['csv_file']
 
         # Leer el archivo CSV
-        with open(csv_file, newline='') as csvfile:
+        with open(csv_file, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 numero_documento = row['Número documento']
@@ -23,12 +24,12 @@ class Command(BaseCommand):
                 
                 if identidad:
                     try:
+                        # Eliminar usuario asociado
                         usuario = identidad.usuario_asociado
                         username = usuario.username
-                        avatar_path = usuario.avatar.path if usuario.avatar else None
-                        numero_documento = identidad.numero_documento
+                        avatar_path = os.path.join(settings.MEDIA_ROOT, usuario.avatar.name) if usuario.avatar else None
 
-                        # Eliminar el usuario asociado
+                        # Eliminar el usuario
                         usuario.delete()
                         self.stdout.write(self.style.SUCCESS(f'Usuario {username} con documento {numero_documento} borrado.'))
 
@@ -37,6 +38,8 @@ class Command(BaseCommand):
                             if os.path.exists(avatar_path):
                                 os.remove(avatar_path)
                                 self.stdout.write(self.style.SUCCESS(f'Imagen de perfil {avatar_path} borrada.'))
+                            else:
+                                self.stdout.write(self.style.WARNING(f'Imagen de perfil {avatar_path} no encontrada.'))
                     except User.DoesNotExist:
                         self.stdout.write(self.style.ERROR(f'No se encontró usuario asociado a la identidad con documento {numero_documento}.'))
 
