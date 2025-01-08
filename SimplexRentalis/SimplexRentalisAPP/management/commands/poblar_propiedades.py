@@ -1,6 +1,8 @@
 import os
 import glob
 import csv
+import shutil
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from SimplexRentalisAPP.models import Propiedades, User, Galeria, Direcciones
 from django.core.exceptions import ValidationError
@@ -13,8 +15,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         csv_file = kwargs['csv_file']
-        #images_folder = os.path.join(os.getcwd(), 'static/comand_admin/fotos2')  # Ruta absoluta
         images_folder = os.path.join(settings.STATICFILES_DIRS[0], 'comand_admin', 'fotos2')  # Ruta absoluta
+        media_folder = os.path.join(settings.MEDIA_ROOT, 'propiedades')  # Carpeta donde se almacenarán las imágenes
 
         # Leer el archivo CSV con delimitador explícito
         try:
@@ -118,17 +120,19 @@ class Command(BaseCommand):
                             ))
                             continue
 
-                        # Asociar imágenes a la propiedad y marcar la primera como portada
+                        # Copiar imágenes a la carpeta de media/propiedades y asociarlas a la propiedad
                         primera_imagen = True
                         for image_path in imagenes_encontradas:
+                            destino = os.path.join(media_folder, os.path.basename(image_path))
                             try:
+                                shutil.copy(image_path, destino)
                                 Galeria.objects.create(
                                     propiedad=propiedad,
-                                    imagen=os.path.relpath(image_path, images_folder),
+                                    imagen=os.path.relpath(destino, settings.MEDIA_ROOT),
                                     portada=primera_imagen
                                 )
                                 self.stdout.write(self.style.SUCCESS(
-                                    f"Imagen {os.path.relpath(image_path, images_folder)} asociada exitosamente a la propiedad {row['Nombre']}."
+                                    f"Imagen {os.path.relpath(image_path, images_folder)} asociada exitosamente a la propiedad {row['Nombre']} y copiada a {destino}."
                                 ))
                                 primera_imagen = False
                             except Exception as e:
