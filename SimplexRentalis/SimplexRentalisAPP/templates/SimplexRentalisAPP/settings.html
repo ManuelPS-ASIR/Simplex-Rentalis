@@ -28,6 +28,7 @@
             {% endif %}
         </div>
     </div>
+
     <!-- Botón para cambiar estado de propietario -->
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-primary text-white">
@@ -53,21 +54,24 @@
                     </p>
                 {% endif %}
             {% endif %}
-
             <div class="d-flex justify-content-center my-4">
-                <button type="button" class="btn {% if user.es_propietario %}btn-danger{% else %}btn-success{% endif %}" 
-                        data-bs-toggle="modal" data-bs-target="#changeOwnerModal">
-                    {% if user.es_propietario %}
-                        Dejar de ser propietario
-                    {% else %}
+                {% if not user.es_propietario %}
+                    <!-- Redirigir directamente a la página de agregar propiedad -->
+                    <a href="{% url 'agregar_propiedad' %}" class="btn btn-success">
                         Convertirse en propietario
-                    {% endif %}
-                </button>
+                    </a>
+                {% else %}
+                    <!-- Modal para confirmar dejar de ser propietario -->
+                    <button type="button" class="btn btn-danger"
+                            data-bs-toggle="modal" data-bs-target="#changeOwnerModal">
+                        Eliminar todas mis propiedades
+                    </button>
+                {% endif %}
             </div>
         </div>        
     </div>
 
-    <!-- Modal de Confirmación de Cambio de Estado -->
+    <!-- Modal de Confirmación Cambiar Propietario -->
     <div class="modal fade" id="changeOwnerModal" tabindex="-1" aria-labelledby="changeOwnerModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -84,57 +88,25 @@
                 <div class="modal-body">
                     <p>
                         {% if user.es_propietario %}
-                            Al dejar de ser propietario, perderás los privilegios asociados.
+                            Al dejar de ser propietario, se eliminarán todas las propiedades que hayas registrado y no podrás recuperarlas.
                         {% else %}
                             Convertirte en propietario te otorgará acceso a funciones adicionales.
                         {% endif %}
                     </p>
-                    <div class="d-flex justify-content-between">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn {% if user.es_propietario %}btn-danger{% else %}btn-success{% endif %}" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#finalChangeOwnerModal" 
-                                data-bs-dismiss="modal">
-                            Confirmar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Modal Final de Confirmación -->
-    <div class="modal fade" id="finalChangeOwnerModal" tabindex="-1" aria-labelledby="finalChangeOwnerModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-white">
-                    <h5 class="modal-title" id="finalChangeOwnerModalLabel">
-                        {% if user.es_propietario %}
-                            Confirma que deseas dejar de ser propietario
-                        {% else %}
-                            Confirma que deseas convertirte en propietario
-                        {% endif %}
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
                     <form id="changeOwnerForm" method="post" action="{% url 'cambiar_estado_propietario' %}">
                         {% csrf_token %}
                         <div class="mb-3">
                             <label for="changeOwnerUsernameConfirm" class="form-label">Nombre de usuario</label>
-                            <input type="text" id="changeOwnerUsernameConfirm" name="changeOwnerUsernameConfirm" class="form-control" placeholder="Introduce tu nombre de usuario" required>
+                            <input type="text" class="form-control" id="changeOwnerUsernameConfirm" name="changeOwnerUsernameConfirm" placeholder="{{ user.username }}" required>
                         </div>
                         <div class="mb-3">
-                            <label for="changeOwnerConfirmationCode" class="form-label">Código de confirmación</label>
-                            <input type="text" id="changeOwnerConfirmationCode" name="changeOwnerConfirmationCode" class="form-control" placeholder="Escribe CONFIRMAR" required>
+                            <label for="changeOwnerConfirmationCode" class="form-label">Escribe "CONFIRMAR"</label>
+                            <input type="text" class="form-control" id="changeOwnerConfirmationCode" name="changeOwnerConfirmationCode" placeholder="CONFIRMAR" required>
                         </div>
                         <div class="d-flex justify-content-between">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn {% if user.es_propietario %}btn-danger{% else %}btn-success{% endif %}" id="confirmChangeOwnerBtn" disabled>
-                                {% if user.es_propietario %}
-                                    Dejar de ser propietario
-                                {% else %}
-                                    Convertirse en propietario
-                                {% endif %}
+                            <button type="submit" class="btn {% if user.es_propietario %}btn-danger{% else %}btn-success{% endif %}">
+                                Confirmar
                             </button>
                         </div>
                     </form>
@@ -142,7 +114,13 @@
             </div>
         </div>
     </div>
-    
+
+
+
+    <!-- Continuación del código con ajustes -->
+    <!-- Sigue implementando los otros bloques tal como en el código inicial -->
+
+        
 
 
 
@@ -289,6 +267,10 @@
         const updateButton = document.getElementById('updateProfileBtn');
         const timerElement = document.getElementById('timer');
 
+        if (!confirmChangeOwnerBtn || !confirmDeletionBtn || !finalConfirmationStep || !confirmationStep || !deleteAccountBtn || !form || !updateButton || !timerElement) {
+            console.error('Uno o más elementos no se encontraron.');
+            return;
+        }
         // Guardar los valores originales del formulario
         const originalValues = {
             username: document.getElementById('username').value,

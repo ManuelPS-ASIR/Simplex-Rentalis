@@ -272,12 +272,20 @@ def agregar_propiedad(request):
             print("Error: No se subieron imágenes.")  # Mensaje de depuración
             return redirect('agregar_propiedad')
 
+        # Verificar y actualizar el estado del usuario a propietario si es necesario
+        if not request.user.es_propietario:
+            request.user.es_propietario = True
+            request.user.save()
+            messages.success(request, "Tu estado de propietario ha sido activado automáticamente.")
+            print("Estado de propietario activado automáticamente para el usuario.")  # Mensaje de depuración
+
         # Redirigir a "Mis Propiedades" después de agregar la propiedad
         messages.success(request, "Propiedad agregada exitosamente.")
         print("Propiedad agregada exitosamente.")  # Mensaje de depuración
         return redirect('propiedades_usuario')  # Cambiar 'mis_propiedades' por el nombre correcto de tu vista de "Mis Propiedades"
 
     return render(request, 'SimplexRentalisAPP/agregar_propiedad.html')
+
 
 from django.db.models import Min
 @login_required
