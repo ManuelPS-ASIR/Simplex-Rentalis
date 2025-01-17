@@ -804,10 +804,13 @@ from datetime import date
 
 @login_required
 def mis_reservas(request):
+    # Fecha actual definida fuera del bucle
+    today = date.today()
+
     # Obtener las reservas del usuario
     reservas = Reservas.objects.filter(usuario=request.user).select_related('propiedad').prefetch_related('propiedad__galeria__gallery_images')
 
-    # Asignar portada a cada propiedad de la reserva
+    # Asignar portada y estado a cada reserva
     for reserva in reservas:
         propiedad = reserva.propiedad
         portada = propiedad.gallery_images.filter(portada=True).first()
@@ -815,9 +818,8 @@ def mis_reservas(request):
             propiedad.portada = portada
         else:
             propiedad.portada = None  # O asignar una imagen predeterminada
-    
+
         # Determinar el estado de la reserva
-        today = date.today()  # Fecha actual
         fecha_inicio = reserva.fecha_inicio
         fecha_fin = reserva.fecha_fin
 
