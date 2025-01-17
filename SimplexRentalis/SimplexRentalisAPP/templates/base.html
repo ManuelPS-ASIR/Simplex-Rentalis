@@ -29,6 +29,7 @@
         </a>
 
         <!-- Botón "Mis Propiedades" si el usuario es propietario -->
+        <!-- Botón "Mis Propiedades" si el usuario es propietario -->
         {% if user.is_authenticated %}
         {% if user.es_propietario %}
           <a href="/mis_propiedades/" class="btn btn-outline-light me-3">Mis Propiedades</a>
@@ -41,7 +42,6 @@
           </a>
         {% endif %}
         {% endif %}
-
         <!-- Modal de advertencia para usuarios no propietarios -->
         <div class="modal fade" id="propietarioModal" data-bs-backdrop="false" data-bs-keyboard="true" tabindex="-1" aria-labelledby="propietarioModalLabel" aria-hidden="true">
           <div class="modal-dialog">
@@ -52,16 +52,17 @@
               </div>
               <div class="modal-body">
                 <!-- Mensaje que explica la restricción -->
-                <p style="color: #000000;">Para poder acceder a esta función, debe darse de alta como propietario.</p>
+                <p style="color: #000000;">Para poder acceder a "Mis Propiedades", primero debes crear al menos una propiedad.</p>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <!-- Botón para redirigir al alta como propietario -->
-                <a href="/settings/#finalChangeOwnerModal" class="btn btn-primary">Hacerse Propietario</a>
+                <!-- Botón para redirigir al alta de propiedad -->
+                <a href="{% url 'agregar_propiedad' %}" class="btn btn-primary">Crear una Propiedad</a>
               </div>
             </div>
           </div>
         </div>
+
       </div>
 
       <!-- Modificar el formulario de búsqueda -->
