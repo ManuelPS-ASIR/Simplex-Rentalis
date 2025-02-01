@@ -174,7 +174,8 @@ class Propiedades(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100, blank=False, null=False)
     descripcion = models.TextField(max_length=3000, blank=True, null=True)
-    direccion = models.CharField(max_length=300, blank=False, null=False)
+    # Ahora 'direccion' es una ForeignKey hacia el modelo Direcciones, almacenando el id numérico de la dirección
+    direccion = models.ForeignKey('Direcciones', on_delete=models.CASCADE, related_name='propiedades')
     precio_noche = MoneyField(max_digits=10, decimal_places=2, blank=False, null=False, default_currency='EUR')
     propietario = models.ForeignKey('User', on_delete=models.CASCADE, related_name='propiedades', blank=False, null=False)
     calificacion = models.DecimalField(
@@ -213,6 +214,7 @@ class Propiedades(models.Model):
             raise ValidationError("La fecha de inicio debe ser anterior a la de fin.")
         if self.en_mantenimiento:
             return False
+        # Nota: Asegúrate de tener importado el modelo Reservas o definirlo correctamente en tu proyecto
         if Reservas.objects.filter(
             propiedad=self,
             fecha_inicio__lt=fecha_fin,
@@ -385,6 +387,7 @@ from django.core.exceptions import ValidationError
 import requests
 
 class Direcciones(models.Model):
+    id = models.AutoField(primary_key=True)  # Campo id declarado explícitamente
     calle = models.CharField(max_length=255)
     numero_casa = models.CharField(max_length=20, blank=False, null=False)
     numero_puerta = models.CharField(max_length=20, blank=True, null=True)
@@ -397,11 +400,11 @@ class Direcciones(models.Model):
     longitud = models.FloatField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.calle}, {self.numero_casa}, {self.numero_puerta}, {self.ciudad}, {self.provincia}, {self.co_autonoma}, {self.pais}, {self.codigo_postal}"
+        return f"{self.calle} {self.numero_casa}, {self.ciudad}"
 
     def validar_y_geocodificar(self):
-        query = f"{self.calle}, {self.numero_casa}, {self.numero_puerta}, {self.codigo_postal}, {self.ciudad}, {self.provincia}, {self.co_autonoma}, {self.pais}"
-
+        # Se arma la consulta con los datos de la dirección
+        query = f"{self.calle}, {self.numero_casa}, {self.numero_puerta or ''}, {self.codigo_postal}, {self.ciudad}, {self.provincia}, {self.co_autonoma}, {self.pais}"
         url = "https://photon.komoot.io/api/"
         params = {
             "q": query,
