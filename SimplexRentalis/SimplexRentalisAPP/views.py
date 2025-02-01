@@ -49,14 +49,22 @@ def propiedades(request):
     form = FiltroPropiedadesForm(request.GET)
     propiedades = Propiedades.objects.prefetch_related('gallery_images').filter(en_mantenimiento=False)
 
+    # Búsqueda general: se busca en el nombre y en campos de la dirección (calle, ciudad y provincia)
     if query:
         propiedades = propiedades.filter(
-            Q(nombre__icontains=query) | Q(direccion__icontains=query)
+            Q(nombre__icontains=query) |
+            Q(direccion__calle__icontains=query) |
+            Q(direccion__ciudad__icontains=query) |
+            Q(direccion__provincia__icontains=query)
         )
 
     if form.is_valid():
         if direccion:
-            propiedades = propiedades.filter(direccion__icontains=direccion)
+            propiedades = propiedades.filter(
+                Q(direccion__calle__icontains=direccion) |
+                Q(direccion__ciudad__icontains=direccion) |
+                Q(direccion__provincia__icontains=direccion)
+            )
         if precio_min:
             propiedades = propiedades.filter(precio_noche__gte=precio_min)
         if precio_max:
@@ -66,7 +74,7 @@ def propiedades(request):
         if permite_mascotas:
             propiedades = propiedades.filter(permite_mascotas=(permite_mascotas == 'True'))
         if capacidad_maxima:
-            propiedades = propiedades.filter(capacidad_maxima__gte=capacidad_maxima)  # Usar `gte` para capacidad máxima
+            propiedades = propiedades.filter(capacidad_maxima__gte=capacidad_maxima)
 
     for propiedad in propiedades:
         portada = propiedad.gallery_images.filter(portada=True).order_by('id').first()
@@ -88,7 +96,6 @@ def propiedades(request):
     }
 
     return render(request, 'SimplexRentalisAPP/propiedades_list.html', context)
-
 
 
 

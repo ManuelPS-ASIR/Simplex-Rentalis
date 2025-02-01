@@ -13,7 +13,10 @@
             <div class="card shadow-sm rounded-3 p-3 fixed-left no-animation">
                 <h5 class="card-title">Filtros</h5>
                 <form id="filtroForm" method="get" action="{% url 'propiedades' %}">
-                    <input type="hidden" name="q" value="{{ query }}">
+                    {# Solo incluimos el parámetro q si tiene un valor significativo #}
+                    {% if query and query != "None" %}
+                        <input type="hidden" name="q" value="{{ query }}">
+                    {% endif %}
                     
                     <!-- Dirección o lugar -->
                     <div class="mb-3">
@@ -56,7 +59,7 @@
                 
                     <!-- Permite mascotas -->
                     <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="permite_mascotas" name="permite_mascotas" {% if request.GET.permite_mascotas %}checked{% endif %}>
+                        <input type="checkbox" class="form-check-input" id="permite_mascotas" name="permite_mascotas" value="True" {% if request.GET.permite_mascotas %}checked{% endif %}>
                         <label class="form-check-label" for="permite_mascotas">Permite mascotas</label>
                     </div>
                 
@@ -76,8 +79,8 @@
         <!-- Contenedor de propiedades (columna derecha) -->
         <div class="col-md-9">
             <div class="position-relative mb-4">
-                <h1 class="text-center m-0">{% if query %}Resultados de Búsqueda{% else %}Lista de Propiedades{% endif %}</h1>
-                <h2 class="text-center m-0">{% if query %}Tu próximo destino segun tus indicaciones{% else %}Descubre tu próximo destino{% endif %}</h2>
+                <h1 class="text-center m-0">{% if query and query != "None" %}Resultados de Búsqueda{% else %}Lista de Propiedades{% endif %}</h1>
+                <h2 class="text-center m-0">{% if query and query != "None" %}Tu próximo destino segun tus indicaciones{% else %}Descubre tu próximo destino{% endif %}</h2>
             </div>
 
             <div class="row justify-content-center">
@@ -123,10 +126,14 @@
 </div>
 
 <script>
+    // Declarar las variables de precio al inicio para que estén disponibles en todas las funciones
+    const precioMaximoBD = 10000; // Cambia este valor según el precio máximo en tu base de datos
+    const precioMinimoBD = 0;     // Cambia este valor según el precio mínimo en tu base de datos
+
     const gap = 4; // Espacio mínimo en unidades entre los sliders
     let typingTimer; // Timer para detectar cuando el usuario deja de escribir
     const doneTypingInterval = 1000; // Intervalo de tiempo en milisegundos (1 segundo)
-    let lastModifiedBy; // Definir la variable lastModifiedBy
+    let lastModifiedBy; // Variable para identificar la fuente de la última modificación
 
     // Función para actualizar los valores de los inputs con los valores actuales de los sliders
     function updatePriceValues() {
@@ -217,13 +224,9 @@
         updatePriceValues();
 
         const url = new URL(window.location.href);
-        const queryParam = url.searchParams.get('q');
-
-        // Crear una nueva URL sin ningún parámetro de búsqueda
+        // Crear una nueva URL sin parámetros de búsqueda
         const newUrl = `${window.location.origin}${window.location.pathname}`;
         window.history.pushState({}, '', newUrl);
-
-        // Recargar la página sin el parámetro 'q'
         window.location.href = newUrl;
     });
 
@@ -232,7 +235,8 @@
         const url = new URL(window.location.href);
         const queryParam = url.searchParams.get('q');
 
-        if (queryParam) {
+        // Solo se vuelve a añadir q si tiene un valor significativo distinto de "None"
+        if (queryParam && queryParam !== "None") {
             const existingInput = this.querySelector('input[name="q"]');
             if (existingInput) {
                 existingInput.remove();
@@ -273,12 +277,10 @@
         this.submit();
     });
 
-    const precioMaximoBD = 10000; // Cambia este valor según el precio máximo en tu base de datos
-    const precioMinimoBD = 0; // Cambia este valor según el precio mínimo en tu base de datos
+    // Establecer los valores iniciales de los sliders desde los parámetros GET o desde los valores por defecto
     document.getElementById('minPrice').value = '{{ request.GET.precio_min|default:precio_minimo }}';
     document.getElementById('maxPrice').value = '{{ request.GET.precio_max|default:precio_maximo }}';
     updatePriceValues();
 </script>
-
 
 {% endblock %}
