@@ -26,47 +26,75 @@
                     <textarea name="descripcion" class="form-control form-control-lg" rows="4" required></textarea>
                 </div>
 
-                <!-- Dirección con autocompletado -->
+                <!-- ############################# -->
+                <!-- SECCIÓN DE DIRECCIÓN -->
+                <!-- ############################# -->
+                <h3>Dirección</h3>
+
+                <!-- 1. Autocompletado -->
                 <div class="form-group">
-                    <label for="id_direccion">Dirección</label>
-                    <!-- Input para buscar y seleccionar la dirección -->
-                    <input type="text" name="direccion" class="form-control form-control-lg" id="direccion-autocomplete" required placeholder="Escribe tu dirección">
+                    <label for="direccion-autocomplete">Buscar Dirección</label>
+                    <input type="text" name="direccion_autocomplete" class="form-control form-control-lg" id="direccion-autocomplete" placeholder="Escribe tu dirección">
                     <ul id="autocomplete-results" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;">
                         <!-- Las sugerencias de autocompletado aparecerán aquí -->
                     </ul>
                     <p class="mt-2 text-muted" style="font-size: 0.9em;">
-                        <strong>Nota:</strong> Elige una dirección de la lista para validar automáticamente.
+                        <strong>Nota:</strong> Selecciona una dirección de la lista para autocompletar los campos. Luego, podrás revisarla y modificarla manualmente.
                     </p>
                 </div>
 
-                <!-- Campos ocultos para almacenar los componentes de la dirección -->
-                <input type="hidden" name="calle" id="calle" value="">
-                <input type="hidden" name="ciudad" id="ciudad" value="">
-                <input type="hidden" name="co_autonoma" id="co_autonoma" value="">
-                <input type="hidden" name="provincia" id="provincia" value="">
-                <input type="hidden" name="pais" id="pais" value="">
+                <!-- 2. Edición Manual -->
+                <div class="form-group mt-4">
+                    <h4>Editar Dirección Manualmente</h4>
+                    
+                    <div class="form-group">
+                        <label for="calle">Calle</label>
+                        <input type="text" name="calle" class="form-control form-control-lg" id="calle" placeholder="Calle" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="numero_casa">Número de Casa</label>
+                        <input type="text" name="numero_casa" class="form-control form-control-lg" id="numero-casa" placeholder="Número de casa" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="numero_puerta">Número de Puerta (opcional)</label>
+                        <input type="text" name="numero_puerta" class="form-control form-control-lg" id="numero-puerta" placeholder="Número de puerta">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="codigo_postal">Código Postal</label>
+                        <input type="text" name="codigo_postal" class="form-control form-control-lg" id="codigo-postal" placeholder="Código postal" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ciudad">Ciudad</label>
+                        <input type="text" name="ciudad" class="form-control form-control-lg" id="ciudad" placeholder="Ciudad" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="provincia">Provincia</label>
+                        <input type="text" name="provincia" class="form-control form-control-lg" id="provincia" placeholder="Provincia" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="co_autonoma">Comunidad Autónoma</label>
+                        <input type="text" name="co_autonoma" class="form-control form-control-lg" id="co_autonoma" placeholder="Comunidad Autónoma" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pais">País</label>
+                        <input type="text" name="pais" class="form-control form-control-lg" id="pais" placeholder="País" required>
+                    </div>
+                </div>
 
-                <!-- Campos ocultos para almacenar coordenadas -->
+                <!-- Campos ocultos para coordenadas (se asignan al autocompletar) -->
                 <input type="hidden" name="latitud" id="latitud" value="">
                 <input type="hidden" name="longitud" id="longitud" value="">
 
-                <!-- Número de casa -->
-                <div class="form-group">
-                    <label for="id_numero_casa">Número de casa</label>
-                    <input type="text" name="numero_casa" class="form-control form-control-lg" id="numero-casa" placeholder="Número de casa" required>
-                </div>
-
-                <!-- Número de puerta -->
-                <div class="form-group">
-                    <label for="id_numero_puerta">Número de puerta (opcional)</label>
-                    <input type="text" name="numero_puerta" class="form-control form-control-lg" id="numero-puerta" placeholder="Número de puerta">
-                </div>
-
-                <!-- Código postal -->
-                <div class="form-group">
-                    <label for="id_codigo_postal">Código postal</label>
-                    <input type="text" name="codigo_postal" class="form-control form-control-lg" id="codigo-postal" placeholder="Código postal" required>
-                </div>
+                <!-- ############################# -->
+                <!-- FIN SECCIÓN DE DIRECCIÓN -->
+                <!-- ############################# -->
 
                 <!-- Precio por noche -->
                 <div class="form-group">
@@ -136,8 +164,12 @@
         </div>
     </div>
 </div>
+
+<!-- ######################################## -->
+<!-- Scripts: Autocompletado, manejo de imágenes, validaciones, etc. -->
+<!-- ######################################## -->
 <script>
-    let selectedImages = []; // Para almacenar todas las imágenes seleccionadas
+    let selectedImages = []; // Para almacenar las imágenes seleccionadas
     let portadaIndex = 0;    // Índice de la imagen marcada como portada
 
     function previewImages(event) {
@@ -299,13 +331,15 @@
                     const calle = feature.properties.name || '';
                     const ciudad = feature.properties.city || '';
                     const provincia = feature.properties.county || '';
-                    const co_autonoma = feature.properties.state || ''; // Cambio: de region a state
+                    const co_autonoma = feature.properties.state || '';
                     const pais = feature.properties.country || '';
                     const codigo_postal = feature.properties.postcode || '';
 
                     // Formateamos la dirección para mostrarla en la lista
                     item.textContent = `${calle}, ${ciudad}, ${provincia}, ${co_autonoma}, ${pais}`;
                     item.classList.add('list-group-item', 'list-group-item-action');
+
+                    // Guardamos los datos en atributos personalizados
                     item.dataset.latitud = feature.geometry.coordinates[1];
                     item.dataset.longitud = feature.geometry.coordinates[0];
                     item.dataset.calle = calle;
@@ -316,18 +350,15 @@
                     item.dataset.codigoPostal = codigo_postal;
 
                     item.onclick = function() {
-                        // Asignar dirección completa al input visible
+                        // Al seleccionar, se actualizan tanto el input de autocompletado como los campos manuales
                         document.getElementById('direccion-autocomplete').value = item.textContent;
-                        // Asignar coordenadas
                         document.getElementById('latitud').value = this.dataset.latitud;
                         document.getElementById('longitud').value = this.dataset.longitud;
-                        // Asignar datos de la dirección a los inputs ocultos
                         document.getElementById('calle').value = this.dataset.calle;
                         document.getElementById('ciudad').value = this.dataset.ciudad;
                         document.getElementById('provincia').value = this.dataset.provincia;
                         document.getElementById('co_autonoma').value = this.dataset.coAutonoma;
                         document.getElementById('pais').value = this.dataset.pais;
-                        // Asignar el código postal
                         document.getElementById('codigo-postal').value = this.dataset.codigoPostal;
 
                         resultsContainer.style.display = 'none';
@@ -344,7 +375,7 @@
             });
     });
 
-    // Cierra los resultados de autocompletado cuando se hace clic fuera de ellos
+    // Cierra la lista de sugerencias al hacer clic fuera
     document.addEventListener('click', function(event) {
         const resultsContainer = document.getElementById('autocomplete-results');
         if (!resultsContainer.contains(event.target) && event.target.id !== 'direccion-autocomplete') {
@@ -352,7 +383,7 @@
         }
     });
 
-    // Validación al enviar el formulario y registro de datos a enviar en la consola
+    // Validación al enviar el formulario y registro de datos en la consola
     document.getElementById('agregar-propiedad-form').onsubmit = function(event) {
         // Validación previa del precio por noche
         const precioNoche = document.querySelector('[name="precio_noche"]').value;
@@ -362,15 +393,11 @@
             return;
         }
 
-        // **Se ha eliminado la validación de latitud y longitud**
-        // Esto permite que el formulario se envíe incluso si el usuario no utiliza el autocompletado.
-        // Puedes, si lo deseas, implementar una geocodificación automática en este punto.
-
-        // Recopilamos los datos que se enviarán
+        // Recopilamos los datos que se enviarán (puedes verificar en la consola)
         const formData = {
             nombre: document.querySelector('[name="nombre"]').value,
             descripcion: document.querySelector('[name="descripcion"]').value,
-            direccion: document.querySelector('[name="direccion"]').value,
+            direccion_autocomplete: document.querySelector('[name="direccion_autocomplete"]').value,
             latitud: document.getElementById('latitud').value,
             longitud: document.getElementById('longitud').value,
             calle: document.getElementById('calle').value,
@@ -378,7 +405,7 @@
             co_autonoma: document.getElementById('co_autonoma').value,
             provincia: document.getElementById('provincia').value,
             pais: document.getElementById('pais').value,
-            numero_casa: document.getElementById('numero-casa').value,
+            numero_casa: document.getElementById('numero-casa') ? document.getElementById('numero-casa').value : '',
             numero_puerta: document.getElementById('numero-puerta').value,
             codigo_postal: document.getElementById('codigo-postal').value,
             precio_noche: precioNoche,
@@ -388,10 +415,8 @@
             permite_mascotas: document.getElementById('permite_mascotas').checked,
             en_mantenimiento: document.getElementById('en_mantenimiento').checked,
             portada: document.getElementById('portada-id').value
-            // Puedes agregar más campos si lo necesitas
         };
 
-        // Mostrar en la consola los datos que se enviarán
         console.log("Datos a enviar:", formData);
     };
 
@@ -401,23 +426,20 @@
         let value = input.value;
         const cursorPos = input.selectionStart;
 
-        // Reemplaza las comas por puntos sin mover el cursor
+        // Reemplaza comas por puntos
         value = value.replace(/,/g, '.');
 
-        // Elimina cualquier cosa que no sea un dígito o un punto decimal
+        // Elimina caracteres que no sean dígitos o punto
         value = value.replace(/[^\d.]/g, '');
 
-        // Limita el número de decimales a 2
+        // Limita a 2 decimales
         const regex = /^\d+(\.\d{0,2})?$/;
-
         if (regex.test(value)) {
             input.value = value;
         } else {
-            // Si el valor no es válido, restaura el valor anterior
             input.value = input.value.slice(0, -1);
         }
 
-        // Ajusta la posición del cursor
         input.setSelectionRange(cursorPos, cursorPos);
     });
 </script>
