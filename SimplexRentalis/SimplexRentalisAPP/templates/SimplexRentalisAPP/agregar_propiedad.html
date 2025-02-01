@@ -29,6 +29,7 @@
                 <!-- Dirección con autocompletado -->
                 <div class="form-group">
                     <label for="id_direccion">Dirección</label>
+                    <!-- Input para buscar y seleccionar la dirección -->
                     <input type="text" name="direccion" class="form-control form-control-lg" id="direccion-autocomplete" required placeholder="Escribe tu dirección">
                     <ul id="autocomplete-results" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;">
                         <!-- Las sugerencias de autocompletado aparecerán aquí -->
@@ -37,6 +38,13 @@
                         <strong>Nota:</strong> Elige una dirección de la lista para validar automáticamente.
                     </p>
                 </div>
+
+                <!-- Campos ocultos para almacenar los componentes de la dirección -->
+                <input type="hidden" name="calle" id="calle" value="">
+                <input type="hidden" name="ciudad" id="ciudad" value="">
+                <input type="hidden" name="co_autonoma" id="co_autonoma" value="">
+                <input type="hidden" name="provincia" id="provincia" value="">
+                <input type="hidden" name="pais" id="pais" value="">
 
                 <!-- Campos ocultos para almacenar coordenadas -->
                 <input type="hidden" name="latitud" id="latitud" value="">
@@ -128,7 +136,6 @@
         </div>
     </div>
 </div>
-
 <script>
     let selectedImages = []; // Para almacenar todas las imágenes seleccionadas
     let portadaIndex = 0;    // Índice de la imagen marcada como portada
@@ -289,24 +296,38 @@
 
                 data.features.forEach((feature) => {
                     const item = document.createElement('li');
-                    const direccion = feature.properties.name || '';
+                    const calle = feature.properties.name || '';
                     const ciudad = feature.properties.city || '';
                     const provincia = feature.properties.county || '';
                     const co_autonoma = feature.properties.region || '';
                     const pais = feature.properties.country || '';
                     const codigo_postal = feature.properties.postcode || '';
 
-                    item.textContent = `${direccion}, ${ciudad}, ${provincia}, ${co_autonoma}, ${pais}`;
+                    // Formateamos la dirección para mostrarla en la lista
+                    item.textContent = `${calle}, ${ciudad}, ${provincia}, ${co_autonoma}, ${pais}`;
                     item.classList.add('list-group-item', 'list-group-item-action');
                     item.dataset.latitud = feature.geometry.coordinates[1];
                     item.dataset.longitud = feature.geometry.coordinates[0];
-                    item.dataset.fullAddress = item.textContent;
+                    item.dataset.calle = calle;
+                    item.dataset.ciudad = ciudad;
+                    item.dataset.provincia = provincia;
+                    item.dataset.coAutonoma = co_autonoma;
+                    item.dataset.pais = pais;
                     item.dataset.codigoPostal = codigo_postal;
 
                     item.onclick = function() {
-                        document.getElementById('direccion-autocomplete').value = this.dataset.fullAddress;
+                        // Asignar dirección completa al input visible
+                        document.getElementById('direccion-autocomplete').value = item.textContent;
+                        // Asignar coordenadas
                         document.getElementById('latitud').value = this.dataset.latitud;
                         document.getElementById('longitud').value = this.dataset.longitud;
+                        // Asignar datos de la dirección a los inputs ocultos
+                        document.getElementById('calle').value = this.dataset.calle;
+                        document.getElementById('ciudad').value = this.dataset.ciudad;
+                        document.getElementById('provincia').value = this.dataset.provincia;
+                        document.getElementById('co_autonoma').value = this.dataset.coAutonoma;
+                        document.getElementById('pais').value = this.dataset.pais;
+                        // Asignar el código postal
                         document.getElementById('codigo-postal').value = this.dataset.codigoPostal;
 
                         resultsContainer.style.display = 'none';
@@ -331,12 +352,49 @@
         }
     });
 
-    // Validación al enviar el formulario
+    // Validación al enviar el formulario y registro de datos a enviar en la consola
     document.getElementById('agregar-propiedad-form').onsubmit = function(event) {
+        // Validaciones previas
+        const precioNoche = document.querySelector('[name="precio_noche"]').value;
+        if (!/^\d+(\.\d{1,2})?$/.test(precioNoche) || parseFloat(precioNoche) <= 0) {
+            event.preventDefault();
+            alert('Por favor introduce un valor numérico válido y positivo para el precio por noche.');
+            return;
+        }
+
         if (!document.getElementById('latitud').value || !document.getElementById('longitud').value) {
             event.preventDefault();
             alert('Por favor selecciona una dirección válida de la lista.');
+            return;
         }
+
+        // Recopilamos los datos que se enviarán
+        const formData = {
+            nombre: document.querySelector('[name="nombre"]').value,
+            descripcion: document.querySelector('[name="descripcion"]').value,
+            direccion: document.querySelector('[name="direccion"]').value,
+            latitud: document.getElementById('latitud').value,
+            longitud: document.getElementById('longitud').value,
+            calle: document.getElementById('calle').value,
+            ciudad: document.getElementById('ciudad').value,
+            co_autonoma: document.getElementById('co_autonoma').value,
+            provincia: document.getElementById('provincia').value,
+            pais: document.getElementById('pais').value,
+            numero_casa: document.getElementById('numero-casa').value,
+            numero_puerta: document.getElementById('numero-puerta').value,
+            codigo_postal: document.getElementById('codigo-postal').value,
+            precio_noche: precioNoche,
+            cantidad_banos: document.querySelector('[name="cantidad_banos"]').value,
+            cantidad_dormitorios: document.querySelector('[name="cantidad_dormitorios"]').value,
+            capacidad_maxima: document.querySelector('[name="capacidad_maxima"]').value,
+            permite_mascotas: document.getElementById('permite_mascotas').checked,
+            en_mantenimiento: document.getElementById('en_mantenimiento').checked,
+            portada: document.getElementById('portada-id').value
+            // Puedes agregar más campos si lo necesitas
+        };
+
+        // Mostrar en la consola los datos que se enviarán
+        console.log("Datos a enviar:", formData);
     };
 
     // Validación y sanitización del campo precio_noche
@@ -364,21 +422,5 @@
         // Ajusta la posición del cursor
         input.setSelectionRange(cursorPos, cursorPos);
     });
-
-    document.getElementById('agregar-propiedad-form').onsubmit = function(event) {
-        const precioNoche = document.querySelector('[name="precio_noche"]').value;
-
-        if (!/^\d+(\.\d{1,2})?$/.test(precioNoche) || parseFloat(precioNoche) <= 0) {
-            event.preventDefault();
-            alert('Por favor introduce un valor numérico válido y positivo para el precio por noche.');
-            return;
-        }
-
-        if (!document.getElementById('latitud').value || !document.getElementById('longitud').value) {
-            event.preventDefault();
-            alert('Por favor selecciona una dirección válida de la lista.');
-        }
-    };
 </script>
-
 {% endblock %}

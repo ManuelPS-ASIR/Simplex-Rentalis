@@ -14,19 +14,20 @@ from random import sample
 
 def index(request):
     all_properties = Propiedades.objects.order_by('-calificacion')[:100]
-    propiedades_mejor_calificadas = sample(list(all_properties), 8)
 
-    for propiedad in propiedades_mejor_calificadas:
-        portada = propiedad.gallery_images.filter(portada=True).first()
-        if portada:
-            propiedad.portada = portada
-        else:
-            propiedad.portada = None  # O asignar una imagen predeterminada
+    if len(all_properties) < 8:
+        propiedades_mejor_calificadas = []  # Lista vacía si no hay suficientes propiedades
+    else:
+        propiedades_mejor_calificadas = sample(list(all_properties), 8)
+
+        for propiedad in propiedades_mejor_calificadas:
+            portada = propiedad.gallery_images.filter(portada=True).first()
+            propiedad.portada = portada if portada else None  # Imagen predeterminada opcional
 
     return render(request, 'SimplexRentalisAPP/index.html', {
-        'propiedades_mejor_calificadas': propiedades_mejor_calificadas
+        'propiedades_mejor_calificadas': propiedades_mejor_calificadas,
+        'no_hay_propiedades': len(all_properties) < 8  # Variable para el template
     })
-
 
 from django.db.models import Q, Min, Max
 from django.shortcuts import render
@@ -195,69 +196,106 @@ def account_settings(request):
         form = ConfiguracionCuentaForm(instance=request.user)
 
     return render(request, 'SimplexRentalisAPP/settings.html', {'form': form})
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
+from .models import Propiedades, Direcciones, Galeria  # Asegúrate de importar todos los modelos necesarios
 
 @login_required
 def agregar_propiedad(request):
     if request.method == 'POST':
+        # Datos de la propiedad
         nombre = request.POST.get('nombre')
         descripcion = request.POST.get('descripcion')
-        direccion = request.POST.get('direccion')
         precio_noche = request.POST.get('precio_noche', '0')
         capacidad_maxima = request.POST.get('capacidad_maxima', '0')
         permite_mascotas = 'permite_mascotas' in request.POST
         en_mantenimiento = 'en_mantenimiento' in request.POST
         portada = request.POST.get('portada', '0')  # Índice de la imagen de portada
 
-        print(f"Datos recibidos: nombre={nombre}, descripcion={descripcion}, direccion={direccion}, "
-              f"precio_noche={precio_noche}, capacidad_maxima={capacidad_maxima}, permite_mascotas={permite_mascotas}, "
-              f"en_mantenimiento={en_mantenimiento}, portada={portada}")  # Mensaje de depuración
+        # Datos de la dirección (asegúrate de que el formulario envíe estos campos)
+        calle = request.POST.get('calle')
+        numero_casa = request.POST.get('numero_casa')
+        numero_puerta = request.POST.get('numero_puerta')
+        codigo_postal = request.POST.get('codigo_postal')
+        ciudad = request.POST.get('ciudad')
+        co_autonoma = request.POST.get('co_autonoma')
+        provincia = request.POST.get('provincia')
+        pais = request.POST.get('pais')
 
+        # Mensaje de depuración
+        print(f"Datos recibidos: nombre={nombre}, descripcion={descripcion}, precio_noche={precio_noche}, "
+              f"capacidad_maxima={capacidad_maxima}, permite_mascotas={permite_mascotas}, "
+              f"en_mantenimiento={en_mantenimiento}, portada={portada}")
+        print(f"Datos de dirección: calle={calle}, numero_casa={numero_casa}, numero_puerta={numero_puerta}, "
+              f"codigo_postal={codigo_postal}, ciudad={ciudad}, co_autonoma={co_autonoma}, "
+              f"provincia={provincia}, pais={pais}")
+
+        # Conversión de valores numéricos
         try:
             precio_noche = float(precio_noche)
             capacidad_maxima = int(capacidad_maxima)
         except ValueError:
-            messages.error(request, "Valores inválidos.")
-            print("Error: Valores inválidos para precio_noche o capacidad_maxima.")  # Mensaje de depuración
+            messages.error(request, "Valores inválidos para precio o capacidad.")
+            print("Error: Valores inválidos para precio_noche o capacidad_maxima.")
+            return redirect('agregar_propiedad')
+
+        # Crear la instancia de Direcciones con los datos recibidos
+        try:
+            direccion_instance = Direcciones.objects.create(
+                calle=calle,
+                numero_casa=numero_casa,
+                numero_puerta=numero_puerta,
+                codigo_postal=codigo_postal,
+                ciudad=ciudad,
+                co_autonoma=co_autonoma,
+                provincia=provincia,
+                pais=pais
+            )
+            print(f"Dirección creada: {direccion_instance}")
+        except ValidationError as e:
+            messages.error(request, f"Error en la dirección: {e}")
+            print(f"Error al crear la dirección: {e}")
             return redirect('agregar_propiedad')
 
         # Verificar si ya existe una propiedad con la misma dirección para el usuario
-        if Propiedades.objects.filter(direccion=direccion, propietario=request.user).exists():
+        if Propiedades.objects.filter(direccion=direccion_instance, propietario=request.user).exists():
             messages.error(request, "Ya existe una propiedad con esta dirección.")
-            print(f"Error: Ya existe una propiedad con la dirección {direccion} para el usuario {request.user}.")  # Mensaje de depuración
+            print(f"Error: Ya existe una propiedad con la dirección {direccion_instance} para el usuario {request.user}.")
             return redirect('agregar_propiedad')
 
-        # Crear la nueva propiedad
+        # Crear la nueva propiedad asignando la dirección creada
         propiedad = Propiedades.objects.create(
             nombre=nombre,
             descripcion=descripcion,
-            direccion=direccion,
+            direccion=direccion_instance,  # Se asigna la instancia de Direcciones
             precio_noche=precio_noche,
             permite_mascotas=permite_mascotas,
             en_mantenimiento=en_mantenimiento,
             capacidad_maxima=capacidad_maxima,
             propietario=request.user
         )
-
-        print(f"Propiedad creada: {propiedad}")  # Mensaje de depuración
+        print(f"Propiedad creada: {propiedad}")
 
         # Manejo de imágenes
         if 'imagenes' in request.FILES:
             images = request.FILES.getlist('imagenes')
             if not (5 <= len(images) <= 15):
                 messages.error(request, "Debes subir entre 5 y 15 imágenes.")
-                propiedad.delete()  # Eliminar propiedad creada si hay un error
-                print("Error: Número de imágenes no válido.")  # Mensaje de depuración
+                propiedad.delete()  # Eliminar la propiedad creada si hay un error
+                print("Error: Número de imágenes no válido.")
                 return redirect('agregar_propiedad')
 
             # Guardar las imágenes y manejar la portada
             for index, image in enumerate(images):
                 nueva_imagen = Galeria.objects.create(propiedad=propiedad, imagen=image)
-                print(f"Imagen guardada: {nueva_imagen}")  # Mensaje de depuración
-                # Establecer la portada según el índice enviado
+                print(f"Imagen guardada: {nueva_imagen}")
+                # Establecer la imagen de portada según el índice enviado
                 if str(index) == portada:
                     nueva_imagen.portada = True
                     nueva_imagen.save()
-                    print(f"Portada establecida: {nueva_imagen}")  # Mensaje de depuración
+                    print(f"Portada establecida: {nueva_imagen}")
 
             # Si ninguna imagen fue marcada como portada, establecer la primera como predeterminada
             if not any(img.portada for img in Galeria.objects.filter(propiedad=propiedad)):
@@ -265,26 +303,27 @@ def agregar_propiedad(request):
                 if primera_imagen:
                     primera_imagen.portada = True
                     primera_imagen.save()
-                    print(f"Portada predeterminada: {primera_imagen}")  # Mensaje de depuración
+                    print(f"Portada predeterminada: {primera_imagen}")
         else:
             messages.error(request, "Debes subir imágenes.")
             propiedad.delete()  # Eliminar la propiedad si no hay imágenes
-            print("Error: No se subieron imágenes.")  # Mensaje de depuración
+            print("Error: No se subieron imágenes.")
             return redirect('agregar_propiedad')
 
-        # Verificar y actualizar el estado del usuario a propietario si es necesario
+        # Actualizar el estado del usuario a propietario si no lo es
         if not request.user.es_propietario:
             request.user.es_propietario = True
             request.user.save()
             messages.success(request, "Tu estado de propietario ha sido activado automáticamente.")
-            print("Estado de propietario activado automáticamente para el usuario.")  # Mensaje de depuración
+            print("Estado de propietario activado automáticamente para el usuario.")
 
         # Redirigir a "Mis Propiedades" después de agregar la propiedad
         messages.success(request, "Propiedad agregada exitosamente.")
-        print("Propiedad agregada exitosamente.")  # Mensaje de depuración
-        return redirect('propiedades_usuario')  # Cambiar 'mis_propiedades' por el nombre correcto de tu vista de "Mis Propiedades"
+        print("Propiedad agregada exitosamente.")
+        return redirect('propiedades_usuario')  # Asegúrate de que el nombre de la vista sea el correcto
 
     return render(request, 'SimplexRentalisAPP/agregar_propiedad.html')
+
 
 
 from django.db.models import Min
