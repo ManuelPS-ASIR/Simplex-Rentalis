@@ -6,441 +6,412 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2 class="text-center mb-4">Agregar Nueva Propiedad</h2>
+<!-- Bloque de estilos para quitar todas las transiciones/animaciones en todas las tarjetas -->
+<style>
+  /* Desactivar todas las transiciones en todos los elementos */
+  * {
+    transition: none !important;
+  }
 
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-8">
-            <form method="POST" enctype="multipart/form-data" id="agregar-propiedad-form">
-                {% csrf_token %}
+  /* Quitar efecto de foco predeterminado (opcional) */
+  *:focus {
+    box-shadow: none !important;
+  }
 
-                <!-- Nombre de la propiedad -->
-                <div class="form-group">
-                    <label for="id_nombre">Nombre de la propiedad</label>
-                    <input type="text" name="nombre" class="form-control form-control-lg" required>
-                </div>
+  /* Evitar que cualquier tarjeta (card) se mueva o se transforme al pasar el cursor */
+  .card, 
+  .card:hover,
+  .card.border-secondary, 
+  .card.border-secondary:hover {
+    transform: none !important;
+    margin-top: 0 !important;
+    transition: none !important;
+  }
 
-                <!-- Descripción -->
-                <div class="form-group">
-                    <label for="id_descripcion">Descripción</label>
-                    <textarea name="descripcion" class="form-control form-control-lg" rows="4" required></textarea>
-                </div>
+  /* Resaltar la imagen seleccionada como portada */
+  .image-thumbnail.selected {
+    border: 3px solid #007bff !important;
+  }
+</style>
 
-                <!-- ############################# -->
-                <!-- SECCIÓN DE DIRECCIÓN -->
-                <!-- ############################# -->
-                <h3>Dirección</h3>
-
-                <!-- 1. Autocompletado -->
-                <div class="form-group">
-                    <label for="direccion-autocomplete">Buscar Dirección</label>
-                    <input type="text" name="direccion_autocomplete" class="form-control form-control-lg" id="direccion-autocomplete" placeholder="Escribe tu dirección">
-                    <ul id="autocomplete-results" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;">
-                        <!-- Las sugerencias de autocompletado aparecerán aquí -->
-                    </ul>
-                    <p class="mt-2 text-muted" style="font-size: 0.9em;">
-                        <strong>Nota:</strong> Selecciona una dirección de la lista para autocompletar los campos. Luego, podrás revisarla y modificarla manualmente.
-                    </p>
-                </div>
-
-                <!-- 2. Edición Manual -->
-                <div class="form-group mt-4">
-                    <h4>Editar Dirección Manualmente</h4>
-                    
-                    <div class="form-group">
-                        <label for="calle">Calle</label>
-                        <input type="text" name="calle" class="form-control form-control-lg" id="calle" placeholder="Calle" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="numero_casa">Número de Casa</label>
-                        <input type="text" name="numero_casa" class="form-control form-control-lg" id="numero-casa" placeholder="Número de casa" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="numero_puerta">Número de Puerta (opcional)</label>
-                        <input type="text" name="numero_puerta" class="form-control form-control-lg" id="numero-puerta" placeholder="Número de puerta">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="codigo_postal">Código Postal</label>
-                        <input type="text" name="codigo_postal" class="form-control form-control-lg" id="codigo-postal" placeholder="Código postal" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="ciudad">Ciudad</label>
-                        <input type="text" name="ciudad" class="form-control form-control-lg" id="ciudad" placeholder="Ciudad" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="provincia">Provincia</label>
-                        <input type="text" name="provincia" class="form-control form-control-lg" id="provincia" placeholder="Provincia" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="co_autonoma">Comunidad Autónoma</label>
-                        <input type="text" name="co_autonoma" class="form-control form-control-lg" id="co_autonoma" placeholder="Comunidad Autónoma" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="pais">País</label>
-                        <input type="text" name="pais" class="form-control form-control-lg" id="pais" placeholder="País" required>
-                    </div>
-                </div>
-
-                <!-- Campos ocultos para coordenadas (se asignan al autocompletar) -->
-                <input type="hidden" name="latitud" id="latitud" value="">
-                <input type="hidden" name="longitud" id="longitud" value="">
-
-                <!-- ############################# -->
-                <!-- FIN SECCIÓN DE DIRECCIÓN -->
-                <!-- ############################# -->
-
-                <!-- Precio por noche -->
-                <div class="form-group">
-                    <label for="id_precio_noche">Precio por noche (EUR)</label>
-                    <input type="text" name="precio_noche" class="form-control form-control-lg" required placeholder="0.00">
-                </div>
-
-                <!-- Cantidad de baños -->
-                <div class="form-group">
-                    <label for="id_cantidad_banos">Cantidad de baños</label>
-                    <input type="number" name="cantidad_banos" class="form-control form-control-lg" required min="1" max="15" value="1">
-                </div>
-
-                <!-- Cantidad de dormitorios -->
-                <div class="form-group">
-                    <label for="id_cantidad_dormitorios">Cantidad de dormitorios</label>
-                    <input type="number" name="cantidad_dormitorios" class="form-control form-control-lg" required min="1" max="15" value="1">
-                </div>
-
-                <!-- Capacidad máxima -->
-                <div class="form-group">
-                    <label for="id_capacidad_maxima">Capacidad máxima</label>
-                    <input type="number" name="capacidad_maxima" class="form-control form-control-lg" required min="1" max="15" inputmode="numeric" value="1">
-                </div>
-
-                <!-- Imágenes -->
-                <div class="form-group">
-                    <label for="id_imagenes">Imágenes</label>
-                    <input type="file" name="imagenes" multiple class="form-control-file" id="imagenes" required onchange="previewImages(event)">
-                    <div id="image-preview-container" class="mt-3">
-                        <!-- Las miniaturas de las imágenes seleccionadas aparecerán aquí -->
-                    </div>
-                    <p id="selected-count" class="mt-2 text-muted" style="font-size: 0.9em;">
-                        <strong>Cantidad de archivos seleccionados: </strong> 0
-                    </p>
-                    <p class="mt-2 text-muted" style="font-size: 0.9em;">
-                        <strong>Instrucciones:</strong> Debes subir entre 5 y 15 imágenes. Haz clic sobre una imagen para seleccionarla como portada.
-                    </p>
-                </div>
-
-                <!-- Permite mascotas -->
-                <div class="form-group">
-                    <label for="id_permite_mascotas">¿Permite mascotas?</label>
-                    <input type="checkbox" name="permite_mascotas" id="permite_mascotas">
-                    <p class="mt-2 text-muted" style="font-size: 0.9em;">
-                        <strong>Recuerda:</strong> Si marcas esta opción, tu propiedad podrá ser filtrada por esta característica en un futuro.
-                    </p>
-                </div>
-
-                <!-- En mantenimiento -->
-                <div class="form-group">
-                    <label for="id_en_mantenimiento">¿En mantenimiento?</label>
-                    <input type="checkbox" name="en_mantenimiento" id="en_mantenimiento">
-                    <p class="mt-2 text-muted" style="font-size: 0.9em;">
-                        <strong>Aviso:</strong> Marca esta opción si la propiedad no está disponible. No aparecerá en los resultados de búsqueda.
-                    </p>
-                </div>
-
-                <!-- Campo oculto para la portada -->
-                <input type="hidden" name="portada" id="portada-id" value="0">
-
-                <!-- Botón de enviar -->
-                <div class="form-group text-center">
-                    <button type="submit" class="btn btn-primary btn-lg w-100">Guardar Propiedad</button>
-                </div>
-            </form>
-        </div>
+<div class="container my-5">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0 text-center">Agregar Nueva Propiedad</h2>
     </div>
+    <div class="card-body">
+      <form method="POST" enctype="multipart/form-data" id="agregar-propiedad-form">
+        {% csrf_token %}
+
+        <!-- Información General -->
+        <div class="mb-4">
+          <h4 class="mb-3">Información General</h4>
+          <div class="form-group">
+            <label for="id_nombre">Nombre de la Propiedad</label>
+            <input type="text" name="nombre" id="id_nombre" class="form-control form-control-lg" placeholder="Ej. Casa en la playa" required>
+          </div>
+          <div class="form-group">
+            <label for="id_descripcion">Descripción</label>
+            <textarea name="descripcion" id="id_descripcion" class="form-control form-control-lg" rows="4" placeholder="Describe tu propiedad..." required></textarea>
+          </div>
+        </div>
+
+        <!-- Sección de Dirección -->
+        <div class="mb-4">
+          <h4 class="mb-3">Dirección</h4>
+          <!-- 1. Autocompletado -->
+          <div class="form-group">
+            <label for="direccion-autocomplete">Buscar Dirección</label>
+            <input type="text" name="direccion_autocomplete" class="form-control form-control-lg" id="direccion-autocomplete" placeholder="Ej. Calle Falsa 123, Springfield">
+            <ul id="autocomplete-results" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;"></ul>
+            <small class="form-text text-muted">
+              Selecciona una dirección de la lista para autocompletar los campos. Luego, podrás revisarla y editarla manualmente.
+            </small>
+          </div>
+          <!-- 2. Edición Manual -->
+          <div class="card border-secondary mt-4">
+            <div class="card-header bg-secondary text-white">
+              Edición Manual de Dirección
+            </div>
+            <div class="card-body">
+              <div class="form-row">
+                <div class="form-group col-md-8">
+                  <label for="calle">Calle</label>
+                  <input type="text" name="calle" id="calle" class="form-control" placeholder="Calle" required>
+                </div>
+                <div class="form-group col-md-4">
+                  <label for="numero-casa">Número de Casa</label>
+                  <input type="text" name="numero_casa" id="numero-casa" class="form-control" placeholder="Número" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="numero-puerta">Número de Puerta (opcional)</label>
+                <input type="text" name="numero_puerta" id="numero-puerta" class="form-control" placeholder="Ej. A">
+              </div>
+              <div class="form-group">
+                <label for="codigo-postal">Código Postal</label>
+                <input type="text" name="codigo_postal" id="codigo-postal" class="form-control" placeholder="Código postal" required>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="ciudad">Ciudad</label>
+                  <input type="text" name="ciudad" id="ciudad" class="form-control" placeholder="Ciudad" required>
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="provincia">Provincia</label>
+                  <input type="text" name="provincia" id="provincia" class="form-control" placeholder="Provincia" required>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="co_autonoma">Comunidad Autónoma</label>
+                  <input type="text" name="co_autonoma" id="co_autonoma" class="form-control" placeholder="Comunidad Autónoma" required>
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="pais">País</label>
+                  <input type="text" name="pais" id="pais" class="form-control" placeholder="País" required>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Campos ocultos para coordenadas -->
+          <input type="hidden" name="latitud" id="latitud" value="">
+          <input type="hidden" name="longitud" id="longitud" value="">
+        </div>
+
+        <!-- Detalles de la Propiedad -->
+        <div class="mb-4">
+          <h4 class="mb-3">Detalles de la Propiedad</h4>
+          <div class="form-group">
+            <label for="id_precio_noche">Precio por Noche (EUR)</label>
+            <input type="text" name="precio_noche" id="id_precio_noche" class="form-control form-control-lg" placeholder="0.00" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label for="id_cantidad_banos">Cantidad de Baños</label>
+              <input type="number" name="cantidad_banos" id="id_cantidad_banos" class="form-control" min="1" max="15" value="1" required>
+            </div>
+            <div class="form-group col-md-4">
+              <label for="id_cantidad_dormitorios">Cantidad de Dormitorios</label>
+              <input type="number" name="cantidad_dormitorios" id="id_cantidad_dormitorios" class="form-control" min="1" max="15" value="1" required>
+            </div>
+            <div class="form-group col-md-4">
+              <label for="id_capacidad_maxima">Capacidad Máxima</label>
+              <input type="number" name="capacidad_maxima" id="id_capacidad_maxima" class="form-control" min="1" max="15" value="1" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Galería de Imágenes -->
+        <div class="mb-4">
+          <h4 class="mb-3">Galería de Imágenes</h4>
+          <div class="form-group">
+            <label for="imagenes">Subir Imágenes</label>
+            <input type="file" name="imagenes" id="imagenes" class="form-control-file" multiple required onchange="previewImages(event)">
+            <small class="form-text text-muted">
+              Debes subir entre 5 y 15 imágenes. Haz clic en una imagen para marcarla como portada.
+            </small>
+          </div>
+          <div id="image-preview-container" class="d-flex flex-wrap"></div>
+          <p id="selected-count" class="mt-2 text-muted"><strong>Cantidad de archivos seleccionados:</strong> 0</p>
+        </div>
+
+        <!-- Opciones Adicionales -->
+        <div class="mb-4">
+          <h4 class="mb-3">Opciones</h4>
+          <div class="form-check">
+            <input type="checkbox" name="permite_mascotas" id="permite_mascotas" class="form-check-input">
+            <label class="form-check-label" for="permite_mascotas">¿Permite mascotas?</label>
+            <small class="form-text text-muted">Esta opción permitirá filtrar tu propiedad en búsquedas específicas.</small>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" name="en_mantenimiento" id="en_mantenimiento" class="form-check-input">
+            <label class="form-check-label" for="en_mantenimiento">¿En mantenimiento?</label>
+            <small class="form-text text-muted">Marca esta opción si la propiedad no está disponible actualmente.</small>
+          </div>
+        </div>
+
+        <!-- Campo oculto para la imagen de portada -->
+        <input type="hidden" name="portada" id="portada-id" value="0">
+
+        <!-- Botón de Envío -->
+        <div class="text-center">
+          <button type="submit" class="btn btn-success btn-lg">Guardar Propiedad</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
-<!-- ######################################## -->
 <!-- Scripts: Autocompletado, manejo de imágenes, validaciones, etc. -->
-<!-- ######################################## -->
 <script>
-    let selectedImages = []; // Para almacenar las imágenes seleccionadas
-    let portadaIndex = 0;    // Índice de la imagen marcada como portada
+  let selectedImages = []; // Array para almacenar las imágenes seleccionadas
+  let portadaIndex = 0;    // Índice de la imagen marcada como portada
 
-    function previewImages(event) {
-        const files = event.target.files;
-        const previewContainer = document.getElementById('image-preview-container');
-        const selectedCount = document.getElementById('selected-count');
-        previewContainer.innerHTML = ""; // Limpiar previsualizaciones previas
-        selectedImages = []; 
+  function previewImages(event) {
+    const files = event.target.files;
+    const previewContainer = document.getElementById('image-preview-container');
+    const selectedCount = document.getElementById('selected-count');
+    previewContainer.innerHTML = "";
+    selectedImages = [];
 
-        Array.from(files).forEach((file, index) => {
-            if (selectedImages.length >= 15) {
-                alert('Ya has seleccionado el máximo de 15 imágenes.');
-                return;
-            }
+    Array.from(files).forEach((file, index) => {
+      if (selectedImages.length >= 15) {
+        alert('Ya has seleccionado el máximo de 15 imágenes.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const imageWrapper = document.createElement('div');
+        imageWrapper.classList.add('position-relative', 'm-2');
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imageWrapper = document.createElement('div');
-                imageWrapper.classList.add('image-wrapper');
-                imageWrapper.style.position = 'relative';
-                imageWrapper.style.display = 'inline-block';
-
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.alt = file.name;
-                img.style.width = '100px';
-                img.style.height = '100px';
-                img.style.objectFit = 'cover';
-                img.classList.add('mr-2', 'image-thumbnail');
-                img.dataset.index = index;
-                img.onclick = function() {
-                    setAsPortada(img);
-                };
-
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'X';
-                removeButton.classList.add('btn', 'remove-image');
-                removeButton.style.position = 'absolute';
-                removeButton.style.top = '5px';
-                removeButton.style.right = '5px';
-                removeButton.style.backgroundColor = 'red';
-                removeButton.style.color = 'white';
-                removeButton.style.border = 'none';
-                removeButton.style.borderRadius = '50%';
-                removeButton.style.width = '25px';
-                removeButton.style.height = '25px';
-                removeButton.style.fontSize = '14px';
-                removeButton.onclick = function() {
-                    removeImage(index);
-                };
-
-                imageWrapper.appendChild(img);
-                imageWrapper.appendChild(removeButton);
-                previewContainer.appendChild(imageWrapper);
-
-                selectedImages.push(file);
-
-                if (selectedImages.length === 1) {
-                    setAsPortada(img);
-                }
-            };
-            reader.readAsDataURL(file);
-        });
-
-        selectedCount.innerHTML = `<strong>Cantidad de archivos seleccionados: </strong> ${files.length}`;
-    }
-
-    function setAsPortada(selectedImg) {
-        const allImages = document.querySelectorAll('.image-thumbnail');
-        allImages.forEach(img => img.classList.remove('selected'));
-        selectedImg.classList.add('selected');
-        portadaIndex = selectedImg.dataset.index;
-        document.getElementById('portada-id').value = portadaIndex;
-    }
-
-    function removeImage(index) {
-        selectedImages = selectedImages.filter((_, i) => i !== index);
-
-        const previewContainer = document.getElementById('image-preview-container');
-        const selectedCount = document.getElementById('selected-count');
-        previewContainer.innerHTML = "";
-
-        selectedImages.forEach((file, idx) => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imageWrapper = document.createElement('div');
-                imageWrapper.classList.add('image-wrapper');
-                imageWrapper.style.position = 'relative';
-                imageWrapper.style.display = 'inline-block';
-
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.alt = file.name;
-                img.style.width = '100px';
-                img.style.height = '100px';
-                img.style.objectFit = 'cover';
-                img.classList.add('mr-2', 'image-thumbnail');
-                img.dataset.index = idx;
-                img.onclick = function() {
-                    setAsPortada(img);
-                };
-
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'X';
-                removeButton.classList.add('btn', 'remove-image');
-                removeButton.style.position = 'absolute';
-                removeButton.style.top = '5px';
-                removeButton.style.right = '5px';
-                removeButton.style.backgroundColor = 'red';
-                removeButton.style.color = 'white';
-                removeButton.style.border = 'none';
-                removeButton.style.borderRadius = '50%';
-                removeButton.style.width = '25px';
-                removeButton.style.height = '25px';
-                removeButton.style.fontSize = '14px';
-                removeButton.style.display = 'flex';
-                removeButton.style.alignItems = 'center';
-                removeButton.style.justifyContent = 'center';
-                removeButton.style.padding = '0';
-                removeButton.onclick = function() {
-                    removeImage(idx);
-                };
-
-                imageWrapper.appendChild(img);
-                imageWrapper.appendChild(removeButton);
-                previewContainer.appendChild(imageWrapper);
-
-                if (selectedImages.length === 1) {
-                    setAsPortada(img);
-                }
-            };
-            reader.readAsDataURL(file);
-        });
-
-        selectedCount.innerHTML = `<strong>Cantidad de archivos seleccionados: </strong> ${selectedImages.length}`;
-    }
-
-    // Autocompletado de direcciones
-    document.getElementById('direccion-autocomplete').addEventListener('input', function() {
-        const query = this.value.trim();
-        const resultsContainer = document.getElementById('autocomplete-results');
-
-        if (query.length < 3) {
-            resultsContainer.style.display = 'none';
-            return;
-        }
-
-        fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=default`)
-            .then(response => response.json())
-            .then(data => {
-                resultsContainer.innerHTML = '';
-                if (!data || !data.features || data.features.length === 0) {
-                    resultsContainer.style.display = 'none';
-                    return;
-                }
-
-                data.features.forEach((feature) => {
-                    const item = document.createElement('li');
-                    const calle = feature.properties.name || '';
-                    const ciudad = feature.properties.city || '';
-                    const provincia = feature.properties.county || '';
-                    const co_autonoma = feature.properties.state || '';
-                    const pais = feature.properties.country || '';
-                    const codigo_postal = feature.properties.postcode || '';
-
-                    // Formateamos la dirección para mostrarla en la lista
-                    item.textContent = `${calle}, ${ciudad}, ${provincia}, ${co_autonoma}, ${pais}`;
-                    item.classList.add('list-group-item', 'list-group-item-action');
-
-                    // Guardamos los datos en atributos personalizados
-                    item.dataset.latitud = feature.geometry.coordinates[1];
-                    item.dataset.longitud = feature.geometry.coordinates[0];
-                    item.dataset.calle = calle;
-                    item.dataset.ciudad = ciudad;
-                    item.dataset.provincia = provincia;
-                    item.dataset.coAutonoma = co_autonoma;
-                    item.dataset.pais = pais;
-                    item.dataset.codigoPostal = codigo_postal;
-
-                    item.onclick = function() {
-                        // Al seleccionar, se actualizan tanto el input de autocompletado como los campos manuales
-                        document.getElementById('direccion-autocomplete').value = item.textContent;
-                        document.getElementById('latitud').value = this.dataset.latitud;
-                        document.getElementById('longitud').value = this.dataset.longitud;
-                        document.getElementById('calle').value = this.dataset.calle;
-                        document.getElementById('ciudad').value = this.dataset.ciudad;
-                        document.getElementById('provincia').value = this.dataset.provincia;
-                        document.getElementById('co_autonoma').value = this.dataset.coAutonoma;
-                        document.getElementById('pais').value = this.dataset.pais;
-                        document.getElementById('codigo-postal').value = this.dataset.codigoPostal;
-
-                        resultsContainer.style.display = 'none';
-                    };
-
-                    resultsContainer.appendChild(item);
-                });
-
-                resultsContainer.style.display = 'block';
-            })
-            .catch(error => {
-                console.error('Error al obtener las sugerencias de Photon:', error);
-                resultsContainer.style.display = 'none';
-            });
-    });
-
-    // Cierra la lista de sugerencias al hacer clic fuera
-    document.addEventListener('click', function(event) {
-        const resultsContainer = document.getElementById('autocomplete-results');
-        if (!resultsContainer.contains(event.target) && event.target.id !== 'direccion-autocomplete') {
-            resultsContainer.style.display = 'none';
-        }
-    });
-
-    // Validación al enviar el formulario y registro de datos en la consola
-    document.getElementById('agregar-propiedad-form').onsubmit = function(event) {
-        // Validación previa del precio por noche
-        const precioNoche = document.querySelector('[name="precio_noche"]').value;
-        if (!/^\d+(\.\d{1,2})?$/.test(precioNoche) || parseFloat(precioNoche) <= 0) {
-            event.preventDefault();
-            alert('Por favor introduce un valor numérico válido y positivo para el precio por noche.');
-            return;
-        }
-
-        // Recopilamos los datos que se enviarán (puedes verificar en la consola)
-        const formData = {
-            nombre: document.querySelector('[name="nombre"]').value,
-            descripcion: document.querySelector('[name="descripcion"]').value,
-            direccion_autocomplete: document.querySelector('[name="direccion_autocomplete"]').value,
-            latitud: document.getElementById('latitud').value,
-            longitud: document.getElementById('longitud').value,
-            calle: document.getElementById('calle').value,
-            ciudad: document.getElementById('ciudad').value,
-            co_autonoma: document.getElementById('co_autonoma').value,
-            provincia: document.getElementById('provincia').value,
-            pais: document.getElementById('pais').value,
-            numero_casa: document.getElementById('numero-casa') ? document.getElementById('numero-casa').value : '',
-            numero_puerta: document.getElementById('numero-puerta').value,
-            codigo_postal: document.getElementById('codigo-postal').value,
-            precio_noche: precioNoche,
-            cantidad_banos: document.querySelector('[name="cantidad_banos"]').value,
-            cantidad_dormitorios: document.querySelector('[name="cantidad_dormitorios"]').value,
-            capacidad_maxima: document.querySelector('[name="capacidad_maxima"]').value,
-            permite_mascotas: document.getElementById('permite_mascotas').checked,
-            en_mantenimiento: document.getElementById('en_mantenimiento').checked,
-            portada: document.getElementById('portada-id').value
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.alt = file.name;
+        img.style.width = '120px';
+        img.style.height = '120px';
+        img.style.objectFit = 'cover';
+        img.classList.add('rounded', 'border', 'image-thumbnail');
+        img.dataset.index = index;
+        img.style.cursor = 'pointer';
+        img.onclick = function() {
+          setAsPortada(img);
         };
 
-        console.log("Datos a enviar:", formData);
-    };
+        const removeButton = document.createElement('button');
+        removeButton.textContent = '×';
+        removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'position-absolute');
+        removeButton.style.top = '5px';
+        removeButton.style.right = '5px';
+        removeButton.onclick = function() {
+          removeImage(index);
+        };
 
-    // Validación y sanitización del campo precio_noche
-    document.querySelector('[name="precio_noche"]').addEventListener('input', function(event) {
-        const input = event.target;
-        let value = input.value;
-        const cursorPos = input.selectionStart;
+        imageWrapper.appendChild(img);
+        imageWrapper.appendChild(removeButton);
+        previewContainer.appendChild(imageWrapper);
 
-        // Reemplaza comas por puntos
-        value = value.replace(/,/g, '.');
-
-        // Elimina caracteres que no sean dígitos o punto
-        value = value.replace(/[^\d.]/g, '');
-
-        // Limita a 2 decimales
-        const regex = /^\d+(\.\d{0,2})?$/;
-        if (regex.test(value)) {
-            input.value = value;
-        } else {
-            input.value = input.value.slice(0, -1);
+        selectedImages.push(file);
+        if (selectedImages.length === 1) {
+          setAsPortada(img);
         }
-
-        input.setSelectionRange(cursorPos, cursorPos);
+      };
+      reader.readAsDataURL(file);
     });
+
+    selectedCount.innerHTML = `<strong>Cantidad de archivos seleccionados:</strong> ${files.length}`;
+  }
+
+  function setAsPortada(selectedImg) {
+    const allImages = document.querySelectorAll('.image-thumbnail');
+    allImages.forEach(img => img.classList.remove('selected'));
+    selectedImg.classList.add('selected');
+    portadaIndex = selectedImg.dataset.index;
+    document.getElementById('portada-id').value = portadaIndex;
+  }
+
+  function removeImage(index) {
+    selectedImages = selectedImages.filter((_, i) => i !== index);
+    const previewContainer = document.getElementById('image-preview-container');
+    const selectedCount = document.getElementById('selected-count');
+    previewContainer.innerHTML = "";
+    selectedImages.forEach((file, idx) => {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const imageWrapper = document.createElement('div');
+        imageWrapper.classList.add('position-relative', 'm-2');
+
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.alt = file.name;
+        img.style.width = '120px';
+        img.style.height = '120px';
+        img.style.objectFit = 'cover';
+        img.classList.add('rounded', 'border', 'image-thumbnail');
+        img.dataset.index = idx;
+        img.style.cursor = 'pointer';
+        img.onclick = function() {
+          setAsPortada(img);
+        };
+
+        const removeButton = document.createElement('button');
+        removeButton.textContent = '×';
+        removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'position-absolute');
+        removeButton.style.top = '5px';
+        removeButton.style.right = '5px';
+        removeButton.onclick = function() {
+          removeImage(idx);
+        };
+
+        imageWrapper.appendChild(img);
+        imageWrapper.appendChild(removeButton);
+        previewContainer.appendChild(imageWrapper);
+
+        if (selectedImages.length === 1) {
+          setAsPortada(img);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    selectedCount.innerHTML = `<strong>Cantidad de archivos seleccionados:</strong> ${selectedImages.length}`;
+  }
+
+  // Autocompletado de direcciones
+  document.getElementById('direccion-autocomplete').addEventListener('input', function() {
+    const query = this.value.trim();
+    const resultsContainer = document.getElementById('autocomplete-results');
+
+    if (query.length < 3) {
+      resultsContainer.style.display = 'none';
+      return;
+    }
+
+    fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=default`)
+      .then(response => response.json())
+      .then(data => {
+        resultsContainer.innerHTML = '';
+        if (!data || !data.features || data.features.length === 0) {
+          resultsContainer.style.display = 'none';
+          return;
+        }
+        data.features.forEach((feature) => {
+          const item = document.createElement('li');
+          const calle = feature.properties.name || '';
+          const ciudad = feature.properties.city || '';
+          const provincia = feature.properties.county || '';
+          const co_autonoma = feature.properties.state || '';
+          const pais = feature.properties.country || '';
+          const codigo_postal = feature.properties.postcode || '';
+
+          item.textContent = `${calle}, ${ciudad}, ${provincia}, ${co_autonoma}, ${pais}`;
+          item.classList.add('list-group-item', 'list-group-item-action');
+
+          item.dataset.latitud = feature.geometry.coordinates[1];
+          item.dataset.longitud = feature.geometry.coordinates[0];
+          item.dataset.calle = calle;
+          item.dataset.ciudad = ciudad;
+          item.dataset.provincia = provincia;
+          item.dataset.coAutonoma = co_autonoma;
+          item.dataset.pais = pais;
+          item.dataset.codigoPostal = codigo_postal;
+
+          item.onclick = function() {
+            document.getElementById('direccion-autocomplete').value = item.textContent;
+            document.getElementById('latitud').value = this.dataset.latitud;
+            document.getElementById('longitud').value = this.dataset.longitud;
+            document.getElementById('calle').value = this.dataset.ciudad ? this.dataset.calle : "";
+            document.getElementById('ciudad').value = this.dataset.ciudad;
+            document.getElementById('provincia').value = this.dataset.provincia;
+            document.getElementById('co_autonoma').value = this.dataset.coAutonoma;
+            document.getElementById('pais').value = this.dataset.pais;
+            document.getElementById('codigo-postal').value = this.dataset.codigoPostal;
+            resultsContainer.style.display = 'none';
+          };
+
+          resultsContainer.appendChild(item);
+        });
+        resultsContainer.style.display = 'block';
+      })
+      .catch(error => {
+        console.error('Error al obtener las sugerencias de Photon:', error);
+        resultsContainer.style.display = 'none';
+      });
+  });
+
+  // Cierra la lista de sugerencias al hacer clic fuera
+  document.addEventListener('click', function(event) {
+    const resultsContainer = document.getElementById('autocomplete-results');
+    if (!resultsContainer.contains(event.target) && event.target.id !== 'direccion-autocomplete') {
+      resultsContainer.style.display = 'none';
+    }
+  });
+
+  // Validación y registro de datos al enviar el formulario
+  document.getElementById('agregar-propiedad-form').onsubmit = function(event) {
+    const precioNoche = document.querySelector('[name="precio_noche"]').value;
+    if (!/^\d+(\.\d{1,2})?$/.test(precioNoche) || parseFloat(precioNoche) <= 0) {
+      event.preventDefault();
+      alert('Por favor, introduce un valor numérico válido y positivo para el precio por noche.');
+      return;
+    }
+    const formData = {
+      nombre: document.querySelector('[name="nombre"]').value,
+      descripcion: document.querySelector('[name="descripcion"]').value,
+      direccion_autocomplete: document.querySelector('[name="direccion_autocomplete"]').value,
+      latitud: document.getElementById('latitud').value,
+      longitud: document.getElementById('longitud').value,
+      calle: document.getElementById('calle').value,
+      ciudad: document.getElementById('ciudad').value,
+      co_autonoma: document.getElementById('co_autonoma').value,
+      provincia: document.getElementById('provincia').value,
+      pais: document.getElementById('pais').value,
+      numero_casa: document.getElementById('numero-casa') ? document.getElementById('numero-casa').value : '',
+      numero_puerta: document.getElementById('numero-puerta').value,
+      codigo_postal: document.getElementById('codigo-postal').value,
+      precio_noche: precioNoche,
+      cantidad_banos: document.querySelector('[name="cantidad_banos"]').value,
+      cantidad_dormitorios: document.querySelector('[name="cantidad_dormitorios"]').value,
+      capacidad_maxima: document.querySelector('[name="capacidad_maxima"]').value,
+      permite_mascotas: document.getElementById('permite_mascotas').checked,
+      en_mantenimiento: document.getElementById('en_mantenimiento').checked,
+      portada: document.getElementById('portada-id').value
+    };
+    console.log("Datos a enviar:", formData);
+  };
+
+  // Sanitización del campo precio_noche
+  document.querySelector('[name="precio_noche"]').addEventListener('input', function(event) {
+    const input = event.target;
+    let value = input.value;
+    const cursorPos = input.selectionStart;
+    value = value.replace(/,/g, '.').replace(/[^\d.]/g, '');
+    const regex = /^\d+(\.\d{0,2})?$/;
+    if (regex.test(value)) {
+      input.value = value;
+    } else {
+      input.value = input.value.slice(0, -1);
+    }
+    input.setSelectionRange(cursorPos, cursorPos);
+  });
 </script>
 {% endblock %}
