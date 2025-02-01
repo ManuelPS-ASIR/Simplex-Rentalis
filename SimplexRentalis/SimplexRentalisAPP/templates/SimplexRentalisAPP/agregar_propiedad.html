@@ -299,7 +299,7 @@
                     const calle = feature.properties.name || '';
                     const ciudad = feature.properties.city || '';
                     const provincia = feature.properties.county || '';
-                    const co_autonoma = feature.properties.region || '';
+                    const co_autonoma = feature.properties.state || ''; // Cambio: de region a state
                     const pais = feature.properties.country || '';
                     const codigo_postal = feature.properties.postcode || '';
 
@@ -354,7 +354,7 @@
 
     // Validación al enviar el formulario y registro de datos a enviar en la consola
     document.getElementById('agregar-propiedad-form').onsubmit = function(event) {
-        // Validaciones previas
+        // Validación previa del precio por noche
         const precioNoche = document.querySelector('[name="precio_noche"]').value;
         if (!/^\d+(\.\d{1,2})?$/.test(precioNoche) || parseFloat(precioNoche) <= 0) {
             event.preventDefault();
@@ -362,11 +362,9 @@
             return;
         }
 
-        if (!document.getElementById('latitud').value || !document.getElementById('longitud').value) {
-            event.preventDefault();
-            alert('Por favor selecciona una dirección válida de la lista.');
-            return;
-        }
+        // **Se ha eliminado la validación de latitud y longitud**
+        // Esto permite que el formulario se envíe incluso si el usuario no utiliza el autocompletado.
+        // Puedes, si lo deseas, implementar una geocodificación automática en este punto.
 
         // Recopilamos los datos que se enviarán
         const formData = {
