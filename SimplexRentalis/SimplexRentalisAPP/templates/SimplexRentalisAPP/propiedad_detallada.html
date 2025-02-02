@@ -46,7 +46,19 @@ Propiedad en detalle
             <p><strong>Calificación:</strong> 
                 <span style="color: #f0ad4e; font-size: 1.5em;">⭐{{ propiedades.calificacion }}</span>
             </p>
-            <p><strong>Dirección:</strong> {{ propiedades.direccion }}</p>
+            <p>
+                <strong>Dirección:</strong>
+                {{ propiedades.direccion.calle }} {{ propiedades.direccion.numero_casa }}
+                {% if propiedades.direccion.numero_puerta %}
+                    - {{ propiedades.direccion.numero_puerta }}
+                {% endif %},
+                {{ propiedades.direccion.codigo_postal }} {{ propiedades.direccion.ciudad }},
+                {{ propiedades.direccion.provincia }}
+                {% if propiedades.direccion.co_autonoma %}
+                    ({{ propiedades.direccion.co_autonoma }})
+                {% endif %},
+                {{ propiedades.direccion.pais }}
+            </p>            
             <p><strong>Capacidad máxima:</strong> {{ propiedades.capacidad_maxima }} personas</p>
             <p><strong>Baños:</strong> {{ propiedades.cantidad_banos }}</p>
             <p><strong>Dormitorios:</strong> {{ propiedades.cantidad_dormitorios }}</p>

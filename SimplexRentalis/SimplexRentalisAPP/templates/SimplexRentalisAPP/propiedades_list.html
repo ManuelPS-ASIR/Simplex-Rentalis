@@ -79,26 +79,54 @@
         <!-- Contenedor de propiedades (columna derecha) -->
         <div class="col-md-9">
             <div class="position-relative mb-4">
-                <h1 class="text-center m-0">{% if query and query != "None" %}Resultados de Búsqueda{% else %}Lista de Propiedades{% endif %}</h1>
-                <h2 class="text-center m-0">{% if query and query != "None" %}Tu próximo destino segun tus indicaciones{% else %}Descubre tu próximo destino{% endif %}</h2>
+                <h1 class="text-center m-0">
+                    {% if query and query != "None" %}
+                        Resultados de Búsqueda
+                    {% else %}
+                        Lista de Propiedades
+                    {% endif %}
+                </h1>
+                <h2 class="text-center m-0">
+                    {% if query and query != "None" %}
+                        Tu próximo destino segun tus indicaciones
+                    {% else %}
+                        Descubre tu próximo destino
+                    {% endif %}
+                </h2>
             </div>
-
+        
             <div class="row justify-content-center">
                 {% if propiedades %}
                     {% for propiedad in propiedades %}
                     <div class="col-12 col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
                         <div class="propiedad-card-wrapper position-relative">
                             <a href="{% url 'propiedad_detallada' propiedad.pk %}" class="text-decoration-none">
-                                <div class="card propiedad-card shadow-sm rounded-3 overflow-hidden" style="height: 100%; display: flex; flex-direction: column;">
-                                    <!-- Imagen de la propiedad -->
-                                    <div class="card-image" style="height: 200px; overflow: hidden;">
+                                <!-- Eliminamos el "height: 100%" para que la card tome el alto natural -->
+                                <div class="card propiedad-card shadow-sm rounded-3 overflow-hidden" style="display: flex; flex-direction: column;">
+                                    <!-- Contenedor de la imagen con altura fija -->
+                                    <div class="card-image" style="height: 240px; overflow: hidden;">
                                         <img src="{{ propiedad.portada }}" class="img-fluid rounded-top" alt="Imagen de {{ propiedad.nombre }}" style="width: 100%; height: 100%; object-fit: cover;">
                                     </div>
                                     
                                     <!-- Detalles de la propiedad -->
                                     <div class="card-body p-4" style="flex-grow: 1;">
-                                        <h5 class="card-title text-truncate">{{ propiedad.nombre }} - <span class="text-primary">{{ propiedad.precio_noche }}€</span></h5>
-                                        <p class="card-text text-muted text-truncate">{{ propiedad.direccion }}</p>
+                                        <!-- Nombre de la propiedad -->
+                                        <h5 class="card-title">{{ propiedad.nombre }}</h5>
+                                        <!-- Precio en una línea aparte con tamaño y grosor aumentados -->
+                                        <p class="card-text text-primary mb-1" style="font-size: 1.5rem; font-weight: bold;">{{ propiedad.precio_noche }}€</p>
+                                        
+                                        <!-- Dirección completa aprovechando la información del modelo -->
+                                        <p class="card-text text-muted" style="overflow-wrap: break-word;">
+                                            {{ propiedad.direccion.calle }} {{ propiedad.direccion.numero_casa }}
+                                            {% if propiedad.direccion.numero_puerta %}
+                                                - {{ propiedad.direccion.numero_puerta }}
+                                            {% endif %},
+                                            {{ propiedad.direccion.codigo_postal }} {{ propiedad.direccion.ciudad }},
+                                            {{ propiedad.direccion.provincia }}{% if propiedad.direccion.co_autonoma %} ({{ propiedad.direccion.co_autonoma }}){% endif %},
+                                            {{ propiedad.direccion.pais }}
+                                        </p>
+                                        
+                                        <!-- Calificación con estrellas -->
                                         <p class="text-muted">
                                             {{ propiedad.calificacion|default:"-" }}
                                             <span class="stars">
@@ -120,7 +148,7 @@
                 {% else %}
                     <p class="text-center text-muted">No hay propiedades que coincidan con los filtros.</p>
                 {% endif %}
-            </div>
+            </div>            
         </div>
     </div>
 </div>

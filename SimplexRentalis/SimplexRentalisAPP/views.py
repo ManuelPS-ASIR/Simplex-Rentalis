@@ -189,7 +189,7 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('index')
- 
+
 # Configuración de la cuenta
 @login_required
 def account_settings(request):
