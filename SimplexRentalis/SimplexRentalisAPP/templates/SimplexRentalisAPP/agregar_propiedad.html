@@ -33,6 +33,26 @@
     border: 3px solid #007bff !important;
   }
 </style>
+<style>
+  /* Estilos para los switches personalizados */
+  .form-switch .form-check-input {
+    width: 3em;
+    height: 1.5em;
+    margin-left: -2.5em;
+    cursor: pointer;
+  }
+
+  .form-switch .form-check-input:checked {
+    background-color: #28a745 !important;  /* Verde cuando está activado */
+    border-color: #28a745 !important;
+  }
+
+  .form-switch .form-check-input:not(:checked) {
+    background-color: #dc3545 !important;  /* Rojo cuando no está activado */
+    border-color: #dc3545 !important;
+  }
+</style>
+
 
 <div class="container my-5">
   <div class="card shadow">
@@ -159,17 +179,22 @@
         <!-- Opciones Adicionales -->
         <div class="mb-4">
           <h4 class="mb-3">Opciones</h4>
-          <div class="form-check">
+          
+          <!-- Switch para Permite Mascotas -->
+          <div class="form-check form-switch">
             <input type="checkbox" name="permite_mascotas" id="permite_mascotas" class="form-check-input">
             <label class="form-check-label" for="permite_mascotas">¿Permite mascotas?</label>
             <small class="form-text text-muted">Esta opción permitirá filtrar tu propiedad en búsquedas específicas.</small>
           </div>
-          <div class="form-check">
+          
+          <!-- Switch para En Mantenimiento -->
+          <div class="form-check form-switch mt-3">
             <input type="checkbox" name="en_mantenimiento" id="en_mantenimiento" class="form-check-input">
             <label class="form-check-label" for="en_mantenimiento">¿En mantenimiento?</label>
             <small class="form-text text-muted">Marca esta opción si la propiedad no está disponible actualmente.</small>
           </div>
         </div>
+
 
         <!-- Campo oculto para la imagen de portada -->
         <input type="hidden" name="portada" id="portada-id" value="0">

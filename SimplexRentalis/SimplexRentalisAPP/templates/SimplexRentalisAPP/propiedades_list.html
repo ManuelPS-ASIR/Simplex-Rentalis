@@ -6,6 +6,19 @@
 {% endblock %}
 
 {% block content %}
+<style>
+    /* Cuando está activado: color verde */
+    .form-check-input:checked {
+        background-color: #28a745 !important;
+        border-color: #28a745 !important;
+    }
+    /* Cuando no está activado: color rojo */
+    .form-check-input:not(:checked) {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+</style>
+
 <div class="container mt-5">
     <div class="row">
         <!-- Filtro de propiedades (columna izquierda) -->
@@ -57,8 +70,8 @@
                         </select>
                     </div>
                 
-                    <!-- Permite mascotas -->
-                    <div class="mb-3 form-check">
+                    <!-- Permite mascotas: Switch -->
+                    <div class="mb-3 form-check form-switch">
                         <input type="checkbox" class="form-check-input" id="permite_mascotas" name="permite_mascotas" value="True" {% if request.GET.permite_mascotas %}checked{% endif %}>
                         <label class="form-check-label" for="permite_mascotas">Permite mascotas</label>
                     </div>
