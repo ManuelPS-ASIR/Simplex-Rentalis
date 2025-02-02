@@ -410,26 +410,54 @@ def delete_account(request):
         user.delete()
         return redirect('index')  # redirigir a una página adecuada tras la eliminación
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from django.contrib.auth.forms import PasswordChangeForm
+from django.shortcuts import render, redirect
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
+from django.contrib.auth.forms import PasswordChangeForm
+from django import forms
+from django.utils.translation import gettext_lazy as _
+from django.utils.safestring import mark_safe
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    old_password = forms.CharField(
+        label=_("Contraseña actual"),
+        strip=False,
+        widget=forms.PasswordInput(attrs={'autocomplete': 'current-password', 'autofocus': True}),
+    )
+    new_password1 = forms.CharField(
+        label=_("Nueva contraseña"),
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        strip=False,
+        help_text=mark_safe(_(
+            "<ul>"
+            "<li>Tu contraseña no puede ser demasiado similar a tu otra información personal.</li>"
+            "<li>Tu contraseña debe contener al menos 8 caracteres.</li>"
+            "<li>Tu contraseña no puede ser una contraseña comúnmente utilizada.</li>"
+            "<li>Tu contraseña no puede ser completamente numérica.</li>"
+            "</ul>"
+        )),
+    )
+    new_password2 = forms.CharField(
+        label=_("Confirmación de la nueva contraseña"),
+        strip=False,
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+    )
 
 @login_required
 def password_change_view(request):
     if request.method == 'POST':
-        form = PasswordChangeForm(user=request.user, data=request.POST)
+        form = CustomPasswordChangeForm(user=request.user, data=request.POST)
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, form.user)
             messages.success(request, 'Tu contraseña ha sido cambiada exitosamente.')
-            return redirect('settings')  # Redirige a la configuración de cuenta o cualquier otra vista
+            return redirect('settings')  # Redirige a la configuración de cuenta u otra vista
         else:
             messages.error(request, 'Por favor, corrige los errores a continuación.')
     else:
-        form = PasswordChangeForm(user=request.user)
+        form = CustomPasswordChangeForm(user=request.user)
 
-    return render(request, 'SimplexRentalisAPP/password_change.html', {'form': form})
+    return render(request, 'registration/password_change.html', {'form': form})
 
 
 from django.shortcuts import render, get_object_or_404, redirect

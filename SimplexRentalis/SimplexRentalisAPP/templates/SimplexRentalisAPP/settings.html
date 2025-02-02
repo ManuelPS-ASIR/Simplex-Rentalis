@@ -1,431 +1,361 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block title %}Configuración de Cuenta{% endblock %}
 
-{% load static %}
-
 {% block content %}
-<div class="container mt-5">
-    <h1 class="text-center">Configuración de Cuenta</h1>
-    <hr>
+<div class="container my-5">
 
-    <!-- Detalles del Usuario -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-            <h3>Información de {{ user.username }}</h3>
-        </div>
-        <div class="card-body">
-            <p><strong>Correo electrónico:</strong> {{ user.email }}</p>
-            <p><strong>Fecha de registro:</strong> {{ user.date_joined|date:"d M Y" }}</p>
-            <p><strong>Teléfono:</strong> {{ user.telefono }}</p>
-            <p><strong>Fecha de nacimiento:</strong> {{ user.fecha_nacimiento|date:"d M Y" }}</p>
-            <p><strong>Género:</strong> {{ user.genero }}</p>
-            <p><strong>Imagen de perfil:</strong></p>
-            {% if user.avatar %}
-                <img src="{{ user.avatar.url }}" alt="Avatar de {{ user.username }}" class="img-thumbnail" style="max-width: 150px;">
-            {% else %}
-                <p>No hay imagen de perfil.</p>
-            {% endif %}
-        </div>
-    </div>
+  <h1 class="mb-4 text-center">Configuración de Cuenta</h1>
 
-    <!-- Botón para cambiar estado de propietario -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-            <h3>Estado de propietario</h3>
-        </div>
-        <div class="card-body">
-            <p class="text-center">
-                Estado actual: 
-                {% if user.es_propietario %}
-                    <span class="badge bg-success">Propietario</span>
-                {% else %}
-                    <span class="badge bg-secondary">No propietario</span>
-                {% endif %}
-            </p>
-            {% if user.es_propietario %}
-                <p class="text-center">
-                    Tienes {{ user.propiedades.count }} propiedades.
-                </p>
-                {% if user.propiedades.count == 0 %}
-                    <p class="text-center text-black">
-                        Aunque eres propietario, no has agregado ninguna propiedad aún. 
-                        <a href="{% url 'agregar_propiedad' %}" class="btn btn-info btn-sm">Haz clic aquí para agregar una propiedad.</a>
-                    </p>
-                {% endif %}
-            {% endif %}
-            <div class="d-flex justify-content-center my-4">
-                {% if not user.es_propietario %}
-                    <!-- Redirigir directamente a la página de agregar propiedad -->
-                    <a href="{% url 'agregar_propiedad' %}" class="btn btn-success">
-                        Convertirse en propietario
-                    </a>
-                {% else %}
-                    <!-- Modal para confirmar dejar de ser propietario -->
-                    <button type="button" class="btn btn-danger"
-                            data-bs-toggle="modal" data-bs-target="#changeOwnerModal">
-                        Eliminar todas mis propiedades
-                    </button>
-                {% endif %}
-            </div>
-        </div>        
-    </div>
-
-    <!-- Modal de Confirmación Cambiar Propietario -->
-    <div class="modal fade" id="changeOwnerModal" tabindex="-1" aria-labelledby="changeOwnerModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header {% if user.es_propietario %}bg-danger{% else %}bg-success{% endif %} text-white">
-                    <h5 class="modal-title" id="changeOwnerModalLabel">
-                        {% if user.es_propietario %}
-                            ¿Estás seguro de querer dejar de ser propietario?
-                        {% else %}
-                            ¿Quieres convertirte en propietario?
-                        {% endif %}
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>
-                        {% if user.es_propietario %}
-                            Al dejar de ser propietario, se eliminarán todas las propiedades que hayas registrado y no podrás recuperarlas.
-                        {% else %}
-                            Convertirte en propietario te otorgará acceso a funciones adicionales.
-                        {% endif %}
-                    </p>
-                    <form id="changeOwnerForm" method="post" action="{% url 'cambiar_estado_propietario' %}">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="changeOwnerUsernameConfirm" class="form-label">Nombre de usuario</label>
-                            <input type="text" class="form-control" id="changeOwnerUsernameConfirm" name="changeOwnerUsernameConfirm" placeholder="{{ user.username }}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="changeOwnerConfirmationCode" class="form-label">Escribe "CONFIRMAR"</label>
-                            <input type="text" class="form-control" id="changeOwnerConfirmationCode" name="changeOwnerConfirmationCode" placeholder="CONFIRMAR" required>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn {% if user.es_propietario %}btn-danger{% else %}btn-success{% endif %}">
-                                Confirmar
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-    <!-- Continuación del código con ajustes -->
-    <!-- Sigue implementando los otros bloques tal como en el código inicial -->
-
-        
-
-
-
-    <!-- Actualizar Contraseña -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-            <h3>Actualizar Contraseña</h3>
-        </div>
-        <div class="card-body">
-            <p>Puedes actualizar tu contraseña desde aquí:</p>
-            <a href="{% url 'password_change' %}" class="btn btn-warning">Cambiar contraseña</a>
-        </div>
-    </div>
-
-    <!-- Actualizar Perfil -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-info text-white">
-            <h3>Actualizar Perfil</h3>
-        </div>
-        <div class="card-body">
-            <form id="settingsForm" method="post" enctype="multipart/form-data" action="{% url 'settings' %}">
-                {% csrf_token %}
-                <!-- campos del formulario -->
-        
-                <div class="mb-3">
-                    <label for="username" class="form-label">Nombre de usuario</label>
-                    <input type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}" id="username" name="username" value="{{ form.username.value|default:user.username }}" required>
-                    <div class="invalid-feedback">
-                        {% for error in form.username.errors %}{{ error }}{% endfor %}
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="telefono" class="form-label">Teléfono</label>
-                    <div class="input-group">
-                        <span class="input-group-text">+34</span>
-                        <input type="tel" class="form-control {% if form.telefono.errors %}is-invalid{% endif %}" id="telefono" name="telefono" value="{{ form.telefono.value|default:user.telefono }}" required maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
-                        <div class="invalid-feedback">
-                            {% for error in form.telefono.errors %}{{ error }}{% endfor %}
-                        </div>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
-                    <input type="date" class="form-control {% if form.fecha_nacimiento.errors %}is-invalid{% endif %}" id="fecha_nacimiento" name="fecha_nacimiento" value="{{ form.fecha_nacimiento.value|default:user.fecha_nacimiento|date:'Y-m-d' }}" required>
-                    <div class="invalid-feedback">
-                        {% for error in form.fecha_nacimiento.errors %}{{ error }}{% endfor %}
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="genero" class="form-label">Género</label>
-                    <select class="form-control {% if form.genero.errors %}is-invalid{% endif %}" id="genero" name="genero" required>
-                        <option value="" {% if form.genero.value == "" or user.genero == "" %}selected{% endif %}>Seleccionar género</option>
-                        <option value="masculino" {% if form.genero.value == "masculino" or user.genero == "masculino" %}selected{% endif %}>Masculino</option>
-                        <option value="femenino" {% if form.genero.value == "femenino" or user.genero == "femenino" %}selected{% endif %}>Femenino</option>
-                        <option value="otro" {% if form.genero.value == "otro" or user.genero == "otro" %}selected{% endif %}>Otro</option>
-                    </select>
-                    <div class="invalid-feedback">
-                        {% for error in form.genero.errors %}{{ error }}{% endfor %}
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="avatar" class="form-label">Imagen de Perfil</label>
-                    <input type="file" class="form-control {% if form.avatar.errors %}is-invalid{% endif %}" id="avatar" name="avatar">
-                    <div class="invalid-feedback">
-                        {% for error in form.avatar.errors %}{{ error }}{% endfor %}
-                    </div>
-                </div>
-                <button id="updateProfileBtn" type="submit" class="btn btn-info" disabled>Actualizar Perfil</button>
-                <span id="timer" style="margin-left: 10px; font-weight: bold; color: red;"></span> <!-- Contador -->
-            </form>
-        </div>
-    </div>
-
-    <!-- Eliminar Cuenta -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-danger text-white">
-        <h3>Eliminar Cuenta</h3>
+  <!-- Información del Usuario -->
+  <div class="card mb-4 shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+      <h2 class="h5 mb-0">Información de {{ user.username }}</h2>
     </div>
     <div class="card-body">
-        <p>¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.</p>
-        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">Eliminar Cuenta</button>
+      <p><strong>Correo electrónico:</strong> {{ user.email }}</p>
+      <p><strong>Fecha de registro:</strong> {{ user.date_joined|date:"d M Y" }}</p>
+      <p><strong>Teléfono:</strong> {{ user.telefono|default:"No registrado" }}</p>
+      <p><strong>Fecha de nacimiento:</strong> 
+        {% if user.fecha_nacimiento %}
+          {{ user.fecha_nacimiento|date:"d M Y" }}
+        {% else %}
+          No registrada
+        {% endif %}
+      </p>
+      <p><strong>Género:</strong> {{ user.genero|default:"No especificado" }}</p>
+      <p><strong>Imagen de perfil:</strong></p>
+      {% if user.avatar %}
+        <img src="{{ user.avatar.url }}" alt="Avatar de {{ user.username }}" class="img-thumbnail" style="max-width: 150px;">
+      {% else %}
+        <p>No hay imagen de perfil.</p>
+      {% endif %}
     </div>
-</div>
+  </div>
 
-<!-- Modal de confirmación -->
-<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+  <!-- Estado de Propietario -->
+  <div class="card mb-4 shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+      <h2 class="h5 mb-0">Estado de Propietario</h2>
+    </div>
+    <div class="card-body">
+      <p class="text-center mb-3">
+        Estado actual:
+        {% if user.es_propietario %}
+          <span class="badge bg-success">Propietario</span>
+        {% else %}
+          <span class="badge bg-secondary">No propietario</span>
+        {% endif %}
+      </p>
+      {% if user.es_propietario %}
+        <p class="text-center">Tienes {{ user.propiedades.count }} propiedades.</p>
+        {% if user.propiedades.count == 0 %}
+          <p class="text-center text-muted">
+            Aunque eres propietario, no has agregado ninguna propiedad aún.
+            <a href="{% url 'agregar_propiedad' %}" class="btn btn-info btn-sm">Agregar una propiedad</a>
+          </p>
+        {% endif %}
+      {% endif %}
+      <div class="text-center my-3">
+        {% if not user.es_propietario %}
+          <a href="{% url 'agregar_propiedad' %}" class="btn btn-success">Convertirse en propietario</a>
+        {% else %}
+          <!-- Botón para abrir modal de confirmación para dejar de ser propietario -->
+          <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalDejarPropietario">
+            Eliminar todas mis propiedades
+          </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para cambiar estado de propietario -->
+  <div class="modal fade" id="modalDejarPropietario" tabindex="-1" aria-labelledby="modalDejarPropietarioLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="deleteAccountModalLabel">{{ user.username }}, ¿estás seguro de querer borrar tu cuenta?</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Primera etapa -->
-                <div id="confirmationStep">
-                    <p>Esta acción no se puede deshacer.</p>
-                    <div class="d-flex justify-content-between">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-                        <button type="button" class="btn btn-success" id="confirmDeletionBtn">Sí</button>
-                    </div>
-                </div>
-                <!-- Segunda etapa -->
-                <div id="finalConfirmationStep" class="d-none">
-                    <p>{{ user.username }}, confirme la acción:</p>
-                    <form id="finalConfirmationForm" method="post" action="{% url 'delete_account' %}">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="deleteAccountUsernameConfirm" class="form-label">Nombre de usuario</label>
-                            <input type="text" class="form-control" id="deleteAccountUsernameConfirm" name="deleteAccountUsernameConfirm" placeholder="{{ user.username }}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="deleteAccountConfirmationCode" class="form-label">Escribe "CONFIRMAR"</label>
-                            <input type="text" class="form-control" id="deleteAccountConfirmationCode" name="deleteAccountConfirmationCode" placeholder="CONFIRMAR" required>
-                        </div>
-                        <button type="submit" class="btn btn-danger w-100" id="deleteAccountBtn" disabled>Eliminar Cuenta</button>
-                    </form>
-                </div>
-            </div>
+      <div class="modal-content border-0 shadow-sm">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="modalDejarPropietarioLabel">¿Deseas dejar de ser propietario?</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
+        <div class="modal-body">
+          <p>Al dejar de ser propietario se eliminarán todas tus propiedades registradas y esta acción no se podrá deshacer.</p>
+          <form id="changeOwnerForm" method="post" action="{% url 'cambiar_estado_propietario' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="changeOwnerUsernameConfirm" class="form-label">Confirmar Nombre de Usuario</label>
+              <input type="text" class="form-control" id="changeOwnerUsernameConfirm" name="changeOwnerUsernameConfirm" placeholder="{{ user.username }}" required>
+            </div>
+            <div class="mb-3">
+              <label for="changeOwnerConfirmationCode" class="form-label">Escribe "CONFIRMAR"</label>
+              <input type="text" class="form-control" id="changeOwnerConfirmationCode" name="changeOwnerConfirmationCode" placeholder="CONFIRMAR" required>
+            </div>
+            <div class="text-end">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-danger">Confirmar</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Actualizar Contraseña -->
+  <div class="card mb-4 shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+      <h2 class="h5 mb-0">Actualizar Contraseña</h2>
+    </div>
+    <div class="card-body">
+      <p>Puedes actualizar tu contraseña:</p>
+      <a href="{% url 'password_change' %}" class="btn btn-warning">Cambiar contraseña</a>
+    </div>
+  </div>
+
+  <!-- Actualizar Perfil -->
+  <div class="card mb-4 shadow-sm border-0">
+    <div class="card-header bg-info text-white">
+      <h2 class="h5 mb-0">Actualizar Perfil</h2>
+    </div>
+    <div class="card-body">
+      <form id="settingsForm" method="post" enctype="multipart/form-data" action="{% url 'settings' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="username" class="form-label">Nombre de usuario</label>
+          <input type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}" id="username" name="username" value="{{ form.username.value|default:user.username }}" required>
+          <div class="invalid-feedback">
+            {% for error in form.username.errors %}{{ error }}{% endfor %}
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="telefono" class="form-label">Teléfono</label>
+          <div class="input-group">
+            <span class="input-group-text">+34</span>
+            <input type="tel" class="form-control {% if form.telefono.errors %}is-invalid{% endif %}" id="telefono" name="telefono" value="{{ form.telefono.value|default:user.telefono }}" required maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+          </div>
+          <div class="invalid-feedback">
+            {% for error in form.telefono.errors %}{{ error }}{% endfor %}
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
+          <input type="date" class="form-control {% if form.fecha_nacimiento.errors %}is-invalid{% endif %}" id="fecha_nacimiento" name="fecha_nacimiento" value="{{ form.fecha_nacimiento.value|default:user.fecha_nacimiento|date:'Y-m-d' }}" required>
+          <div class="invalid-feedback">
+            {% for error in form.fecha_nacimiento.errors %}{{ error }}{% endfor %}
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="genero" class="form-label">Género</label>
+          <select class="form-select {% if form.genero.errors %}is-invalid{% endif %}" id="genero" name="genero" required>
+            <option value="" {% if form.genero.value == "" or user.genero == "" %}selected{% endif %}>Seleccionar género</option>
+            <option value="masculino" {% if form.genero.value == "masculino" or user.genero == "masculino" %}selected{% endif %}>Masculino</option>
+            <option value="femenino" {% if form.genero.value == "femenino" or user.genero == "femenino" %}selected{% endif %}>Femenino</option>
+            <option value="otro" {% if form.genero.value == "otro" or user.genero == "otro" %}selected{% endif %}>Otro</option>
+          </select>
+          <div class="invalid-feedback">
+            {% for error in form.genero.errors %}{{ error }}{% endfor %}
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="avatar" class="form-label">Imagen de Perfil</label>
+          <input type="file" class="form-control {% if form.avatar.errors %}is-invalid{% endif %}" id="avatar" name="avatar">
+          <div class="invalid-feedback">
+            {% for error in form.avatar.errors %}{{ error }}{% endfor %}
+          </div>
+        </div>
+        <div class="d-flex align-items-center">
+          <button id="updateProfileBtn" type="submit" class="btn btn-info me-3" disabled>Actualizar Perfil</button>
+          <span id="timer" class="fw-bold text-danger"></span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Eliminar Cuenta -->
+  <div class="card mb-4 shadow-sm border-0">
+    <div class="card-header bg-danger text-white">
+      <h2 class="h5 mb-0">Eliminar Cuenta</h2>
+    </div>
+    <div class="card-body">
+      <p>Esta acción no se puede deshacer. Si deseas eliminar tu cuenta, haz clic en el siguiente botón:</p>
+      <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminarCuenta">Eliminar Cuenta</button>
+    </div>
+  </div>
+
+  <!-- Modal para eliminar cuenta -->
+  <div class="modal fade" id="modalEliminarCuenta" tabindex="-1" aria-labelledby="modalEliminarCuentaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-sm">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="modalEliminarCuentaLabel">{{ user.username }}, ¿estás seguro de querer borrar tu cuenta?</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Primera etapa de confirmación -->
+          <div id="confirmationStep">
+            <p class="mb-3">Esta acción no se puede deshacer.</p>
+            <div class="d-flex justify-content-end">
+              <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">No</button>
+              <button type="button" class="btn btn-success" id="confirmDeletionBtn">Sí</button>
+            </div>
+          </div>
+          <!-- Segunda etapa de confirmación -->
+          <div id="finalConfirmationStep" class="d-none">
+            <p class="mb-3">{{ user.username }}, confirma la acción:</p>
+            <form id="finalConfirmationForm" method="post" action="{% url 'delete_account' %}">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="deleteAccountUsernameConfirm" class="form-label">Nombre de usuario</label>
+                <input type="text" class="form-control" id="deleteAccountUsernameConfirm" name="deleteAccountUsernameConfirm" placeholder="{{ user.username }}" required>
+              </div>
+              <div class="mb-3">
+                <label for="deleteAccountConfirmationCode" class="form-label">Escribe "CONFIRMAR"</label>
+                <input type="text" class="form-control" id="deleteAccountConfirmationCode" name="deleteAccountConfirmationCode" placeholder="CONFIRMAR" required>
+              </div>
+              <button type="submit" class="btn btn-danger w-100" id="deleteAccountBtn" disabled>Eliminar Cuenta</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de éxito -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
+    <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          ¡Los cambios se realizaron con éxito!
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-
-<!-- Toast para mostrar éxito -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-    <div id="successToast" class="toast align-items-center text-bg-success border-0 custom-toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body">
-                ¡Los cambios se realizaron con éxito!
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>
-</div>
+<!-- Única carga de Bootstrap Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const confirmChangeOwnerBtn = document.getElementById('confirmChangeOwnerBtn');
-        const confirmDeletionBtn = document.getElementById('confirmDeletionBtn');
-        const finalConfirmationStep = document.getElementById('finalConfirmationStep');
-        const confirmationStep = document.getElementById('confirmationStep');
-        const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-        const form = document.getElementById('settingsForm');
-        const updateButton = document.getElementById('updateProfileBtn');
-        const timerElement = document.getElementById('timer');
+document.addEventListener('DOMContentLoaded', function () {
+  // Variables para la actualización de perfil
+  const form = document.getElementById('settingsForm');
+  const updateButton = document.getElementById('updateProfileBtn');
+  const timerElement = document.getElementById('timer');
 
-        if (!confirmChangeOwnerBtn || !confirmDeletionBtn || !finalConfirmationStep || !confirmationStep || !deleteAccountBtn || !form || !updateButton || !timerElement) {
-            console.error('Uno o más elementos no se encontraron.');
-            return;
-        }
-        // Guardar los valores originales del formulario
-        const originalValues = {
-            username: document.getElementById('username').value,
-            telefono: document.getElementById('telefono').value,
-            fecha_nacimiento: document.getElementById('fecha_nacimiento').value,
-            genero: document.getElementById('genero').value,
-            avatar: document.getElementById('avatar').value
-        };
+  // Guardar los valores originales para detectar cambios
+  const originalValues = {
+    username: document.getElementById('username').value,
+    telefono: document.getElementById('telefono').value,
+    fecha_nacimiento: document.getElementById('fecha_nacimiento').value,
+    genero: document.getElementById('genero').value,
+    avatar: document.getElementById('avatar').value
+  };
 
-        // Obtener la hora del último clic almacenada
-        const lastClickTime = localStorage.getItem('lastClickTime');
-        const currentTime = new Date().getTime();
-        const remainingTime = lastClickTime ? Math.max(0, (parseInt(lastClickTime) + 180000) - currentTime) : 0;
+  // Verificar cambios en el formulario
+  function checkIfFormChanged() {
+    const currentValues = {
+      username: document.getElementById('username').value,
+      telefono: document.getElementById('telefono').value,
+      fecha_nacimiento: document.getElementById('fecha_nacimiento').value,
+      genero: document.getElementById('genero').value,
+      avatar: document.getElementById('avatar').value
+    };
 
-        // Deshabilitar botón si aún no han pasado 3 minutos
-        if (remainingTime > 0) {
-            disableButtonWithTimer(remainingTime);
-        }
+    let isChanged = Object.keys(originalValues).some(key => currentValues[key] !== originalValues[key]);
+    // Habilitar el botón solo si han pasado 3 minutos y hay cambios
+    const lastClickTime = localStorage.getItem('lastClickTime');
+    const currentTime = new Date().getTime();
+    const remainingTime = lastClickTime ? Math.max(0, (parseInt(lastClickTime) + 180000) - currentTime) : 0;
+    updateButton.disabled = !(remainingTime === 0 && isChanged);
+  }
 
-        // Mostrar la segunda etapa al confirmar
-        confirmDeletionBtn.addEventListener('click', function () {
-            confirmationStep.classList.add('d-none');
-            finalConfirmationStep.classList.remove('d-none');
-        });
+  // Escuchar cambios en inputs y selects
+  form.querySelectorAll('input, select').forEach(input => {
+    input.addEventListener('input', checkIfFormChanged);
+  });
 
-        // Función para verificar si los valores del formulario han cambiado
-        function checkIfFormChanged() {
-            const currentValues = {
-                username: document.getElementById('username').value,
-                telefono: document.getElementById('telefono').value,
-                fecha_nacimiento: document.getElementById('fecha_nacimiento').value,
-                genero: document.getElementById('genero').value,
-                avatar: document.getElementById('avatar').value
-            };
+  // Temporizador para deshabilitar el botón por 3 minutos
+  function disableButtonWithTimer(duration) {
+    const endTime = new Date().getTime() + duration;
+    updateButton.disabled = true;
+    const interval = setInterval(() => {
+      const remaining = Math.max(0, endTime - new Date().getTime());
+      if (remaining === 0) {
+        clearInterval(interval);
+        localStorage.removeItem('lastClickTime');
+        updateButton.disabled = false;
+        timerElement.textContent = '';
+      } else {
+        timerElement.textContent = `Tiempo restante: ${Math.ceil(remaining / 1000)}s`;
+      }
+    }, 1000);
+  }
 
-            let isChanged = false;
-            for (const key in currentValues) {
-                if (currentValues[key] !== originalValues[key]) {
-                    isChanged = true;
-                    break;
-                }
-            }
+  // Manejar el envío del formulario con temporizador
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const clickTime = new Date().getTime();
+    localStorage.setItem('lastClickTime', clickTime);
+    disableButtonWithTimer(180000); // 3 minutos
 
-            // Habilitar o deshabilitar el botón de actualización
-            if (remainingTime === 0 && isChanged) {
-                updateButton.disabled = false;
-                updateButton.classList.remove('btn-secondary');
-                updateButton.classList.add('btn-info');
-            } else {
-                updateButton.disabled = true;
-                updateButton.classList.remove('btn-info');
-                updateButton.classList.add('btn-secondary');
-            }
-        }
+    fetch("{% url 'settings' %}", {
+      method: 'POST',
+      body: formData,
+      headers: {'X-Requested-With': 'XMLHttpRequest'}
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const toastElement = document.getElementById('successToast');
+        const toast = new bootstrap.Toast(toastElement);
+        toast.show();
+        setTimeout(() => location.reload(), 3000);
+      } else {
+        showErrors(form, data.error);
+      }
+    })
+    .catch(error => console.error('Error:', error));
+  });
 
-        // Comprobar cambios cuando los campos cambian
-        form.querySelectorAll('input, select').forEach(function (input) {
-            input.addEventListener('input', checkIfFormChanged);
-        });
-
-        // Modificar las referencias a los campos de entrada de confirmación
-        const usernameConfirm = document.getElementById('deleteAccountUsernameConfirm');  // para eliminar cuenta
-        const confirmationCode = document.getElementById('deleteAccountConfirmationCode');  // para eliminar cuenta
-
-        // O en el caso de cambiar propietario
-        const changeOwnerUsernameConfirm = document.getElementById('changeOwnerUsernameConfirm');
-        const changeOwnerConfirmationCode = document.getElementById('changeOwnerConfirmationCode');
-
-        // Función para verificar la validez de los campos de confirmación
-        function validateInputs() {
-            const isUsernameValid = usernameConfirm.value.trim() === "{{ user.username }}";
-            const isConfirmationCodeValid = confirmationCode.value.trim().toUpperCase() === "CONFIRMAR";
-            deleteAccountBtn.disabled = !(isUsernameValid && isConfirmationCodeValid); // Asegúrate de usar deleteAccountBtn
-
-            const isChangeOwnerUsernameValid = changeOwnerUsernameConfirm.value.trim() === "{{ user.username }}";
-            const isChangeOwnerCodeValid = changeOwnerConfirmationCode.value.trim().toUpperCase() === "CONFIRMAR";
-            confirmChangeOwnerBtn.disabled = !(isChangeOwnerUsernameValid && isChangeOwnerCodeValid);
-        }
-
-        // Comprobar si los campos de confirmación son válidos
-        usernameConfirm.addEventListener('input', validateInputs);
-        confirmationCode.addEventListener('input', validateInputs);
-        changeOwnerUsernameConfirm.addEventListener('input', validateInputs);
-        changeOwnerConfirmationCode.addEventListener('input', validateInputs);
-
-        // Función para deshabilitar el botón de actualización y mostrar temporizador
-        function disableButtonWithTimer(duration) {
-            const endTime = new Date().getTime() + duration;
-
-            updateButton.disabled = true;
-            updateButton.classList.add('btn-secondary');
-            updateButton.classList.remove('btn-info');
-
-            const interval = setInterval(function () {
-                const remaining = Math.max(0, endTime - new Date().getTime());
-                if (remaining === 0) {
-                    clearInterval(interval);
-                    localStorage.removeItem('lastClickTime');
-                    updateButton.disabled = false;
-                    updateButton.classList.remove('btn-secondary');
-                    updateButton.classList.add('btn-info');
-                    timerElement.textContent = '';
-                } else {
-                    timerElement.textContent = `Tiempo restante hasta poder volver a modificar: ${Math.ceil(remaining / 1000)}s`;
-                }
-            }, 1000);
-        }
-
-        // Enviar formulario con temporizador
-        form.addEventListener("submit", function (e) {
-            e.preventDefault(); // Prevenir el envío
-
-            const formData = new FormData(form);
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-            // Deshabilitar botón, guardar hora del clic y activar temporizador
-            const clickTime = new Date().getTime();
-            localStorage.setItem('lastClickTime', clickTime);
-            disableButtonWithTimer(180000); // 3 minutos en milisegundos
-
-            formData.append('csrfmiddlewaretoken', csrfToken);
-
-            fetch("{% url 'settings' %}", {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Mostrar éxito
-                    const toastElement = document.getElementById('successToast');
-                    const toast = new bootstrap.Toast(toastElement);
-                    toast.show();
-
-                    setTimeout(() => {
-                        location.reload();
-                    }, 3000); // 3 segundos para recargar la página (si se necesita)
-                } else {
-                    showErrors(form, data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        });
-
-        // Llamar a la función inicialmente para configurar el estado
-        checkIfFormChanged();
+  // Función para mostrar errores de validación
+  function showErrors(form, errors) {
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+    Object.entries(errors).forEach(([field, message]) => {
+      const input = form.querySelector(`[name=${field}]`);
+      if (input) {
+        input.classList.add('is-invalid');
+        input.nextElementSibling.textContent = message;
+      }
     });
+  }
 
+  // Confirmación para eliminar cuenta
+  const confirmDeletionBtn = document.getElementById('confirmDeletionBtn');
+  const finalConfirmationStep = document.getElementById('finalConfirmationStep');
+  const confirmationStep = document.getElementById('confirmationStep');
+  const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+  const usernameConfirm = document.getElementById('deleteAccountUsernameConfirm');
+  const confirmationCode = document.getElementById('deleteAccountConfirmationCode');
+
+  confirmDeletionBtn.addEventListener('click', () => {
+    confirmationStep.classList.add('d-none');
+    finalConfirmationStep.classList.remove('d-none');
+  });
+
+  function validateDeleteAccountInputs() {
+    const isUsernameValid = usernameConfirm.value.trim() === "{{ user.username }}";
+    const isConfirmationValid = confirmationCode.value.trim().toUpperCase() === "CONFIRMAR";
+    deleteAccountBtn.disabled = !(isUsernameValid && isConfirmationValid);
+  }
+
+  usernameConfirm.addEventListener('input', validateDeleteAccountInputs);
+  confirmationCode.addEventListener('input', validateDeleteAccountInputs);
+
+  // Llamar inicialmente a la verificación del formulario
+  checkIfFormChanged();
+});
 </script>
-
-<!-- No se esta procesando bien el codigo por que hay identificiadores reptidos en los modales de confirmacion -->
-<!-- VER ERRORES CON EL F12, SON LOS MOSTRADOS EN LA CONSOLA -->
 {% endblock %}
