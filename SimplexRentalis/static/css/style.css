@@ -1,1068 +1,973 @@
 body {
-    padding-top: 60px; /* Ajusta este valor según la altura de tu barra de navegación */
+  padding-top: 60px; /* Ajusta este valor según la altura de tu barra de navegación */
 }
-
 
 /* Estilos para el contenedor del menú lateral */
 #menu {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 60px;
-    background-color: #333;
-    transition: width 0.3s;
-    overflow-x: hidden;
-    z-index: 1000; /* Asegura que esté sobre la barra superior */
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 60px;
+  background-color: #333;
+  transition: width 0.3s;
+  overflow-x: hidden;
+  z-index: 1000; /* Asegura que esté sobre la barra superior */
 }
-  
+
 /* Estilos del icono de hamburguesa */
 #menu:hover {
-    width: 200px;
+  width: 200px;
 }
 
 /* Ocultar los enlaces cuando el menú está colapsado */
 #menu .menu-item {
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity 0.3s, visibility 0.3s;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s, visibility 0.3s;
 }
 
 /* Mostrar los enlaces cuando el menú se despliega */
 #menu:hover .menu-item {
-    visibility: visible;
-    opacity: 1;
+  visibility: visible;
+  opacity: 1;
 }
 
 /* Estilos de los enlaces del menú */
 .menu-item {
-    padding: 15px;
-    color: white;
-    text-align: left;
-    text-decoration: none;
-    display: block;
-    white-space: nowrap;
+  padding: 15px;
+  color: white;
+  text-align: left;
+  text-decoration: none;
+  display: block;
+  white-space: nowrap;
 }
 
 .menu-item:hover {
-    background-color: #555;
+  background-color: #555;
 }
 
 /* Barra superior fija */
 .navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-color: #303030; /* Color de la barra superior */
-    color: white;
-    z-index: 900; /* Asegura que esté debajo del menú lateral */
-    padding: 10px 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #303030; /* Color de la barra superior */
+  color: white;
+  z-index: 900; /* Asegura que esté debajo del menú lateral */
+  padding: 10px 20px;
 }
 
 /* Botón de iniciar sesión en la barra (alineado a la derecha) */
 .navbar .btn-login {
-    color: white;
-    border: 2px solid white;
+  color: white;
+  border: 2px solid white;
 }
 
 .navbar .container-fluid {
-    display: flex;
-    justify-content: flex-end; /* Alinea el botón a la derecha */
+  display: flex;
+  justify-content: flex-end; /* Alinea el botón a la derecha */
 }
 
 /* Ajustar contenido principal para que no esté debajo del menú lateral ni de la barra superior */
 #main-content {
-    margin-left: 60px; /* Espacio para el menú lateral */
-    margin-top: 60px; /* Espacio para la barra superior */
-    padding: 20px;
+  width: calc(100%); /* Ocupa el ancho completo, exceptuando el menú lateral */
 }
-
-.hamburguesa {
-    font-size: 30px;
-    color: white;
-    padding: 15px;
-    display: block;
-    cursor: pointer;
-}
-/* style.css */
 
 /* Estilo general para las tarjetas de propiedades */
 .propiedad-card {
-    display: flex; /* Usamos flexbox para que los elementos dentro de la tarjeta se ajusten */
-    flex-direction: column; /* Hace que los elementos estén apilados verticalmente */
-    border: 1px solid #ddd; /* Borde gris claro */
-    border-radius: 5px; /* Esquinas redondeadas */
-    overflow: hidden; /* Asegura que el contenido no sobresalga */
-    transition: box-shadow 0.3s; /* Suaviza la transición de sombra */
-    background-color: #ffffff; /* Fondo blanco para las tarjetas */
-    text-align: center; /* Centra el texto */
-    height: 100%; /* Asegura que todas las tarjetas tengan la misma altura */
+  display: flex; /* Usamos flexbox para que los elementos dentro de la tarjeta se ajusten */
+  flex-direction: column; /* Hace que los elementos estén apilados verticalmente */
+  border: 1px solid #ddd; /* Borde gris claro */
+  border-radius: 5px; /* Esquinas redondeadas */
+  overflow: hidden; /* Asegura que el contenido no sobresalga */
+  transition: box-shadow 0.3s; /* Suaviza la transición de sombra */
+  background-color: #ffffff; /* Fondo blanco para las tarjetas */
+  text-align: center; /* Centra el texto */
+  height: 100%; /* Asegura que todas las tarjetas tengan la misma altura */
 }
-
 
 /* Estilos para la imagen */
 .propiedad-image img {
-    width: 100%; /* Hace que la imagen ocupe todo el ancho de la tarjeta */
-    height: 200px; /* Altura fija para todas las imágenes */
-    object-fit: cover; /* Asegura que las imágenes cubran el espacio sin distorsión */
+  width: 100%; /* Hace que la imagen ocupe todo el ancho de la tarjeta */
+  height: 200px; /* Altura fija para todas las imágenes */
+  object-fit: cover; /* Asegura que las imágenes cubran el espacio sin distorsión */
 }
 
 /* Mensaje en caso de no haber imagen */
 .no-imagen {
-    height: 200px; /* Altura fija para el mensaje de imagen */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa; /* Color de fondo claro */
-    color: #888; /* Color del texto */
+  height: 200px; /* Altura fija para el mensaje de imagen */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa; /* Color de fondo claro */
+  color: #888; /* Color del texto */
 }
 
 /* Detalles de la propiedad */
 .propiedad-details {
-    padding: 15px; /* Espaciado interno */
-    background-color: #f8f9fa; /* Color de fondo claro */
+  padding: 15px; /* Espaciado interno */
+  background-color: #f8f9fa; /* Color de fondo claro */
 }
 
 /* Títulos de las propiedades */
 .propiedad-details h3 {
-    font-size: 1.25rem; /* Tamaño de fuente para el título */
-    margin-bottom: 0.5rem; /* Espacio debajo del título */
-    color: #007bff; /* Color del texto del título */
+  font-size: 1.25rem; /* Tamaño de fuente para el título */
+  margin-bottom: 0.5rem; /* Espacio debajo del título */
+  color: #007bff; /* Color del texto del título */
 }
 
 /* Asegura que las tarjetas tengan el mismo tamaño */
 .propiedades-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px; /* Espacio entre las tarjetas */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Espacio entre las tarjetas */
 }
+
 .col-12.col-md-6.col-lg-4 {
-    display: flex; /* Hace que las columnas ocupen el mismo espacio */
-    flex-direction: column; /* Apila los elementos verticalmente */
+  display: flex; /* Hace que las columnas ocupen el mismo espacio */
+  flex-direction: column; /* Apila los elementos verticalmente */
 }
+
 .row.justify-content-center {
-    display: flex;
-    justify-content: center;
-}
-/* Estilo para el ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssscontenedor de propiedades */
-#main-content {
-    max-width: 1200px;
-    margin: auto;
-    padding: 20px;
+  display: flex;
+  justify-content: center;
 }
 
+/* Estilos para el contenedor de propiedades (se eliminó el max-width fijo para ocupar todo el ancho) */
+/* Si deseas centrar el contenido en pantallas muy grandes, puedes optar por otro contenedor en lugar de #main-content */
+
+/* Estilo para el título de propiedades */
 .propiedad-title {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 2em;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 2em;
 }
 
+/* Estilos para el contenedor de detalle de la propiedad */
 .detalle-container {
-    display: flex;
-    margin-bottom: 40px;
+  display: flex;
+  margin-bottom: 40px;
 }
 
 .propiedad-image {
-    position: relative;
-    width: 50%; /* Cambiado para ocupar la mitad del contenedor */
-    padding-right: 10px; /* Espacio entre imagen principal y detalles */
+  position: relative;
+  width: 50%; /* Cambiado para ocupar la mitad del contenedor */
+  padding-right: 10px; /* Espacio entre imagen principal y detalles */
 }
 
 .main-image {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s; /* Transición suave para el cambio de imagen */
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s; /* Transición suave para el cambio de imagen */
 }
 
 .no-imagen {
-    height: 400px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f0f0f0;
-    font-style: italic;
-    color: #777;
-    border-radius: 8px;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+  font-style: italic;
+  color: #777;
+  border-radius: 8px;
 }
 
 .image-thumbnails {
-    display: flex;
-    justify-content: flex-start; /* Alinea los thumbnails a la izquierda */
-    margin-top: 10px;
-    flex-wrap: wrap;
+  display: flex;
+  justify-content: flex-start; /* Alinea los thumbnails a la izquierda */
+  margin-top: 10px;
+  flex-wrap: wrap;
 }
 
 .thumbnail-image {
-    width: 80px;
-    height: 80px; /* Tamaño cuadrado */
-    border-radius: 4px;
-    margin-right: 5px;
-    cursor: pointer;
-    transition: transform 0.2s, border 0.2s;
-    border: 2px solid transparent; /* Bordes transparentes por defecto */
+  width: 80px;
+  height: 80px; /* Tamaño cuadrado */
+  border-radius: 4px;
+  margin-right: 5px;
+  cursor: pointer;
+  transition: transform 0.2s, border 0.2s;
+  border: 2px solid transparent; /* Bordes transparentes por defecto */
 }
 
 .thumbnail-image:hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    border: 2px solid #007bff; /* Bordes de color al pasar el mouse */
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: 2px solid #007bff; /* Bordes de color al pasar el mouse */
 }
 
 .thumbnail-wrapper {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
 }
 
 .thumbnails-container {
-    display: flex;
-    overflow: hidden; /* Oculta imágenes que desbordan el contenedor */
-    position: relative;
-    height: 80px; /* Ajusta la altura del contenedor de miniaturas */
+  display: flex;
+  overflow: hidden; /* Oculta imágenes que desbordan el contenedor */
+  position: relative;
+  height: 80px; /* Ajusta la altura del contenedor de miniaturas */
 }
 
 .thumbnails-container img {
-    width: 80px; /* Tamaño de las miniaturas */
-    height: 80px;
-    margin: 0 5px; /* Espaciado entre miniaturas */
-    cursor: pointer;
-    transition: transform 0.2s; /* Transición suave para el hover */
+  width: 80px; /* Tamaño de las miniaturas */
+  height: 80px;
+  margin: 0 5px; /* Espaciado entre miniaturas */
+  cursor: pointer;
+  transition: transform 0.2s; /* Transición suave para el hover */
 }
 
 .thumbnails-container img.active {
-    transform: scale(1.2); /* Efecto al hacer clic en la miniatura activa */
+  transform: scale(1.2); /* Efecto al hacer clic en la miniatura activa */
 }
 
 .propiedad-details {
-    width: 50%; /* Cambiado para ocupar la mitad del contenedor */
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin-left: 10px; /* Espacio entre la imagen y los detalles */
+  width: 50%; /* Cambiado para ocupar la mitad del contenedor */
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-left: 10px; /* Espacio entre la imagen y los detalles */
 }
 
 .descripcion-container,
 .opiniones-container {
-    margin-top: 30px;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 30px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 h3 {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .opinion {
-    margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    background-color: #f9f9f9;
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #f9f9f9;
 }
 
 .back-link {
-    text-align: center;
-    margin-top: 30px;
+  text-align: center;
+  margin-top: 30px;
 }
 
 .btn {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    text-decoration: none;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-decoration: none;
 }
 
 .btn:hover {
-    background-color: #0056b3;
-    transition: background-color 0.3s;
+  background-color: #0056b3;
+  transition: background-color 0.3s;
 }
 
 .is-invalid {
-    border-color: #dc3545; /* Color del borde para los campos con error */
+  border-color: #dc3545; /* Color del borde para los campos con error */
 }
-  
+
 .invalid-feedback {
-    display: none; /* Inicialmente oculto */
+  display: none; /* Inicialmente oculto */
 }
-  
+
 .is-invalid + .invalid-feedback {
-    display: block; /* Mostrar el mensaje de error */
-    color: #dc3545; /* Color del texto de error */
+  display: block; /* Mostrar el mensaje de error */
+  color: #dc3545; /* Color del texto de error */
 }
+
 .toast {
-    position: fixed; /* Fija el toast en una posición específica */
-    bottom: 20px; /* Ajusta la distancia desde la parte inferior */
-    right: 20px; /* Ajusta la distancia desde el borde derecho */
-    width: 400px !important; /* Ajusta el ancho del toast */
-    z-index: 1050; /* Asegúrate de que el toast se muestre encima de otros elementos */
-}
-.toast {
-    animation: slide-in 0.5s ease-out;
+  position: fixed; /* Fija el toast en una posición específica */
+  bottom: 20px; /* Ajusta la distancia desde la parte inferior */
+  right: 20px; /* Ajusta la distancia desde el borde derecho */
+  width: 400px !important; /* Ajusta el ancho del toast */
+  z-index: 1050; /* Asegúrate de que el toast se muestre encima de otros elementos */
+  animation: slide-in 0.5s ease-out;
 }
 
 @keyframes slide-in {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-.toast-body {
-    padding: 10px 20px !important; /* Ajusta el padding para hacer el toast más bajo */
-    font-size: 1rem !important; /* Tamaño de la fuente */
-    font-weight: bold !important; /* Fuente en negrita */
-    line-height: 1.5 !important; /* Altura de la línea */
-    width: 100% !important; /* Asegura que el contenido ocupe todo el ancho del toast */
+  from {
+      opacity: 0;
+      transform: translateY(20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 
+.toast-body {
+  padding: 10px 20px !important; /* Ajusta el padding para hacer el toast más bajo */
+  font-size: 1rem !important; /* Tamaño de la fuente */
+  font-weight: bold !important; /* Fuente en negrita */
+  line-height: 1.5 !important; /* Altura de la línea */
+  width: 100% !important; /* Asegura que el contenido ocupe todo el ancho del toast */
+}
 
 /* Contenedor de título y botón */
 .d-flex {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .d-flex .btn {
-    flex-shrink: 0; /* Asegura que el botón no se reduzca */
+  flex-shrink: 0; /* Asegura que el botón no se reduzca */
 }
 
 .d-flex h2 {
-    text-align: center;
-    flex-grow: 1; /* Permite que el título ocupe el espacio restante */
-    margin: 0; /* Elimina márgenes innecesarios */
+  text-align: center;
+  flex-grow: 1; /* Permite que el título ocupe el espacio restante */
+  margin: 0; /* Elimina márgenes innecesarios */
 }
 
 /* Estilos adicionales para las tarjetas de propiedades */
 .propiedad-card {
-    display: block;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    overflow: hidden;
-    transition: box-shadow 0.3s, transform 0.3s ease-in-out;
-    background-color: #ffffff;
-    text-align: center;
-    height: 100%;
+  display: block;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: box-shadow 0.3s, transform 0.3s ease-in-out;
+  background-color: #ffffff;
+  text-align: center;
+  height: 100%;
 }
 
-/* Estilo para las tarjetas cuando pasas el mouse */
 .propiedad-card:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra al pasar el mouse */
-    transform: translateY(-5px); /* Efecto de desplazamiento hacia arriba */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra al pasar el mouse */
+  transform: translateY(-5px); /* Efecto de desplazamiento hacia arriba */
 }
 
 .card-body {
-    padding: 20px;
-    color: #333;
-    flex-grow: 1; /* Permite que el contenido ocupe el espacio restante */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.card-title {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #007bff;
-}
-
-.card-text {
-    color: #666;
-    font-size: 0.9rem;
+  padding: 20px;
+  color: #333;
+  flex-grow: 1; /* Permite que el contenido ocupe el espacio restante */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 /* Ajustamos la altura de la imagen para que todas tengan el mismo tamaño */
 .card-image {
-    height: 200px; /* Altura fija para la imagen */
-    overflow: hidden; /* Asegura que la imagen no sobresalga */
+  height: 200px; /* Altura fija para la imagen */
+  overflow: hidden; /* Asegura que la imagen no sobresalga */
 }
 
 .card-image img {
-    width: 100%;
-    height: 100%; /* Asegura que la imagen cubra todo el contenedor */
-    object-fit: cover; /* Hace que la imagen se recorte adecuadamente */
+  width: 100%;
+  height: 100%; /* Asegura que la imagen cubra todo el contenedor */
+  object-fit: cover; /* Hace que la imagen se recorte adecuadamente */
 }
 
 .no-imagen {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    background-color: #f0f0f0;
-    color: #888;
-    font-style: italic;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background-color: #f0f0f0;
+  color: #888;
+  font-style: italic;
 }
 
 /* Responsividad */
 @media (max-width: 767px) {
-    .propiedad-card {
-        margin-bottom: 20px;
-    }
+  .propiedad-card {
+      margin-bottom: 20px;
+  }
 }
 
 @media (max-width: 991px) {
-    .propiedad-card {
-        margin-bottom: 30px;
-    }
+  .propiedad-card {
+      margin-bottom: 30px;
+  }
 }
+
 .btn-agregar {
-    padding: 15px 30px; /* Tamaño del botón */
-    font-size: 1.2rem; /* Tamaño de la fuente */
-    z-index: 1100; /* Asegura que esté encima de otros elementos */
-    border-radius: 50px; /* Forma redondeada para estética */
-    background-color: #007bff; /* Color azul */
-    color: white; /* Texto blanco */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para destacar */
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Animación suave */
+  padding: 15px 30px; /* Tamaño del botón */
+  font-size: 1.2rem; /* Tamaño de la fuente */
+  z-index: 1100; /* Asegura que esté encima de otros elementos */
+  border-radius: 50px; /* Forma redondeada para estética */
+  background-color: #007bff; /* Color azul */
+  color: white; /* Texto blanco */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para destacar */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Animación suave */
 }
 
 .btn-agregar:hover {
-    background-color: #0056b3; /* Color más oscuro al pasar el ratón */
-    transform: scale(1.1); /* Efecto de ampliación */
-}
-.position-fixed {
-    text-align: center;
-    width: 100%;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+  background-color: #0056b3; /* Color más oscuro al pasar el ratón */
+  transform: scale(1.1); /* Efecto de ampliación */
 }
 
+.position-fixed {
+  text-align: center;
+  width: 100%;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
 
 /* Mejora el espaciado y alineación de las etiquetas */
 form .form-group label {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
 }
 
 /* Mejora el aspecto de los campos de entrada */
 .form-control, .form-control-lg {
-    border-radius: 8px; /* Bordes redondeados */
-    padding: 15px; /* Más padding para una mayor facilidad de escritura */
+  border-radius: 8px; /* Bordes redondeados */
+  padding: 15px; /* Más padding para una mayor facilidad de escritura */
 }
 
 /* Estilo de los mensajes de error */
 .invalid-feedback {
-    font-size: 0.875rem;
-    color: #dc3545;
+  font-size: 0.875rem;
+  color: #dc3545;
 }
 
 /* Estilo de las casillas de verificación */
 input[type="checkbox"] {
-    margin-right: 8px; /* Espacio entre el checkbox y el texto */
+  margin-right: 8px; /* Espacio entre el checkbox y el texto */
 }
 
 /* Mejorar la apariencia de los botones */
 .btn-primary {
-    background-color: #007bff;
-    border-radius: 8px;
-    padding: 12px 20px; /* Botones más grandes */
-    text-transform: uppercase; /* Texto en mayúsculas */
-    transition: background-color 0.3s ease;
+  background-color: #007bff;
+  border-radius: 8px;
+  padding: 12px 20px; /* Botones más grandes */
+  text-transform: uppercase; /* Texto en mayúsculas */
+  transition: background-color 0.3s ease;
 }
 
-/* Botón de submit al pasar el ratón */
 .btn-primary:hover {
-    background-color: #0056b3;
+  background-color: #0056b3;
 }
 
 /* Mejorar el texto de ayuda */
 .form-text {
-    font-size: 0.9rem;
-    color: #6c757d; /* Color de texto gris */
-    margin-top: 5px;
+  font-size: 0.9rem;
+  color: #6c757d; /* Color de texto gris */
+  margin-top: 5px;
 }
 
 /* Mejorar el tamaño de las imágenes */
 input[type="file"] {
-    padding: 8px; /* Añadir padding para hacer más visible el área de carga */
+  padding: 8px; /* Añadir padding para hacer más visible el área de carga */
 }
 
 /* Estilos para los campos de texto grandes */
 textarea.form-control {
-    height: 150px; /* Altura del textarea */
-    resize: vertical; /* Permitir redimensionar solo en la dirección vertical */
+  height: 150px; /* Altura del textarea */
+  resize: vertical; /* Permitir redimensionar solo en la dirección vertical */
 }
+
 .image-thumbnail.selected {
-    border: 3px solid #007bff; /* Resaltar con un borde azul */
-    transform: scale(1.1); /* Ampliar la imagen seleccionada */
+  border: 3px solid #007bff; /* Resaltar con un borde azul */
+  transform: scale(1.1); /* Ampliar la imagen seleccionada */
 }
+
 .image-thumbnail:hover {
-    transform: scale(1.1);
+  transform: scale(1.1);
 }
+
 /* Estilos para los botones de editar y eliminar */
 .card-buttons {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    display: flex;
-    justify-content: space-between;
-    width: calc(100% - 20px); /* Asegura que los botones estén dentro del contenedor */
-    z-index: 10;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  justify-content: space-between;
+  width: calc(100% - 20px); /* Asegura que los botones estén dentro del contenedor */
+  z-index: 10;
 }
 
 /* Estilo del botón de editar (verde) */
 .btn-edit {
-    background-color: transparent; /* Sin fondo */
-    border: none; /* Sin borde */
-    padding: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
+  background-color: transparent; /* Sin fondo */
+  border: none; /* Sin borde */
+  padding: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
 }
 
 .btn-edit:hover {
-    transform: scale(1.1); /* Efecto de expansión */
+  transform: scale(1.1); /* Efecto de expansión */
 }
 
 .btn-edit img {
-    width: 30px; /* Tamaño aumentado */
-    height: 30px; /* Tamaño aumentado */
+  width: 30px; /* Tamaño aumentado */
+  height: 30px; /* Tamaño aumentado */
 }
 
 /* Estilo del botón de eliminar (rojo) */
 .btn-delete {
-    background-color: transparent; /* Sin fondo */
-    border: none; /* Sin borde */
-    padding: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
+  background-color: transparent; /* Sin fondo */
+  border: none; /* Sin borde */
+  padding: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
 }
 
 .btn-delete:hover {
-    transform: scale(1.1); /* Efecto de expansión */
+  transform: scale(1.1); /* Efecto de expansión */
 }
 
 .btn-delete img {
-    width: 30px; /* Tamaño aumentado */
-    height: 30px; /* Tamaño aumentado */
+  width: 30px; /* Tamaño aumentado */
+  height: 30px; /* Tamaño aumentado */
 }
 
 /* Carrusel de Imágenes */
 #propiedadCarousel .carousel-inner {
-    position: relative;
-    width: 100%;
-    height: 400px; /* Altura fija del carrusel */
-    overflow: hidden;
+  position: relative;
+  width: 100%;
+  height: 400px; /* Altura fija del carrusel */
+  overflow: hidden;
 }
 
 #propiedadCarousel .carousel-item img {
-    width: 100%;
-    height: 400px; /* Ajustar la altura para que todas las imágenes tengan el mismo tamaño */
-    object-fit: cover; /* Mantener el contenido de la imagen cubriendo el área sin distorsionarse */
+  width: 100%;
+  height: 400px; /* Ajustar la altura para que todas las imágenes tengan el mismo tamaño */
+  object-fit: cover; /* Mantener el contenido de la imagen cubriendo el área sin distorsionarse */
 }
 
 /* Controles del Carrusel */
 .carousel-control-prev-icon, .carousel-control-next-icon {
-    background-color: #007bff; /* Color de los controles */
-    border-radius: 50%;
+  background-color: #007bff; /* Color de los controles */
+  border-radius: 50%;
 }
 
 /* Indicadores del Carrusel (miniaturas) */
 .carousel-indicators img {
-    width: 50px;  /* Tamaño de las miniaturas */
-    height: 50px;
-    object-fit: cover;  /* Asegura que las miniaturas cubran el área sin distorsión */
-    border-radius: 5px;  /* Bordes redondeados */
+  width: 50px;  /* Tamaño de las miniaturas */
+  height: 50px;
+  object-fit: cover;  /* Asegura que las miniaturas cubran el área sin distorsión */
+  border-radius: 5px;  /* Bordes redondeados */
 }
 
 /* Estilos generales */
 .propiedad-title {
-    font-size: 2rem;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #333;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
 }
 
 .propiedad-details {
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .descripcion-container h3 {
-    font-size: 1.5rem;
-    margin-bottom: 15px;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
 }
 
 .descripcion-container p {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: #666;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #666;
 }
 
 .opiniones-container h3 {
-    font-size: 1.5rem;
-    margin-bottom: 15px;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
 }
 
 .opinion {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
 }
 
 .no-imagen {
-    padding: 20px;
-    background-color: #f0f0f0;
-    color: #666;
-    text-align: center;
-    border-radius: 8px;
-    font-size: 1rem;
+  padding: 20px;
+  background-color: #f0f0f0;
+  color: #666;
+  text-align: center;
+  border-radius: 8px;
+  font-size: 1rem;
 }
+
 .arrow {
-    font-size: 40px; /* Tamaño de las flechas */
-    cursor: pointer; /* Cursor en forma de mano al pasar por encima */
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%); /* Centrar verticalmente */
-    z-index: 10;
+  font-size: 40px; /* Tamaño de las flechas */
+  cursor: pointer; /* Cursor en forma de mano al pasar por encima */
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%); /* Centrar verticalmente */
+  z-index: 10;
 }
 
 .left-arrow {
-    left: 10px; /* Alineación a la izquierda */
+  left: 10px; /* Alineación a la izquierda */
 }
 
 .right-arrow {
-    right: 10px; /* Alineación a la derecha */
+  right: 10px; /* Alineación a la derecha */
 }
 
 .arrow img {
-    width: 40px; /* Tamaño de las imágenes de las flechas */
-    height: 40px;
-    transition: transform 0.2s ease-in-out;
+  width: 40px; /* Tamaño de las imágenes de las flechas */
+  height: 40px;
+  transition: transform 0.2s ease-in-out;
 }
 
-/* Elimina la rotación de la flecha derecha */
 .arrow img:hover {
-    transform: scale(1.2); /* Efecto de aumento en el hover */
+  transform: scale(1.2); /* Efecto de aumento en el hover */
 }
-
 
 .rating-stars {
-    display: flex;
-}
-.star {
-    font-size: 1.5rem;
-    color: #ccc;  /* Color de las estrellas vacías */
-}
-.star.filled {
-    color: #f39c12;  /* Color de las estrellas llenas */
+  display: flex;
 }
 
+.star {
+  font-size: 1.5rem;
+  color: #ccc;  /* Color de las estrellas vacías */
+}
+
+.star.filled {
+  color: #f39c12;  /* Color de las estrellas llenas */
+}
 
 input[type="date"]:invalid {
-    border-color: red; /* Cambia el borde a rojo */
+  border-color: red; /* Cambia el borde a rojo */
 }
 
 input[type="date"]:valid {
-    border-color: green; /* Opcional, cambia el borde a verde si es válido */
+  border-color: green; /* Opcional, cambia el borde a verde si es válido */
 }
+
 .text-truncate {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stars {
-    color: #f0ad4e; /* Color de las estrellas */
+  color: #f0ad4e; /* Color de las estrellas */
 }
 
 .stars .fa-star,
 .stars .fa-star-half-alt,
 .stars .far.fa-star {
-    margin-right: 2px; /* Espacio entre estrellas */
+  margin-right: 2px; /* Espacio entre estrellas */
 }
 
 .propiedad-card-wrapper {
-    position: relative;
+  position: relative;
 }
 
 .card {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.3s, box-shadow 0.3s; /* Animación suave para hover */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s, box-shadow 0.3s; /* Animación suave para hover */
 }
 
 .card:hover {
-    transform: translateY(-10px); /* Eleva la tarjeta al hacer hover */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+  transform: translateY(-10px); /* Eleva la tarjeta al hacer hover */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
 }
 
 .propiedad-card {
-    border: 2px solid #000000; /* Borde negro */
-    border-radius: 10px; /* Bordes redondeados */
-    overflow: hidden; /* Asegura que el contenido no se desborde */
-    background: #fff; /* Fondo blanco */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  border: 2px solid #000000; /* Borde negro */
+  border-radius: 10px; /* Bordes redondeados */
+  overflow: hidden; /* Asegura que el contenido no se desborde */
+  background: #fff; /* Fondo blanco */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
 }
 
 .card-image {
-    height: 200px;
-    overflow: hidden;
+  height: 250px; /* Altura fija para las imágenes */
+  overflow: hidden; /* Asegura que la imagen no sobresalga */
+  position: relative;
+  width: 100%; /* Asegura que la imagen ocupe todo el ancho disponible */
 }
 
 .card-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.no-imagen {
-    height: 100%;
+  width: 100%; /* Asegura que la imagen ocupe todo el contenedor */
+  height: 100%; /* Asegura que la imagen cubra todo el contenedor */
+  object-fit: cover; /* Hace que la imagen se recorte adecuadamente */
 }
 
 .card-body {
-    flex-grow: 1;
-    padding: 1rem; /* Asegura un buen espaciado interno */
-}
-
-.image-navigation {
-    position: absolute;
-    top: 50%; /* A mitad de altura */
-    transform: translateY(-50%); /* Centrado verticalmente */
-    z-index: 10;
-}
-/* Agrega animación de escala */
-.carousel-item {
-    transition: transform 0.5s ease-in-out;
-}
-
-.carousel-item.scale-up {
-    transform: scale(1.1);
-}
-
-.carousel-img {
-    transition: transform 0.5s ease-in-out;
-}
-.carousel-container {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-    padding-bottom: 40px;
-}
-
-.carousel-inner {
-    display: flex;
-    transition: transform 0.5s ease;
-}
-
-/* Tamaño fijo para la tarjeta */
-.carousel-card {
-    transition: transform 0.5s ease;
-    flex: 0 0 auto;
-    width: 300px; /* Ancho fijo para todas las tarjetas */
-    height: 480px; /* Altura fija para todas las tarjetas */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-sizing: border-box; /* Asegura que el padding no afecte al tamaño total */
-}
-
-/* Clase para hacer zoom en la tarjeta central */
-.carousel-card-center {
-    transform: scale(1.05); /* Aumenta ligeramente el tamaño de la tarjeta */
-    z-index: 10; /* Asegura que la tarjeta esté por encima de las otras */
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2); /* Sombra para resaltar la tarjeta */
-}
-
-/* Ajustamos la altura de la imagen para que todas tengan el mismo tamaño */
-.card-image {
-    height: 250px; /* Altura fija para las imágenes */
-    overflow: hidden; /* Asegura que la imagen no sobresalga */
-    position: relative;
-    width: 100%; /* Asegura que la imagen ocupe todo el ancho disponible */
-}
-
-.card-image img {
-    width: 100%; /* Asegura que la imagen ocupe todo el contenedor */
-    height: 100%; /* Asegura que la imagen cubra todo el contenedor */
-    object-fit: cover; /* Hace que la imagen se recorte adecuadamente */
-}
-
-/* Asegura que el contenido de la tarjeta no se desborde */
-.card-body {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
-    padding: 0 15px; /* Asegura espacio alrededor del contenido */
-    box-sizing: border-box; /* Asegura que el padding no afecte el tamaño */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 15px; /* Asegura espacio alrededor del contenido */
+  box-sizing: border-box; /* Asegura que el padding no afecte el tamaño */
 }
 
 .card-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    line-height: 1.2; /* Asegura que el título se ajuste bien */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap; /* Evita que el texto se desborde */
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.2; /* Asegura que el título se ajuste bien */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* Evita que el texto se desborde */
 }
 
 .card-text {
-    font-size: 1rem;
-    color: #666;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap; /* Evita que el texto se desborde */
+  font-size: 1rem;
+  color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* Evita que el texto se desborde */
 }
 
 .stars i {
-    color: #f4b400;
+  color: #f4b400;
 }
 
 /* Ajustes visuales para la hero */
-
 /* Estilo del botón */
 .btn-light {
-    background-color: #ffffff;
-    color: #007bff;
-    border: none;
-    padding: 12px 30px;
-    font-size: 1.1rem;
-    font-weight: 500;
-    border-radius: 30px;
-    transition: background-color 0.3s, color 0.3s;
+  background-color: #ffffff;
+  color: #007bff;
+  border: none;
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  border-radius: 30px;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .btn-light:hover {
-    background-color: #007bff;
-    color: #ffffff;
-}
-/* Estilos específicos para la barra lateral y los filtros */
-.fixed-left {
-    width: 350px; /* Ajusta este valor al ancho que desees */
-    position: fixed;
-    left: 0;
-    top: 85px; /* Ajuste para no superponer con el navbar */
-    height: calc(100vh - 110px); /* Mantiene la altura dinámica */
-    z-index: 1000;
-    overflow-y: auto;
-    background-color: #333;
-    color: #fff;
-    padding: 20px;
-    box-sizing: border-box;
-    margin: 10px 20px 5px 25px;
-    /*
-      1º en la parte superior,
-      2º en la parte derecha,
-      3º en la parte inferior,
-      4º en la parte izquierda.
-    */
+  background-color: #007bff;
+  color: #ffffff;
 }
 
-.fixed-left input[type="text"], 
-.fixed-left input[type="number"], 
+/* Estilos específicos para la barra lateral y los filtros */
+.fixed-left {
+  width: 350px; /* Ajusta este valor al ancho que desees */
+  position: fixed;
+  left: 0;
+  top: 85px; /* Ajuste para no superponer con el navbar */
+  height: calc(100vh - 110px); /* Mantiene la altura dinámica */
+  z-index: 1000;
+  overflow-y: auto;
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  box-sizing: border-box;
+  margin: 10px 20px 5px 25px;
+  /*
+    1º en la parte superior,
+    2º en la parte derecha,
+    3º en la parte inferior,
+    4º en la parte izquierda.
+  */
+}
+
+.fixed-left input[type="text"],
+.fixed-left input[type="number"],
 .fixed-left select {
-    width: 100%; /* Ocupa todo el ancho del contenedor */
-    padding: 4px; /* Reducido para hacerlos más pequeños */
-    margin: 5px 0; /* Reducido para hacerlos más pequeños */
-    box-sizing: border-box;
-    background-color: #fff;
-    color: #333;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  width: 100%; /* Ocupa todo el ancho del contenedor */
+  padding: 4px; /* Reducido para hacerlos más pequeños */
+  margin: 5px 0; /* Reducido para hacerlos más pequeños */
+  box-sizing: border-box;
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .fixed-left label {
-    font-size: 14px; /* Tamaño original */
-    margin-bottom: 5px;
-    display: block;
+  font-size: 14px; /* Tamaño original */
+  margin-bottom: 5px;
+  display: block;
 }
 
 .fixed-left button {
-    width: 100%;
-    padding: 8px; /* Reducido para hacerlos más pequeños */
-    margin-top: 10px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  width: 100%;
+  padding: 8px; /* Reducido para hacerlos más pequeños */
+  margin-top: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .fixed-left button:hover {
-    background-color: #0056b3; /* Efecto hover */
+  background-color: #0056b3; /* Efecto hover */
 }
 
 /* CSS específico para la barra de filtro de precios */
 .slider-container {
-    width: 100%; /* Ocupa todo el ancho */
-    margin: 10px 0; /* Reducido para hacerlos más pequeños */
+  width: 100%; /* Ocupa todo el ancho */
+  margin: 10px 0; /* Reducido para hacerlos más pequeños */
 }
 
 .range-slider {
-    position: relative;
-    width: 100%;
-    height: 8px;
-    background: #ddd;
-    margin-bottom: 20px; /* Ajustado para evitar solapamientos */
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: #ddd;
+  margin-bottom: 20px; /* Ajustado para evitar solapamientos */
 }
 
 .range-slider input[type="range"] {
-    position: absolute;
-    width: 100%;
-    height: 8px;
-    background: none;
-    pointer-events: none;
-    -webkit-appearance: none;
-    z-index: 2;
+  position: absolute;
+  width: 100%;
+  height: 8px;
+  background: none;
+  pointer-events: none;
+  -webkit-appearance: none;
+  z-index: 2;
 }
 
 .range-slider input[type="range"]::-webkit-slider-thumb {
-    pointer-events: auto;
-    position: relative;
-    z-index: 3;
-    -webkit-appearance: none;
-    appearance: none;
-    width: 16px; /* Reducido para hacerlos más pequeños */
-    height: 16px; /* Reducido para hacerlos más pequeños */
-    background: #007bff;
-    border-radius: 50%;
-    cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+  z-index: 3;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px; /* Reducido para hacerlos más pequeños */
+  height: 16px; /* Reducido para hacerlos más pequeños */
+  background: #007bff;
+  border-radius: 50%;
+  cursor: pointer;
 }
 
 .range-slider input[type="range"]::-moz-range-thumb {
-    pointer-events: auto;
-    position: relative;
-    z-index: 3;
-    width: 16px; /* Reducido para hacerlos más pequeños */
-    height: 16px; /* Reducido para hacerlos más pequeños */
-    background: #007bff;
-    border-radius: 50%;
-    cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+  z-index: 3;
+  width: 16px; /* Reducido para hacerlos más pequeños */
+  height: 16px; /* Reducido para hacerlos más pequeños */
+  background: #007bff;
+  border-radius: 50%;
+  cursor: pointer;
 }
 
 .range-slider input[type="range"].thumb-lower::-webkit-slider-thumb {
-    z-index: 4;
+  z-index: 4;
 }
 
 .range-slider input[type="range"].thumb-lower::-moz-range-thumb {
-    z-index: 4;
+  z-index: 4;
 }
 
 .price-range {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px; /* Espaciado adicional para evitar solapamientos */
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px; /* Espaciado adicional para evitar solapamientos */
 }
 
 .price-range input {
-    width: 45%; /* Distribución pareja */
-    text-align: center;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 3px; /* Reducido para hacerlos más pequeños */
-    position: relative; /* Añadido para contener el span */
+  width: 45%; /* Distribución pareja */
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 3px; /* Reducido para hacerlos más pequeños */
+  position: relative; /* Añadido para contener el span */
 }
 
 .price-range span {
-    position: absolute;
-    right: 5px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none; /* El span no interferirá con la entrada de texto */
-    color: #000;
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none; /* El span no interferirá con la entrada de texto */
+  color: #000;
 }
 
 /* Desactivar animaciones en la card de filtros */
 .no-animation {
-    opacity: 1; /* Asegúrate de que la card esté completamente visible sin animación */
-    transition: none !important; /* Desactiva todas las transiciones */
+  opacity: 1; /* Asegúrate de que la card esté completamente visible sin animación */
+  transition: none !important; /* Desactiva todas las transiciones */
 }
 
 .no-animation:hover {
-    transform: none !important; /* Asegúrate de que no haya transformaciones al pasar el ratón */
-    transition: none !important; /* Desactiva las transiciones en el estado de hover */
+  transform: none !important; /* Asegúrate de que no haya transformaciones al pasar el ratón */
+  transition: none !important; /* Desactiva las transiciones en el estado de hover */
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* Estilo para los fondos suaves según el estado */
 .bg-soft-success {
-    background-color: rgba(76, 175, 80, 0.1); /* Verde claro */
+  background-color: rgba(76, 175, 80, 0.1); /* Verde claro */
 }
+
 .bg-soft-warning {
-    background-color: rgba(255, 193, 7, 0.1); /* Amarillo claro */
+  background-color: rgba(255, 193, 7, 0.1); /* Amarillo claro */
 }
+
 .bg-soft-danger {
-    background-color: rgba(244, 67, 54, 0.1); /* Rojo claro */
+  background-color: rgba(244, 67, 54, 0.1); /* Rojo claro */
 }
 
 /* Estilo para la leyenda-card */
 .leyenda-card {
-    background-color: #2d2d2d;
-    border: 4px solid #007bff;
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    width: 100%;
-    height: auto;
-    margin: 0 auto;
+  background-color: #2d2d2d;
+  border: 4px solid #007bff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
 }
+
 .leyenda-card p {
-    color: #ffffff;
-    font-weight: bold;
-    margin-bottom: 10px;
+  color: #ffffff;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
+
 .leyenda-card ul {
-    padding-left: 20px;
+  padding-left: 20px;
 }
+
 .leyenda-card li {
-    margin-bottom: 8px;
-    color: #d1d1d1;
-    font-size: 16px;
+  margin-bottom: 8px;
+  color: #d1d1d1;
+  font-size: 16px;
 }
+
 .leyenda-card li span {
-    font-weight: bold;
+  font-weight: bold;
 }
+
 .leyenda-card .text-success {
-    color: #4CAF50;
+  color: #4CAF50;
 }
+
 .leyenda-card .text-warning {
-    color: #FFC107;
+  color: #FFC107;
 }
+
 .leyenda-card .text-danger {
-    color: #F44336;
+  color: #F44336;
 }
 
 /* Estilo base para las reservas */
 .reserva-card {
-    margin-bottom: 20px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 /* Animación al pasar el ratón */
 .reserva-card:hover {
-    transform: scale(1.03);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+  transform: scale(1.03);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
 }
