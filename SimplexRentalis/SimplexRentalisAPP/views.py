@@ -11,23 +11,42 @@ from .forms import RegistroForm, ConfiguracionCuentaForm
 from django.shortcuts import render
 from .models import Propiedades
 from random import sample
+from random import sample
+from django.shortcuts import render
+
+from django.shortcuts import render
+from .models import Propiedades
+
+from django.shortcuts import render
+from .models import Propiedades
+from django.shortcuts import render
+from .models import Propiedades
 
 def index(request):
-    all_properties = Propiedades.objects.order_by('-calificacion')[:100]
+    query = request.GET.get('q', None)
+    
+    # Optimizamos la consulta incluyendo las imágenes de la galería
+    mejor_calificadas = Propiedades.objects.prefetch_related('gallery_images') \
+                            .order_by('-calificacion')[:5]
+    propiedades = Propiedades.objects.prefetch_related('gallery_images').all()
+    
+    # Asignar la imagen de portada a cada propiedad de las mejor calificadas
+    for propiedad in mejor_calificadas:
+        portada = propiedad.gallery_images.filter(portada=True).order_by('id').first()
+        if not portada:
+            portada = propiedad.gallery_images.order_by('id').first()
+        propiedad.portada = portada.imagen.url if portada else "/static/images/default_property.jpg"
+    
+    # Puedes agregar lógica adicional para 'propiedades' si lo requieres
 
-    if len(all_properties) < 8:
-        propiedades_mejor_calificadas = []  # Lista vacía si no hay suficientes propiedades
-    else:
-        propiedades_mejor_calificadas = sample(list(all_properties), 8)
+    context = {
+        'mejor_calificadas': mejor_calificadas,
+        'propiedades': propiedades,
+        'query': query,
+    }
+    
+    return render(request, 'SimplexRentalisAPP/index.html', context)
 
-        for propiedad in propiedades_mejor_calificadas:
-            portada = propiedad.gallery_images.filter(portada=True).first()
-            propiedad.portada = portada if portada else None  # Imagen predeterminada opcional
-
-    return render(request, 'SimplexRentalisAPP/index.html', {
-        'propiedades_mejor_calificadas': propiedades_mejor_calificadas,
-        'no_hay_propiedades': len(all_properties) < 8  # Variable para el template
-    })
 
 from django.db.models import Q, Min, Max
 from django.shortcuts import render
