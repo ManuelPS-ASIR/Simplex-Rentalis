@@ -54,6 +54,8 @@ SESSION_COOKIE_AGE = 3600  # 1 hora en segundos
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Opcional: Elimina la sesión cuando el navegador se cierra
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -62,6 +64,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 ROOT_URLCONF = 'SimplexRentalis.urls'
 
@@ -129,7 +133,7 @@ USE_I18N = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-STATIC_ROOT = '/staticfiles/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
 
 STATIC_URL = '/static/'  # URL base para acceder a los archivos estáticos
 

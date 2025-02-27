@@ -6,7 +6,8 @@ from django.core.management.base import BaseCommand
 DIRECTORIOS = [
     "media",
     "static/comand_admin/fotos1",
-    "static/comand_admin/fotos2"
+    "static/comand_admin/fotos2",
+    "static/defaults"
 ]
 
 # Extensiones válidas para conversión

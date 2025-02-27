@@ -5,7 +5,8 @@
 {% endblock %}
 
 {% block extra_css %}
-<style>
+  <!-- CSS Crítico Inline: estilos esenciales para el renderizado inmediato -->
+  <style>
     /* Estilos para la card personalizada */
     .card-custom {
         width: 250px;  /* Nuevo ancho */
@@ -68,7 +69,13 @@
         background-color: rgba(0, 0, 0, 1);
         padding: 0.5rem;
     }
-</style>
+  </style>
+
+  <!-- Cargar de forma asíncrona el CSS no crítico -->
+  <link rel="preload" href="/static/css/non-critical.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="/static/css/non-critical.css">
+  </noscript>
 {% endblock %}
 
 {% block content %}
@@ -137,4 +144,3 @@
 </section>
 
 {% endblock %}
-
