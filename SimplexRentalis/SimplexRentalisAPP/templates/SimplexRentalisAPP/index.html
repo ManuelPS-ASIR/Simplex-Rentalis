@@ -132,8 +132,9 @@
                         <!-- Imagen de la propiedad con lazy loading -->
                         <div class="card-image" style="height: 250px; overflow: hidden;">
                             <img src="{{ propiedad.portada }}" class="img-fluid card-img-top" 
-                                 alt="Imagen de {{ propiedad.nombre }}" width="900" height="250" 
-                                 loading="lazy">
+                            alt="Imagen de {{ propiedad.nombre }}" width="900" height="250" 
+                            loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+
                         </div>
                         <!-- Detalles de la propiedad -->
                         <div class="card-body p-4" style="flex-grow: 1; text-align: center;">

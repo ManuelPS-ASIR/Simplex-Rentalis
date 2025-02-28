@@ -19,7 +19,8 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
   
     <!-- Favicon -->
-    <link rel="icon" href="{% static 'defaults/favicon.ico' %}">
+    <link rel="icon" href="{% static 'defaults/favicon.ico' %}" sizes="32x32">
+
   
     <!-- HOLA, ESTO ES UNA MODIFICACIOŃ -->
   </head>
@@ -31,7 +32,13 @@
       <div class="d-flex align-items-center">
         <!-- Nombre de la aplicación con logo -->
         <a href="/" class="menu-item text-light d-flex align-items-center me-3">
-          <img src="{% static 'defaults/logo.webp' %}" alt="Logo de SimplexRentalis" style="width: 30px; height: 30px; margin-right: 10px;">
+          <picture>
+            <source srcset="{% static 'defaults/logo.webp' %} 400w, {% static 'defaults/logo.webp' %} 800w, {% static 'defaults/logo.webp' %} 1200w" sizes="(max-width: 400px) 30px, (max-width: 800px) 40px, 50px">
+            <img src="{% static 'defaults/logo.webp' %}" alt="Logo de SimplexRentalis" style="width: 50px; height: 50px; margin-right: 10px;" loading="lazy">
+          </picture>
+          
+        
+
           SimplexRentalis
         </a>
 
@@ -88,9 +95,23 @@
             <!-- El dropdown del usuario -->
             <a href="#" class="d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
               {% if user.avatar %}
-                <img src="{{ user.avatar.url }}" alt="Avatar de {{ user.username }}" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
+                <img 
+                  src="{{ user.avatar.url }}" 
+                  srcset="{{ user.avatar.url|add:'?width=400' }} 400w, {{ user.avatar.url|add:'?width=800' }} 800w, {{ user.avatar.url|add:'?width=1200' }} 1200w" 
+                  sizes="(max-width: 400px) 30px, (max-width: 800px) 40px, 50px" 
+                  alt="Avatar de {{ user.username }}" 
+                  class="rounded-circle" 
+                  style="width: 30px; height: 30px; margin-right: 10px;" 
+                  loading="lazy">
               {% else %}
-                <img src="/media/defaults/default_avatar.png" alt="Avatar por defecto" class="rounded-circle" style="width: 30px; height: 30px; margin-right: 10px;">
+                <img 
+                  src="/media/defaults/default_avatar.webp" 
+                  srcset="/media/defaults/default_avatar_small.webp 400w, /media/defaults/default_avatar_medium.webp 800w, /media/defaults/default_avatar_large.webp 1200w" 
+                  sizes="(max-width: 400px) 30px, (max-width: 800px) 40px, 50px" 
+                  alt="Avatar por defecto" 
+                  class="rounded-circle" 
+                  style="width: 30px; height: 30px; margin-right: 10px;" 
+                  loading="lazy">
               {% endif %}
               <span class="text-light">{{ user.username }}</span>
             </a>
