@@ -12,7 +12,7 @@ Propiedad en detalle
         <div class="propiedad-image" style="flex: 3; position: relative;">
             <div class="image-navigation" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); z-index: 10;">
                 <span class="arrow left-arrow" onclick="changeImageByArrow('prev')" style="cursor: pointer;">
-                    <img src="{% static 'defaults/flecha-izquierda.png' %}" alt="Flecha Izquierda" style="width: 50px; opacity: 0.7; filter: drop-shadow(2px 2px 4px #444);">
+                    <img src="{% static 'defaults/flecha-izquierda.webp' %}" alt="Flecha Izquierda" style="width: 50px; opacity: 0.7; filter: drop-shadow(2px 2px 4px #444);">
                 </span>
             </div>
 
@@ -35,7 +35,7 @@ Propiedad en detalle
 
             <div class="image-navigation" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); z-index: 10;">
                 <span class="arrow right-arrow" onclick="changeImageByArrow('next')" style="cursor: pointer;">
-                    <img src="{% static 'defaults/flecha-derecha.png' %}" alt="Flecha Derecha" style="width: 50px; opacity: 0.7; filter: drop-shadow(2px 2px 4px #444);">
+                    <img src="{% static 'defaults/flecha-derecha.webp' %}" alt="Flecha Derecha" style="width: 50px; opacity: 0.7; filter: drop-shadow(2px 2px 4px #444);">
                 </span>
             </div>
         </div>
@@ -97,7 +97,7 @@ Propiedad en detalle
     <div class="contacto-container" style="background-color: #f1f1f1; padding: 20px; border-radius: 10px; margin-bottom: 40px;">
         <h3>Contacto</h3>
         <div style="display: flex; align-items: center;">
-            <img src="{% if propiedades.propietario.avatar %}{{ propiedades.propietario.avatar.url }}{% else %}/media/defaults/default_avatar.png{% endif %}" alt="Avatar" style="width: 60px; height: 60px; border-radius: 50%; margin-right: 20px;">
+            <img src="{% if propiedades.propietario.avatar %}{{ propiedades.propietario.avatar.url }}{% else %}/media/defaults/default_avatar.webp{% endif %}" alt="Avatar" style="width: 60px; height: 60px; border-radius: 50%; margin-right: 20px;">
             <div>
                 <p><strong>Dueño:</strong> {{ propiedades.propietario.username }}</p>
                 <p><strong>Teléfono:</strong> {{ propiedades.propietario.telefono }}</p>
@@ -116,13 +116,13 @@ Propiedad en detalle
                     <div style="display: flex; align-items: center; margin-right: 10px;">
                         <span class="likes-count" style="font-size: 20px;">{{ opinion.likes }}</span>
                         <button type="button" class="like-btn" style="background: none; border: none; cursor: pointer;">
-                            <img src="{% static 'defaults/like.png' %}" alt="Me gusta" style="width: 20px; height: 20px;">
+                            <img src="{% static 'defaults/like.webp' %}" alt="Me gusta" style="width: 20px; height: 20px;">
                         </button>
                     </div>
                     <div style="display: flex; align-items: center;">
                         <span class="dislikes-count" style="font-size: 20px;">{{ opinion.dislikes }}</span>
                         <button type="button" class="dislike-btn" style="background: none; border: none; cursor: pointer;">
-                            <img src="{% static 'defaults/like.png' %}" alt="No me gusta" style="width: 20px; height: 20px; transform: rotate(180deg);">
+                            <img src="{% static 'defaults/like.webp' %}" alt="No me gusta" style="width: 20px; height: 20px; transform: rotate(180deg);">
                         </button>
                     </div>
                 </div>
@@ -222,11 +222,11 @@ Propiedad en detalle
             var dislikeButton = opinionElement.querySelector('.dislike-btn img');
 
             if (getLikeState(opinionId)) {
-                likeButton.src = '{% static "defaults/like_pressed.png" %}';
+                likeButton.src = '{% static "defaults/like_pressed.webp" %}';
             }
 
             if (getDislikeState(opinionId)) {
-                dislikeButton.src = '{% static "defaults/like_pressed.png" %}';
+                dislikeButton.src = '{% static "defaults/like_pressed.webp" %}';
             }
         });
     });
@@ -236,7 +236,7 @@ Propiedad en detalle
         button.addEventListener('click', function() {
             var opinionId = this.closest('.opinion').getAttribute('data-opinion-id');
             var currentImage = this.querySelector('img').src;
-            var isLiked = currentImage.includes('like_pressed.png');
+            var isLiked = currentImage.includes('like_pressed.webp');
 
             saveLikeState(opinionId, !isLiked);
         });
@@ -246,7 +246,7 @@ Propiedad en detalle
         button.addEventListener('click', function() {
             var opinionId = this.closest('.opinion').getAttribute('data-opinion-id');
             var currentImage = this.querySelector('img').src;
-            var isDisliked = currentImage.includes('like_pressed.png');
+            var isDisliked = currentImage.includes('like_pressed.webp');
 
             saveDislikeState(opinionId, !isDisliked);
         });
@@ -270,7 +270,7 @@ Propiedad en detalle
             var opinionId = this.closest('.opinion').getAttribute('data-opinion-id');
             var currentImage = this.querySelector('img').src;
 
-            if (currentImage.includes('like_pressed.png')) {
+            if (currentImage.includes('like_pressed.webp')) {
                 // Quitar el voto de "like"
                 fetch(`/opinion/${opinionId}/like/`, {
                     method: 'DELETE',
@@ -286,7 +286,7 @@ Propiedad en detalle
                         var opinionElement = this.closest('.opinion');
                         opinionElement.querySelector('.likes-count').innerText = data.likes;
                         opinionElement.querySelector('.dislikes-count').innerText = data.dislikes;
-                        this.querySelector('img').src = '{% static "defaults/like.png" %}';
+                        this.querySelector('img').src = '{% static "defaults/like.webp" %}';
                         saveLikeState(opinionId, false);
                     }
                 }).catch(error => console.log(error));
@@ -306,12 +306,12 @@ Propiedad en detalle
                         var opinionElement = this.closest('.opinion');
                         opinionElement.querySelector('.likes-count').innerText = data.likes;
                         opinionElement.querySelector('.dislikes-count').innerText = data.dislikes;
-                        this.querySelector('img').src = '{% static "defaults/like_pressed.png" %}';
+                        this.querySelector('img').src = '{% static "defaults/like_pressed.webp" %}';
                         saveLikeState(opinionId, true);
 
                         var dislikeButton = opinionElement.querySelector('.dislike-btn img');
-                        if (dislikeButton && dislikeButton.src.includes('like_pressed.png')) {
-                            dislikeButton.src = '{% static "defaults/like.png" %}';
+                        if (dislikeButton && dislikeButton.src.includes('like_pressed.webp')) {
+                            dislikeButton.src = '{% static "defaults/like.webp" %}';
                             saveDislikeState(opinionId, false);
                         }
                     }
@@ -326,7 +326,7 @@ Propiedad en detalle
             var opinionId = this.closest('.opinion').getAttribute('data-opinion-id');
             var currentImage = this.querySelector('img').src;
 
-            if (currentImage.includes('like_pressed.png')) {
+            if (currentImage.includes('like_pressed.webp')) {
                 // Quitar el voto de "dislike"
                 fetch(`/opinion/${opinionId}/dislike/`, {
                     method: 'DELETE',
@@ -342,7 +342,7 @@ Propiedad en detalle
                         var opinionElement = this.closest('.opinion');
                         opinionElement.querySelector('.likes-count').innerText = data.likes;
                         opinionElement.querySelector('.dislikes-count').innerText = data.dislikes;
-                        this.querySelector('img').src = '{% static "defaults/like.png" %}';
+                        this.querySelector('img').src = '{% static "defaults/like.webp" %}';
                         saveDislikeState(opinionId, false);
                     }
                 }).catch(error => console.log(error));
@@ -362,12 +362,12 @@ Propiedad en detalle
                         var opinionElement = this.closest('.opinion');
                         opinionElement.querySelector('.likes-count').innerText = data.likes;
                         opinionElement.querySelector('.dislikes-count').innerText = data.dislikes;
-                        this.querySelector('img').src = '{% static "defaults/like_pressed.png" %}';
+                        this.querySelector('img').src = '{% static "defaults/like_pressed.webp" %}';
                         saveDislikeState(opinionId, true);
 
                         var likeButton = opinionElement.querySelector('.like-btn img');
-                        if (likeButton && likeButton.src.includes('like_pressed.png')) {
-                            likeButton.src = '{% static "defaults/like.png" %}';
+                        if (likeButton && likeButton.src.includes('like_pressed.webp')) {
+                            likeButton.src = '{% static "defaults/like.webp" %}';
                             saveLikeState(opinionId, false);
                         }
                     }
