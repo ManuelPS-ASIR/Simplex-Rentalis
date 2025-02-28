@@ -40,7 +40,7 @@
         overflow: auto; /* Asegura que el contenido se ajuste en lugar de desbordarse */
     }
 
-    .card-body h5 {
+    .card-body h3 {
         margin-bottom: 1rem;
     }
 
@@ -70,6 +70,27 @@
         background-color: rgba(0, 0, 0, 1);
         padding: 0.5rem;
     }
+
+    /* Mejora de contraste para botones con clase btn-light (para todos) */
+    .btn.btn-light {
+      color: #000 !important;       /* Texto en negro para mayor contraste */
+      background-color: #fff !important; /* Fondo blanco */
+      border-color: #ccc !important;    /* Borde contrastante */
+    }
+
+    /* Específico para botones outline-light */
+    a.btn.btn-outline-light.me-3 {
+      color: #000 !important;       /* Texto en negro */
+      border-color: #000 !important; /* Borde en negro */
+      background-color: transparent;
+    }
+
+    /* Específico para botones btn-light de gran tamaño */
+    a.btn.btn-light.btn-lg.mt-3 {
+      color: #000 !important;       /* Texto en negro */
+      background-color: #fff !important; /* Fondo blanco */
+      border-color: #000 !important;     /* Borde en negro para mayor contraste */
+    }
   </style>
 
   <!-- Cargar de forma asíncrona el CSS no crítico -->
@@ -86,7 +107,10 @@
     <div class="container">
         <h1 class="display-4">¡Bienvenido a SimplexRentalis!</h1>
         <p class="lead">Encuentra la casa de tus sueños para tus vacaciones con nosotros.</p>
-        <a href="{% url 'propiedades' %}" class="btn btn-light btn-lg mt-3">Explora nuestras propiedades</a>
+        <a href="{% url 'propiedades' %}" class="btn btn-light btn-lg mt-3" 
+        style="color: #0056b3 !important; background-color: white !important; border-color: #004494 !important;">
+        Explora nuestras propiedades
+        </a>
     </div>
 </section>
 
@@ -108,9 +132,10 @@
                         </div>
                         <!-- Detalles de la propiedad -->
                         <div class="card-body p-4" style="flex-grow: 1; text-align: center;">
-                            <h5 class="card-title text-truncate">
+                            <!-- Se cambió de h5 a h3 para mantener una jerarquía coherente -->
+                            <h3 class="card-title text-truncate">
                                 {{ propiedad.nombre }} - <span class="text-primary">{{ propiedad.precio_noche }}€</span>
-                            </h5>
+                            </h3>
                             <p class="card-text text-muted text-truncate">{{ propiedad.direccion }}</p>
                             <p class="text-muted">
                                 {{ propiedad.calificacion|default:"-" }}
