@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}
     SimplexRentalis
@@ -72,9 +73,9 @@
   </style>
 
   <!-- Cargar de forma asíncrona el CSS no crítico -->
-  <link rel="preload" href="/static/css/non-critical.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="{% static 'css/non-critical.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript>
-    <link rel="stylesheet" href="/static/css/non-critical.css">
+    <link rel="stylesheet" href="{% static 'css/non-critical.css' %}">
   </noscript>
 {% endblock %}
 
