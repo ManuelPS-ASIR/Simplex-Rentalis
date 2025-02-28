@@ -8,6 +8,7 @@ from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
 from django.utils import timezone
 import re
+from PIL import Image  # Importamos Pillow para procesar imágenes
 
 class User(AbstractUser):
     email = models.EmailField(unique=True, max_length=254)
@@ -69,6 +70,17 @@ class User(AbstractUser):
             if edad < 18:
                 raise ValidationError("El usuario debe ser mayor de 18 años.")
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # Guardamos primero para tener acceso al archivo
+        if self.avatar:
+            try:
+                img = Image.open(self.avatar.path)
+                max_size = (300, 300)  # Definimos un tamaño máximo deseado para el avatar
+                img.thumbnail(max_size, Image.ANTIALIAS)
+                img.save(self.avatar.path, optimize=True, quality=85)
+            except Exception as e:
+                # En caso de error, se puede loguear o simplemente pasar
+                pass
 
 @receiver(user_logged_in)
 def actualizar_ultimo_acceso(sender, request, user, **kwargs):
@@ -226,13 +238,14 @@ class Propiedades(models.Model):
 ###### 1.1. Modelo de Galeria ######
 ####################################
 from django.db import models
+from PIL import Image  # Importamos Pillow para el procesamiento de imágenes
 
 class Galeria(models.Model):
     id = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey('Propiedades', related_name='gallery_images', on_delete=models.CASCADE)
     imagen = models.ImageField(upload_to='propiedades/', null=False, blank=False)
     descripcion = models.CharField(max_length=255, blank=True, null=True)
-    portada = models.BooleanField(default=False)  # Si es la imagen principal de la propiedad
+    portada = models.BooleanField(default=False)  # Indica si es la imagen principal de la propiedad
 
     class Meta:
         verbose_name = 'Imagen de la propiedad'
@@ -240,6 +253,18 @@ class Galeria(models.Model):
 
     def __str__(self):
         return f"Imagen de {self.propiedad.nombre} - {self.id}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # Guardamos primero la imagen
+        if self.imagen:
+            try:
+                img = Image.open(self.imagen.path)
+                max_size = (800, 600)  # Ajusta este tamaño según las necesidades de tu proyecto
+                img.thumbnail(max_size, Image.ANTIALIAS)
+                img.save(self.imagen.path, optimize=True, quality=85)
+            except Exception as e:
+                # Manejo de errores si ocurre algún problema al procesar la imagen
+                pass
 ####################################
 ##### 2. Modelo de Reservas #######
 ####################################
