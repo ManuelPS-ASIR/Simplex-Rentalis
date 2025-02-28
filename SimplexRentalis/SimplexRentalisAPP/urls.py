@@ -49,4 +49,4 @@ urlpatterns = [
 
     # Eliminar la ruta 'buscar/' ya que ahora todo se maneja con 'propiedades/'
     # path('buscar/', views.buscar_propiedades, name='buscar_propiedades'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -100,7 +100,7 @@
             <div class="carousel-item {% if forloop.first %}active{% endif %}">
                 <a href="{% url 'propiedad_detallada' propiedad.pk %}" class="text-decoration-none">
                     <div class="card card-custom shadow-sm rounded-3 overflow-hidden" style="display: flex; flex-direction: column; width: 900px; margin: 0 auto;">
-                        <!-- Imagen de la propiedad -->
+                        <!-- Imagen de la propiedad con lazy loading -->
                         <div class="card-image" style="height: 250px; overflow: hidden;">
                             <img src="{{ propiedad.portada }}" class="img-fluid card-img-top" 
                                  alt="Imagen de {{ propiedad.nombre }}" width="900" height="250" 
@@ -145,4 +145,10 @@
     {% endif %}
 </section>
 
+{% endblock %}
+
+{% block extra_js %}
+  <!-- Cargar scripts al final del documento con 'defer' para evitar bloquear el renderizado -->
+  <script src="{% static 'js/bootstrap.bundle.min.js' %}" defer></script>
+  <script src="{% static 'js/custom.js' %}" defer></script>
 {% endblock %}
